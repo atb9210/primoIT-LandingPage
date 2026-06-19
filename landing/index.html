@@ -59,17 +59,15 @@
       height: 68px;
     }
     .logo {
-      display: flex; align-items: center; gap: 10px;
-      font-weight: 700; font-size: 1.2rem; color: #fff; text-decoration: none;
+      display: flex; align-items: center;
+      text-decoration: none;
     }
-    .logo-icon {
-      width: 36px; height: 36px; background: var(--lime);
-      border-radius: 8px; display: flex; align-items: center; justify-content: center;
-    }
-    .logo-icon svg { width: 20px; height: 20px; }
+    .logo img { height: 44px; width: auto; display: block; }
     .nav-links { display: flex; align-items: center; gap: 32px; }
     .nav-links a { color: var(--text-light); text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: color .2s; }
     .nav-links a:hover { color: #fff; }
+    .nav-links a.btn-lime { color: var(--navy-dark); }
+    .nav-links a.btn-lime:hover { color: var(--navy-dark); }
     .btn-lime {
       background: var(--lime); color: var(--navy-dark);
       border: none; border-radius: 8px;
@@ -499,17 +497,7 @@
 <!-- ── NAVBAR ── -->
 <nav>
   <a href="#" class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="6" width="20" height="12" rx="2" fill="#0F1F3A"/>
-        <rect x="5" y="9" width="14" height="7" rx="1" fill="#0F1F3A" stroke="#0F1F3A"/>
-        <path d="M2 18h20M8 21h8" stroke="#0F1F3A" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="17" cy="12.5" r="1.5" fill="#D4FF3A"/>
-        <rect x="5" y="10" width="8" height="1.5" rx=".75" fill="#D4FF3A"/>
-        <rect x="5" y="13" width="5" height="1.5" rx=".75" fill="#D4FF3A"/>
-      </svg>
-    </div>
-    PrimoIT
+    <img src="images/logo.png" alt="PrimoIT" width="110" height="80" loading="eager" decoding="async">
   </a>
   <div class="nav-links" id="navLinks">
     <a href="#servizi">Servizi</a>
@@ -816,15 +804,7 @@
   <div class="footer-grid">
     <div>
       <div class="footer-logo">
-        <div class="logo-icon" style="width:28px;height:28px;">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;">
-            <rect x="2" y="6" width="20" height="12" rx="2" fill="#0F1F3A"/>
-            <circle cx="17" cy="12.5" r="1.5" fill="#D4FF3A"/>
-            <rect x="5" y="10" width="8" height="1.5" rx=".75" fill="#D4FF3A"/>
-            <rect x="5" y="13" width="5" height="1.5" rx=".75" fill="#D4FF3A"/>
-          </svg>
-        </div>
-        PrimoIT
+        <img src="images/logo.png" alt="PrimoIT" height="36" style="width:auto;display:block;" loading="lazy" decoding="async">
       </div>
       <p class="footer-tagline">Laptop ricondizionati business per studi professionali, uffici e PMI. ThinkPad, Dell, HP grado A con garanzia 12 mesi.</p>
     </div>
@@ -842,7 +822,7 @@
         <li><a href="#" onclick="openModal('privacy')">Privacy Policy</a></li>
         <li><a href="#" onclick="openModal('cookie')">Cookie Policy</a></li>
         <li><a href="#" onclick="openModal('terms')">Termini e Condizioni</a></li>
-        <li>P.IVA: PLACEHOLDER</li>
+        <li>P.IVA: 05621560266</li>
       </ul>
     </div>
   </div>
@@ -991,15 +971,56 @@
   var MODALS = {
     privacy: {
       title: 'Privacy Policy',
-      content: '<p>PrimoIT raccoglie i dati personali (nome, telefono, nome azienda) esclusivamente per rispondere alle richieste di preventivo. I dati non vengono ceduti a terzi e vengono conservati per il tempo strettamente necessario alla gestione della richiesta.</p><p>Titolare del trattamento: PrimoIT, P.IVA PLACEHOLDER. Per esercitare i diritti GDPR (accesso, rettifica, cancellazione) scrivi a info@primoit.it.</p>'
+      content: '<p><strong>Ultimo aggiornamento: giugno 2025</strong></p>'
+        + '<p><strong>Titolare del trattamento:</strong> PrimoIT, P.IVA 05621560266. Contatto: info@primoit.it</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Dati raccolti</h3>'
+        + '<p>PrimoIT raccoglie i seguenti dati personali tramite il modulo di richiesta preventivo: nome e cognome, numero di telefono, nome dello studio o azienda, tipo di attività. I dati vengono forniti volontariamente dall\'utente.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Finalità e base giuridica</h3>'
+        + '<p>I dati sono trattati esclusivamente per rispondere alla richiesta di preventivo e per contattare l\'utente via WhatsApp o telefono (base giuridica: esecuzione di misure precontrattuali, art. 6 c. 1 lett. b GDPR). Non vengono utilizzati per finalità di marketing senza consenso esplicito.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Conservazione</h3>'
+        + '<p>I dati sono conservati per il tempo strettamente necessario alla gestione della richiesta e comunque non oltre 24 mesi dall\'ultimo contatto.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Condivisione</h3>'
+        + '<p>I dati non vengono ceduti, venduti o comunicati a terzi, salvo obblighi di legge. Possono essere trattati da responsabili del trattamento (es. provider hosting) che offrono garanzie adeguate ai sensi del GDPR.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Diritti dell\'interessato</h3>'
+        + '<p>Ai sensi degli artt. 15–22 GDPR hai diritto di accesso, rettifica, cancellazione, limitazione, portabilità e opposizione al trattamento. Per esercitarli scrivi a info@primoit.it. Hai inoltre il diritto di proporre reclamo al Garante per la Protezione dei Dati Personali (www.garanteprivacy.it).</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Facebook Pixel</h3>'
+        + '<p>Il sito utilizza Facebook Pixel (Meta Platforms Ireland Ltd.) per la misurazione delle conversioni pubblicitarie. Questo strumento può raccogliere dati tecnici (indirizzo IP, browser, pagine visitate). Puoi gestire le preferenze su <a href="https://www.facebook.com/settings?tab=ads" style="color:#D4FF3A">facebook.com/settings</a> o tramite il banner cookie.</p>'
     },
     cookie: {
       title: 'Cookie Policy',
-      content: '<p>Questo sito utilizza cookie tecnici necessari al funzionamento e cookie di analisi/marketing (Facebook Pixel) per misurare le conversioni delle campagne pubblicitarie. Puoi disabilitare i cookie di marketing nelle impostazioni del browser.</p><p>I cookie tecnici non richiedono consenso. I cookie di marketing vengono attivati solo dopo il consenso implicito alla navigazione.</p>'
+      content: '<p><strong>Ultimo aggiornamento: giugno 2025</strong></p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Cosa sono i cookie</h3>'
+        + '<p>I cookie sono piccoli file di testo salvati nel browser quando visiti un sito. Permettono al sito di ricordare informazioni sulla tua visita.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Cookie tecnici (necessari)</h3>'
+        + '<p>Questi cookie sono indispensabili per il corretto funzionamento del sito. Non raccolgono dati personali identificativi e non richiedono consenso.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Cookie di analisi e marketing</h3>'
+        + '<p><strong>Facebook Pixel (_fbp, _fbc):</strong> cookie di tracciamento di Meta Platforms Ireland Ltd., utilizzati per misurare l\'efficacia delle nostre campagne pubblicitarie su Facebook e Instagram. Raccolgono informazioni anonimizzate sulle azioni compiute nel sito (visualizzazioni pagina, invio modulo). Durata: 90 giorni.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Come gestire i cookie</h3>'
+        + '<p>Puoi disabilitare i cookie di marketing in qualsiasi momento dalle impostazioni del tuo browser oppure tramite le impostazioni pubblicitarie di Meta: <a href="https://www.facebook.com/settings?tab=ads" style="color:#D4FF3A">facebook.com/settings</a>.</p>'
+        + '<p>La disabilitazione dei cookie tecnici potrebbe compromettere il corretto funzionamento del sito.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">Contatti</h3>'
+        + '<p>Per informazioni: info@primoit.it — PrimoIT, P.IVA 05621560266</p>'
     },
     terms: {
       title: 'Termini e Condizioni',
-      content: '<p>PrimoIT è un rivenditore di hardware ricondizionato certificato. I preventivi non costituiscono offerta vincolante fino alla conferma scritta da parte di PrimoIT. La garanzia di 12 mesi copre difetti di funzionamento hardware; non copre danni da uso improprio, cadute o liquidi.</p><p>Per qualsiasi controversia si applica la legge italiana e il foro competente è quello della sede legale di PrimoIT.</p>'
+      content: '<p><strong>Ultimo aggiornamento: giugno 2025</strong></p>'
+        + '<p>Accedendo a questo sito web accetti i presenti Termini e Condizioni. Se non li accetti, ti preghiamo di non utilizzare il sito.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">1. Chi siamo</h3>'
+        + '<p>PrimoIT, P.IVA 05621560266, è un\'azienda italiana di consulenza informatica IT, servizi e rivenditore hardware ricondizionato certificato (laptop, notebook e dispositivi IT business). Contatto: info@primoit.it</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">2. Servizi offerti</h3>'
+        + '<p>Il sito consente agli utenti di richiedere un preventivo gratuito per l\'acquisto di laptop ricondizionati business. La richiesta di preventivo non costituisce offerta vincolante né contratto di acquisto. Il contratto si perfeziona solo con la conferma scritta da parte di PrimoIT e il pagamento concordato.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">3. Prodotti e garanzia</h3>'
+        + '<p>I dispositivi venduti da PrimoIT sono ricondizionati, testati e certificati. Il grado di ricondizionamento standard è grado A; su richiesta sono disponibili preventivi su misura con grading differente. La garanzia di 12 mesi copre difetti di funzionamento hardware nelle condizioni normali d\'uso. Sono esclusi dalla garanzia: danni da cadute, urti, liquidi, manomissioni o uso improprio. Per attivare la garanzia contatta info@primoit.it entro il periodo di copertura.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">4. Prezzi e pagamenti</h3>'
+        + '<p>I prezzi indicati nei preventivi sono IVA inclusa salvo diversa indicazione. PrimoIT si riserva il diritto di modificare i prezzi prima della conferma dell\'ordine. La fattura aziendale viene emessa a seguito del pagamento.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">5. Proprietà intellettuale</h3>'
+        + '<p>Tutti i contenuti del sito (testi, immagini, loghi, grafica) sono di proprietà di PrimoIT o utilizzati su licenza. È vietata la riproduzione, distribuzione o uso commerciale senza autorizzazione scritta.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">6. Limitazione di responsabilità</h3>'
+        + '<p>PrimoIT non è responsabile per danni indiretti, perdita di dati o mancato guadagno derivanti dall\'uso del sito o dei prodotti acquistati, nei limiti previsti dalla legge italiana applicabile.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">7. Legge applicabile e foro competente</h3>'
+        + '<p>I presenti Termini sono regolati dalla legge italiana. Per qualsiasi controversia il foro competente è quello della sede legale di PrimoIT, salvo diversa disposizione obbligatoria a tutela del consumatore.</p>'
+        + '<h3 style="color:#fff;margin:16px 0 8px">8. Contatti</h3>'
+        + '<p>PrimoIT — P.IVA 05621560266 — info@primoit.it</p>'
     }
   };
   function openModal(type) {
