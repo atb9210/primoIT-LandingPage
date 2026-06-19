@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrimoIT — Laptop ricondizionati business per uffici e PMI</title>
+  <meta name="description" content="PC e laptop ricondizionati business certificati per studi professionali, uffici e PMI. ThinkPad, Dell, HP grado A con garanzia 12 mesi, fattura aziendale e consegna in 48h.">
+  <meta name="facebook-domain-verification" content="PLACEHOLDER_DOMAIN_VERIFICATION" />
+  <meta property="og:title" content="PrimoIT — Il tuo ufficio, equipaggiato. In 48 ore.">
+  <meta property="og:description" content="Laptop ricondizionati business per studi, uffici e PMI. ThinkPad, Dell e HP grado A con garanzia 12 mesi.">
+  <meta property="og:type" content="website">
+
+  <!-- Facebook Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', 'PLACEHOLDER_PIXEL_ID');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=PLACEHOLDER_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
+
+  <!-- Fonts lazy loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,700;1,800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,700;1,800&display=swap"></noscript>
+
+  <!-- Icons lazy loading -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0F1F3A;
+      --navy-dark: #0A1428;
+      --navy-card: #162038;
+      --off-white: #F8F9FB;
+      --lime: #D4FF3A;
+      --lime-hover: #C2F020;
+      --text-light: rgba(255,255,255,0.70);
+      --text-dark: #0A0E1A;
+      --border-card: rgba(255,255,255,0.08);
+    }
+
+    html { scroll-behavior: smooth; font-family: 'Inter', system-ui, sans-serif; }
+
+    body { background: var(--navy); color: #fff; overflow-x: hidden; }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,31,58,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-card);
+      padding: 0 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 1.2rem; color: #fff; text-decoration: none;
+    }
+    .logo-icon {
+      width: 36px; height: 36px; background: var(--lime);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 20px; height: 20px; }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a { color: var(--text-light); text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: #fff; }
+    .btn-lime {
+      background: var(--lime); color: var(--navy-dark);
+      border: none; border-radius: 8px;
+      padding: 10px 20px; font-weight: 700; font-size: 0.88rem;
+      cursor: pointer; transition: background .2s, transform .1s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-lime:hover { background: var(--lime-hover); transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent; color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 8px; padding: 10px 20px;
+      font-weight: 600; font-size: 0.88rem;
+      cursor: pointer; transition: border-color .2s, background .2s;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-outline:hover { border-color: #fff; background: rgba(255,255,255,0.06); }
+    .nav-mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--navy);
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: stretch;
+      padding: 0 0 0 5%;
+      gap: 0;
+    }
+    .hero-content {
+      max-width: 560px;
+      padding: 120px 60px 80px 0;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(212,255,58,0.12); border: 1px solid rgba(212,255,58,0.3);
+      border-radius: 100px; padding: 6px 14px; margin-bottom: 28px;
+      font-size: 0.8rem; font-weight: 600; color: var(--lime);
+    }
+    h1 {
+      font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+      font-weight: 800; font-style: italic;
+      line-height: 1.08; letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    h1 span { color: var(--lime); }
+    .hero-sub {
+      font-size: 1.05rem; color: var(--text-light);
+      line-height: 1.65; margin-bottom: 36px; max-width: 460px;
+    }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 48px; }
+    .hero-ctas .btn-lime { padding: 14px 28px; font-size: 0.95rem; border-radius: 10px; }
+    .hero-ctas .btn-outline { padding: 14px 24px; font-size: 0.95rem; border-radius: 10px; }
+
+    /* Hero form */
+    .hero-form {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-card);
+      border-radius: 16px; padding: 28px;
+    }
+    .hero-form p { font-size: 0.82rem; color: var(--text-light); margin-bottom: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .form-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .form-row input, .form-row select, .hero-form input, .hero-form select {
+      flex: 1; min-width: 0;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 12px 14px;
+      color: #fff; font-size: 0.9rem; font-family: inherit;
+      outline: none; transition: border-color .2s;
+      width: 100%;
+    }
+    .form-row input::placeholder, .hero-form input::placeholder { color: rgba(255,255,255,0.35); }
+    .form-row input:focus, .form-row select:focus, .hero-form input:focus, .hero-form select:focus {
+      border-color: var(--lime);
+    }
+    .form-row select option { background: var(--navy-dark); color: #fff; }
+    .hero-form select { margin-bottom: 10px; }
+    .form-submit { width: 100%; margin-top: 6px; padding: 14px; font-size: 0.97rem; border-radius: 10px; }
+    .form-privacy { font-size: 0.72rem; color: rgba(255,255,255,0.3); text-align: center; margin-top: 10px; }
+    .form-privacy a { color: rgba(255,255,255,0.45); }
+
+    /* Hero panel (right lime side) */
+    .hero-panel {
+      background: #DCFF5E;
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px 0;
+    }
+    .hero-circuit {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+    /* Hero image */
+    .hero-image-wrap {
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 1;
+    }
+    .hero-image-wrap img {
+      width: 110%; max-width: 110%; height: auto;
+      filter: drop-shadow(0 30px 50px rgba(0,0,0,0.35));
+      opacity: 0; transition: opacity .5s ease;
+    }
+    .hero-image-wrap img.loaded { opacity: 1; }
+
+    /* ── TRUST STRIP ── */
+    .trust-strip {
+      background: var(--off-white); padding: 28px 5%;
+      display: flex; flex-wrap: wrap;
+      align-items: center; justify-content: center; gap: 8px 40px;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.88rem; font-weight: 600; color: var(--text-dark);
+      white-space: nowrap;
+    }
+    .trust-item i { color: var(--navy); font-size: 1rem; }
+
+    /* ── SEZIONE GENERICA ── */
+    section { padding: 96px 5%; }
+    .section-label {
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--lime); margin-bottom: 12px;
+    }
+    h2 {
+      font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+      font-weight: 800; line-height: 1.15; letter-spacing: -0.02em;
+    }
+    h2 em { font-style: italic; }
+    .section-sub {
+      font-size: 1.05rem; line-height: 1.65; margin-top: 14px;
+      max-width: 560px;
+    }
+    .section-sub.dark { color: var(--text-light); }
+    .section-sub.light-text { color: #555; }
+
+    /* ── PERCHÉ PRIMOIT ── */
+    .perche-section { background: var(--off-white); }
+    .perche-section h2, .perche-section .section-label { color: var(--text-dark); }
+    .perche-section .section-label { color: var(--navy); }
+    .perche-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 28px; margin-top: 56px;
+    }
+    .perche-card {
+      background: #fff; border: 1px solid #E8EAF0;
+      border-radius: 16px; padding: 32px 28px;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .perche-card:hover { box-shadow: 0 8px 32px rgba(15,31,58,0.1); transform: translateY(-3px); }
+    .perche-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(15,31,58,0.06);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .perche-icon i { color: var(--navy); font-size: 1.2rem; }
+    .perche-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; }
+    .perche-card p { font-size: 0.9rem; color: #555; line-height: 1.6; }
+
+    /* ── PER CHI LAVORIAMO ── */
+    .perchi-section { background: var(--navy); }
+    .perchi-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 20px; margin-top: 56px;
+    }
+    .perchi-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px; padding: 28px 24px;
+      transition: border-color .2s, transform .2s;
+    }
+    .perchi-card:hover { border-color: rgba(212,255,58,0.35); transform: translateY(-3px); }
+    .perchi-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: rgba(212,255,58,0.1);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .perchi-icon i { color: var(--lime); font-size: 1.1rem; }
+    .perchi-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .perchi-card p { font-size: 0.85rem; color: var(--text-light); line-height: 1.55; }
+
+    /* ── COME FUNZIONA ── */
+    .funziona-section { background: var(--off-white); }
+    .funziona-section h2, .funziona-section .section-label { color: var(--text-dark); }
+    .funziona-section .section-label { color: var(--navy); }
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0; margin-top: 64px; position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute; top: 32px; left: 10%; right: 10%;
+      height: 2px; background: linear-gradient(to right, var(--lime), rgba(212,255,58,0.2));
+      z-index: 0;
+    }
+    .step { text-align: center; padding: 0 20px; position: relative; z-index: 1; }
+    .step-number {
+      font-size: 3.5rem; font-weight: 800; color: var(--lime);
+      line-height: 1; margin-bottom: 20px;
+      font-style: italic;
+    }
+    .step h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+    .step p { font-size: 0.85rem; color: #666; line-height: 1.55; }
+
+    /* ── PERCHÉ RICONDIZIONATO ── */
+    .ricondi-section { background: var(--navy); }
+    .ricondi-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+    .ricondi-text h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); }
+    .ricondi-text .section-sub.dark { margin-bottom: 28px; }
+    .check-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .check-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 0.95rem; color: var(--text-light); line-height: 1.5;
+    }
+    .check-list li::before {
+      content: '✓';
+      color: var(--lime); font-weight: 700; font-size: 0.9rem;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .compare-table {
+      background: var(--navy-card); border: 1px solid var(--border-card);
+      border-radius: 16px; overflow: hidden;
+    }
+    .compare-table table { width: 100%; border-collapse: collapse; }
+    .compare-table th {
+      padding: 16px 20px; text-align: left;
+      font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+      background: rgba(255,255,255,0.04);
+    }
+    .compare-table th:first-child { color: var(--text-light); }
+    .compare-table th:nth-child(2) { color: var(--text-light); text-align: center; }
+    .compare-table th:nth-child(3) { color: var(--lime); text-align: center; }
+    .compare-table td {
+      padding: 14px 20px; border-top: 1px solid var(--border-card);
+      font-size: 0.88rem; color: var(--text-light);
+    }
+    .compare-table td:nth-child(2), .compare-table td:nth-child(3) { text-align: center; }
+    .compare-table td:nth-child(3) { color: var(--lime); font-weight: 600; }
+    .badge-lime {
+      display: inline-block; background: var(--lime); color: var(--navy-dark);
+      border-radius: 6px; padding: 3px 10px; font-size: 0.78rem; font-weight: 700;
+    }
+
+    /* ── FAQ ── */
+    .faq-section { background: var(--off-white); }
+    .faq-section h2, .faq-section .section-label { color: var(--text-dark); }
+    .faq-section .section-label { color: var(--navy); }
+    .faq-list { max-width: 760px; margin: 56px auto 0; display: flex; flex-direction: column; gap: 12px; }
+    .faq-item {
+      background: #fff; border: 1px solid #E8EAF0;
+      border-radius: 12px; overflow: hidden;
+    }
+    .faq-question {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; cursor: pointer;
+      font-weight: 600; font-size: 0.97rem; color: var(--text-dark);
+      user-select: none;
+    }
+    .faq-toggle {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--lime); color: var(--navy-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 700; flex-shrink: 0;
+      transition: transform .3s;
+    }
+    .faq-item.open .faq-toggle { transform: rotate(45deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height .35s ease, padding .35s ease;
+      padding: 0 24px;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; padding: 0 24px 20px; }
+    .faq-answer p { font-size: 0.9rem; color: #555; line-height: 1.7; }
+
+    /* ── FINAL CTA ── */
+    .final-cta {
+      background: var(--navy);
+      text-align: center; padding: 120px 5%;
+      position: relative; overflow: hidden;
+    }
+    .final-cta::before {
+      content: '';
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(212,255,58,0.06) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .final-cta h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-style: italic; margin-bottom: 20px; position: relative;
+    }
+    .final-cta p { color: var(--text-light); font-size: 1.05rem; margin-bottom: 40px; position: relative; }
+    .final-cta .btn-lime { padding: 18px 40px; font-size: 1.05rem; border-radius: 12px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--navy-dark); padding: 56px 5% 32px;
+      border-top: 1px solid var(--border-card);
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 48px; margin-bottom: 48px;
+    }
+    .footer-logo { font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .footer-tagline { font-size: 0.85rem; color: var(--text-light); line-height: 1.6; }
+    footer h4 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-light); margin-bottom: 16px; }
+    footer ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    footer ul li a, footer ul li {
+      font-size: 0.88rem; color: rgba(255,255,255,0.55); text-decoration: none;
+      transition: color .2s; display: flex; align-items: center; gap: 8px;
+    }
+    footer ul li a:hover { color: #fff; }
+    footer ul li i { font-size: 0.85rem; color: var(--lime); }
+    .footer-bottom {
+      border-top: 1px solid var(--border-card); padding-top: 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-bottom p { font-size: 0.78rem; color: rgba(255,255,255,0.3); }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a { font-size: 0.78rem; color: rgba(255,255,255,0.35); text-decoration: none; }
+    .footer-legal a:hover { color: rgba(255,255,255,0.6); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: var(--navy-dark); border: 1px solid var(--border-card);
+      border-radius: 20px; max-width: 600px; width: 100%;
+      max-height: 80vh; overflow-y: auto; padding: 40px;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(255,255,255,0.08); border: none; border-radius: 50%;
+      width: 36px; height: 36px; color: #fff; font-size: 1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-box h2 { font-size: 1.4rem; margin-bottom: 20px; }
+    .modal-box p { font-size: 0.88rem; color: var(--text-light); line-height: 1.7; margin-bottom: 12px; }
+
+    /* ── FORM MODAL ── */
+    .form-modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .form-modal-overlay.active { display: flex; }
+    .form-modal-box {
+      background: var(--navy-dark);
+      border: 1px solid var(--border-card);
+      border-radius: 20px; max-width: 480px; width: 100%;
+      padding: 40px; position: relative;
+      animation: modalIn .25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .form-modal-box .form-modal-title {
+      font-size: 1.3rem; font-weight: 700; color: #fff;
+      margin-bottom: 24px; letter-spacing: -0.01em;
+    }
+    .form-modal-box .form-modal-title span { color: var(--lime); }
+    .form-modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(255,255,255,0.08); border: none; border-radius: 50%;
+      width: 36px; height: 36px; color: #fff; font-size: 1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .form-modal-close:hover { background: rgba(255,255,255,0.15); }
+    .form-modal-box input, .form-modal-box select {
+      display: block; width: 100%; box-sizing: border-box;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 12px 14px;
+      color: #fff; font-size: 0.9rem; font-family: inherit;
+      outline: none; transition: border-color .2s; margin-bottom: 10px;
+    }
+    .form-modal-box input::placeholder { color: rgba(255,255,255,0.35); }
+    .form-modal-box input:focus, .form-modal-box select:focus { border-color: var(--lime); }
+    .form-modal-box select option { background: var(--navy-dark); color: #fff; }
+    .form-modal-box .form-row { display: flex; gap: 10px; margin-bottom: 0; }
+    .form-modal-box .form-row input { flex: 1; min-width: 0; margin-bottom: 10px; }
+    .form-modal-box .form-submit { width: 100%; margin-top: 6px; padding: 14px; font-size: 0.97rem; border-radius: 10px; }
+    .form-modal-box .form-privacy { font-size: 0.72rem; color: rgba(255,255,255,0.3); text-align: center; margin-top: 10px; }
+    .form-modal-box .form-privacy a { color: rgba(255,255,255,0.45); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 0; min-height: auto; }
+      .hero-content { padding: 80px 5% 40px; max-width: 100%; }
+      .hero-panel { order: -1; min-height: 320px; }
+      .hero-image-wrap img { max-width: 300px; }
+      .perche-grid { grid-template-columns: 1fr; }
+      .perchi-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+      .steps-grid::before { display: none; }
+      .ricondi-inner { grid-template-columns: 1fr; gap: 36px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .nav-links { display: none; }
+      .nav-mobile-toggle { display: block; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 68px; left: 0; right: 0; background: var(--navy-dark); padding: 20px 5%; border-bottom: 1px solid var(--border-card); gap: 16px; }
+    }
+    @media (max-width: 600px) {
+      .perchi-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .hero-ctas { flex-direction: column; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="6" width="20" height="12" rx="2" fill="#0F1F3A"/>
+        <rect x="5" y="9" width="14" height="7" rx="1" fill="#0F1F3A" stroke="#0F1F3A"/>
+        <path d="M2 18h20M8 21h8" stroke="#0F1F3A" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="17" cy="12.5" r="1.5" fill="#D4FF3A"/>
+        <rect x="5" y="10" width="8" height="1.5" rx=".75" fill="#D4FF3A"/>
+        <rect x="5" y="13" width="5" height="1.5" rx=".75" fill="#D4FF3A"/>
+      </svg>
+    </div>
+    PrimoIT
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="#servizi">Servizi</a>
+    <a href="#come-funziona">Come funziona</a>
+    <a href="#faq">FAQ</a>
+    <a href="#" onclick="openFormModal(); return false;" class="btn-lime">Richiedi preventivo</a>
+  </div>
+  <button class="nav-mobile-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Menu">☰</button>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <i class="fas fa-bolt"></i> Consegna in 48 ore
+    </div>
+    <h1>Il tuo ufficio,<br>equipaggiato.<br><span>In 48 ore.</span></h1>
+    <p class="hero-sub">PC ricondizionati business per studi, uffici e PMI. ThinkPad, Dell e HP grado A — gli stessi usati dalle aziende, a metà prezzo.</p>
+    <div class="hero-ctas">
+      <button onclick="openFormModal()" class="btn-lime"><i class="fas fa-file-alt" style="margin-right:8px"></i>Richiedi preventivo gratuito →</button>
+      <a href="https://wa.me/393274894895" target="_blank" rel="noopener" class="btn-outline"><i class="fab fa-whatsapp"></i> WhatsApp diretto</a>
+    </div>
+  </div>
+
+  <div class="hero-panel">
+    <!-- Circuit board decorative SVG -->
+    <svg class="hero-circuit" viewBox="0 0 600 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="none" stroke="#1a3800" stroke-width="1.2">
+        <!-- Horizontal traces -->
+        <line x1="0" y1="80"  x2="600" y2="80"/>
+        <line x1="0" y1="180" x2="600" y2="180"/>
+        <line x1="0" y1="280" x2="600" y2="280"/>
+        <line x1="0" y1="380" x2="600" y2="380"/>
+        <line x1="0" y1="480" x2="600" y2="480"/>
+        <line x1="0" y1="580" x2="600" y2="580"/>
+        <!-- Vertical traces -->
+        <line x1="80"  y1="0" x2="80"  y2="700"/>
+        <line x1="180" y1="0" x2="180" y2="700"/>
+        <line x1="280" y1="0" x2="280" y2="700"/>
+        <line x1="380" y1="0" x2="380" y2="700"/>
+        <line x1="480" y1="0" x2="480" y2="700"/>
+        <line x1="580" y1="0" x2="580" y2="700"/>
+        <!-- L-shaped corner traces -->
+        <polyline points="80,280 130,280 130,180 180,180"/>
+        <polyline points="280,80 280,130 380,130 380,180"/>
+        <polyline points="480,280 530,280 530,380 480,380"/>
+        <polyline points="180,480 180,530 280,530 280,580"/>
+        <polyline points="380,480 430,480 430,580 480,580"/>
+      </g>
+      <!-- Junction dots -->
+      <g fill="#1a3800">
+        <circle cx="80"  cy="80"  r="3.5"/>
+        <circle cx="180" cy="80"  r="3.5"/>
+        <circle cx="280" cy="80"  r="3.5"/>
+        <circle cx="380" cy="80"  r="3.5"/>
+        <circle cx="480" cy="80"  r="3.5"/>
+        <circle cx="80"  cy="180" r="3.5"/>
+        <circle cx="180" cy="180" r="3.5"/>
+        <circle cx="280" cy="180" r="3.5"/>
+        <circle cx="380" cy="180" r="3.5"/>
+        <circle cx="480" cy="180" r="3.5"/>
+        <circle cx="80"  cy="280" r="3.5"/>
+        <circle cx="180" cy="280" r="3.5"/>
+        <circle cx="280" cy="280" r="3.5"/>
+        <circle cx="380" cy="280" r="3.5"/>
+        <circle cx="480" cy="280" r="3.5"/>
+        <circle cx="80"  cy="380" r="3.5"/>
+        <circle cx="180" cy="380" r="3.5"/>
+        <circle cx="280" cy="380" r="3.5"/>
+        <circle cx="380" cy="380" r="3.5"/>
+        <circle cx="480" cy="380" r="3.5"/>
+        <circle cx="80"  cy="480" r="3.5"/>
+        <circle cx="180" cy="480" r="3.5"/>
+        <circle cx="280" cy="480" r="3.5"/>
+        <circle cx="380" cy="480" r="3.5"/>
+        <circle cx="480" cy="480" r="3.5"/>
+        <!-- Extra component pads -->
+        <rect x="75"  y="173" width="10" height="14" rx="2"/>
+        <rect x="375" y="273" width="10" height="14" rx="2"/>
+        <rect x="275" y="473" width="10" height="14" rx="2"/>
+      </g>
+    </svg>
+    <div class="hero-image-wrap">
+      <img src="images/laptop-hero.png" alt="Laptop business ricondizionato ThinkPad" width="560" height="420" loading="eager" decoding="async" onload="this.classList.add('loaded')">
+    </div>
+  </div>
+</section>
+
+<!-- ── TRUST STRIP ── -->
+<div class="trust-strip">
+  <div class="trust-item"><i class="fas fa-shield-alt"></i> Garanzia 12 mesi</div>
+  <div class="trust-item"><i class="fas fa-file-invoice"></i> Fattura aziendale</div>
+  <div class="trust-item"><i class="fas fa-sliders-h"></i> Configurazione inclusa</div>
+  <div class="trust-item"><i class="fas fa-truck"></i> Consegna in 48h</div>
+  <div class="trust-item"><i class="fas fa-recycle"></i> Smaltimento RAEE</div>
+</div>
+
+<!-- ── PERCHÉ PRIMOIT ── -->
+<section class="perche-section" id="servizi">
+  <div style="text-align:center; max-width:640px; margin:0 auto 0;">
+    <div class="section-label">Perché sceglierci</div>
+    <h2 style="color:var(--text-dark)">Il partner IT che <em>si prende cura</em> del tuo ufficio</h2>
+    <p class="section-sub light-text">Non vendiamo solo hardware. Offriamo un servizio completo: dalla scelta alla configurazione, fino alla garanzia post-vendita.</p>
+  </div>
+  <div class="perche-grid">
+    <div class="perche-card">
+      <div class="perche-icon"><i class="fas fa-sliders-h"></i></div>
+      <h3>Configurazione su misura</h3>
+      <p>Ogni PC viene selezionato, testato e configurato in base alle tue esigenze specifiche. Software preinstallato, impostazioni pronte all'uso.</p>
+    </div>
+    <div class="perche-card">
+      <div class="perche-icon"><i class="fas fa-shield-alt"></i></div>
+      <h3>Garanzia 12 mesi reale</h3>
+      <p>Non è una formula. Se si rompe, lo risolviamo noi. Supporto tecnico diretto senza intermediari, entro 48 ore lavorative.</p>
+    </div>
+    <div class="perche-card">
+      <div class="perche-icon"><i class="fas fa-file-invoice"></i></div>
+      <h3>Fattura e RAEE inclusi</h3>
+      <p>Fattura elettronica con IVA inclusa per ogni acquisto. Smaltimento certificato RAEE dell'hardware vecchio compreso nel servizio.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── PER CHI LAVORIAMO ── -->
+<section class="perchi-section">
+  <div style="max-width:640px">
+    <div class="section-label">Per chi lavoriamo</div>
+    <h2><em>Per chi lavoriamo</em></h2>
+    <p class="section-sub dark">Serviamo professionisti e imprese che vogliono dotarsi di tecnologia affidabile senza pagare il prezzo del nuovo.</p>
+  </div>
+  <div class="perchi-grid">
+    <div class="perchi-card">
+      <div class="perchi-icon"><i class="fas fa-gavel"></i></div>
+      <h3>Studi professionali</h3>
+      <p>Avvocati, commercialisti, notai, architetti. Workstation stabili per lavoro intensivo e gestione documentale.</p>
+    </div>
+    <div class="perchi-card">
+      <div class="perchi-icon"><i class="fas fa-building"></i></div>
+      <h3>Piccole e medie imprese</h3>
+      <p>Rinnovo parco macchine aziendale, aggiornamento postazioni, acquisti multipli con sconto volume.</p>
+    </div>
+    <div class="perchi-card">
+      <div class="perchi-icon"><i class="fas fa-paint-brush"></i></div>
+      <h3>Agenzie e uffici</h3>
+      <p>Creativi, marketing, comunicazione. MacBook e ThinkPad ricondizionati per team che lavorano ovunque.</p>
+    </div>
+    <div class="perchi-card">
+      <div class="perchi-icon"><i class="fas fa-user-tie"></i></div>
+      <h3>Partite IVA</h3>
+      <p>Freelance e consulenti che cercano un laptop affidabile, detraibile al 100%, pronto in 48 ore.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── COME FUNZIONA ── -->
+<section class="funziona-section" id="come-funziona">
+  <div style="text-align:center; max-width:640px; margin:0 auto;">
+    <div class="section-label">Il processo</div>
+    <h2 style="color:var(--text-dark)">Come funziona</h2>
+    <p class="section-sub light-text">Quattro passi semplici per avere il tuo ufficio equipaggiato in meno di 72 ore.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step">
+      <div class="step-number">01</div>
+      <h3>Ci racconti cosa vi serve</h3>
+      <p>Compilate il form o scriveteci su WhatsApp. Numero di postazioni, utilizzo, budget.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">02</div>
+      <h3>Ti chiamiamo entro 24h</h3>
+      <p>Un nostro tecnico vi contatta per definire la configurazione ideale per la vostra attività.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">03</div>
+      <h3>Ricevi due preventivi</h3>
+      <p>Vi inviamo due opzioni su misura: base e premium. Nessun impegno, nessuna pressione.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">04</div>
+      <h3>Consegna in 48–72h</h3>
+      <p>Confermate e il vostro ufficio è equipaggiato in meno di tre giorni lavorativi.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── PERCHÉ RICONDIZIONATO ── -->
+<section class="ricondi-section">
+  <div class="ricondi-inner">
+    <div class="ricondi-text">
+      <div class="section-label">Perché ricondizionato?</div>
+      <h2>Stessa qualità,<br><em>metà del prezzo.</em></h2>
+      <p class="section-sub dark">I laptop ricondizionati business provengono da grandi aziende che li sostituiscono ogni 2-3 anni. Sono testati, ricertificati e pronti a durare altri 5+ anni.</p>
+      <ul class="check-list" style="margin-top: 28px;">
+        <li>Risparmio fino al 60% rispetto al prezzo di listino nuovo</li>
+        <li>Stesso hardware dei modelli aziendali top di gamma</li>
+        <li>Testati su 200+ punti di controllo prima della vendita</li>
+        <li>SSD NVMe ricondizionati o sostituiti, RAM espansa</li>
+        <li>Windows 11 Pro originale preinstallato e attivato</li>
+      </ul>
+    </div>
+    <div class="compare-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Caratteristica</th>
+            <th>Nuovo</th>
+            <th>PrimoIT Business</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ThinkPad T14 i5 16GB</td>
+            <td>€ 1.299</td>
+            <td><span class="badge-lime">€ 549</span></td>
+          </tr>
+          <tr>
+            <td>Garanzia</td>
+            <td>12 mesi</td>
+            <td>12 mesi ✓</td>
+          </tr>
+          <tr>
+            <td>Configurazione</td>
+            <td>❌ A pagamento</td>
+            <td>✓ Inclusa</td>
+          </tr>
+          <tr>
+            <td>Smaltimento RAEE</td>
+            <td>❌ Non incluso</td>
+            <td>✓ Incluso</td>
+          </tr>
+          <tr>
+            <td>Consegna</td>
+            <td>5–15 giorni</td>
+            <td>48–72h ✓</td>
+          </tr>
+          <tr>
+            <td>Fattura aziendale</td>
+            <td>✓</td>
+            <td>✓</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section class="faq-section" id="faq">
+  <div style="text-align:center; max-width:640px; margin:0 auto;">
+    <div class="section-label">Domande frequenti</div>
+    <h2 style="color:var(--text-dark)">Hai dubbi? Le risposte</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        Che differenza c'è tra un laptop ricondizionato e uno usato?
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        <p>Un laptop ricondizionato business è un dispositivo revisionato professionalmente: viene testato su 200+ punti di controllo, le componenti usurate vengono sostituite (batteria, SSD se necessario), viene ripristinato a nuovo con sistema operativo originale e viene fornito con garanzia. Un laptop "usato" invece viene venduto così com'è, senza controlli né garanzia.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        La fattura aziendale è davvero inclusa nel prezzo?
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        <p>Sì, sempre. Emettiamo fattura elettronica con IVA per ogni acquisto, senza costi aggiuntivi. Il prodotto è completamente detraibile come bene strumentale per la vostra attività professionale o aziendale.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        Quanto tempo ci vuole dalla richiesta alla consegna?
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        <p>Di norma 48–72 ore lavorative dalla conferma dell'ordine. Vi contattiamo entro 24 ore dalla richiesta, definiamo insieme la configurazione, e consegniamo entro i due giorni successivi alla conferma. Per ordini multipli o configurazioni particolari, potrebbe essere necessario qualche giorno in più.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        Cosa succede se il laptop si rompe durante il periodo di garanzia?
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        <p>Ci contattiamo direttamente su WhatsApp o email. Valutiamo il problema, organizziamo il ritiro se necessario e vi fornimmo una soluzione entro 48 ore lavorative — riparazione, sostituzione o rimborso a seconda del caso. Nessun call center, nessun modulo: parliamo direttamente con voi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ── -->
+<section class="final-cta">
+  <h2>Pronto a equipaggiare<br>il tuo ufficio?</h2>
+  <p>Preventivo gratuito in 24 ore. Nessun impegno.</p>
+  <button onclick="openFormModal()" class="btn-lime">
+    Richiedi il tuo preventivo gratuito →
+  </button>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">
+        <div class="logo-icon" style="width:28px;height:28px;">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;">
+            <rect x="2" y="6" width="20" height="12" rx="2" fill="#0F1F3A"/>
+            <circle cx="17" cy="12.5" r="1.5" fill="#D4FF3A"/>
+            <rect x="5" y="10" width="8" height="1.5" rx=".75" fill="#D4FF3A"/>
+            <rect x="5" y="13" width="5" height="1.5" rx=".75" fill="#D4FF3A"/>
+          </svg>
+        </div>
+        PrimoIT
+      </div>
+      <p class="footer-tagline">Laptop ricondizionati business per studi professionali, uffici e PMI. ThinkPad, Dell, HP grado A con garanzia 12 mesi.</p>
+    </div>
+    <div>
+      <h4>Contatti</h4>
+      <ul>
+        <li><a href="https://wa.me/393274894895" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> WhatsApp: +39 327 489 4895</a></li>
+        <li><a href="mailto:info@primoit.it"><i class="fas fa-envelope"></i> info@primoit.it</a></li>
+        <li><i class="fas fa-clock"></i> Lun–Ven 9:00–18:00</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Legale</h4>
+      <ul>
+        <li><a href="#" onclick="openModal('privacy')">Privacy Policy</a></li>
+        <li><a href="#" onclick="openModal('cookie')">Cookie Policy</a></li>
+        <li><a href="#" onclick="openModal('terms')">Termini e Condizioni</a></li>
+        <li>P.IVA: PLACEHOLDER</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 PrimoIT. Tutti i diritti riservati.</p>
+    <div class="footer-legal">
+      <a href="#" onclick="openModal('privacy')">Privacy</a>
+      <a href="#" onclick="openModal('cookie')">Cookie</a>
+      <a href="#" onclick="openModal('terms')">Termini</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ── MODAL PREVENTIVO ── -->
+<div class="form-modal-overlay" id="formModalOverlay" onclick="if(event.target===this)closeFormModal()">
+  <div class="form-modal-box">
+    <button class="form-modal-close" onclick="closeFormModal()" aria-label="Chiudi">✕</button>
+    <p class="form-modal-title">Preventivo gratuito <span>in 24h</span></p>
+    <div class="form-row">
+      <input type="text" id="nome" placeholder="Nome e cognome" required autocomplete="name">
+      <input type="tel" id="telefono" placeholder="Telefono" required autocomplete="tel" oninput="onFormInput()">
+    </div>
+    <input type="text" id="azienda" placeholder="Nome studio / azienda (opzionale)" autocomplete="organization">
+    <select id="tipo">
+      <option value="" disabled selected>Tipo attività</option>
+      <option value="Studio professionale">Studio professionale</option>
+      <option value="PMI / Azienda">PMI / Azienda</option>
+      <option value="Agenzia / Ufficio">Agenzia / Ufficio</option>
+      <option value="Partita IVA individuale">Partita IVA individuale</option>
+      <option value="Altro">Altro</option>
+    </select>
+    <button class="btn-lime form-submit" onclick="submitForm(event)">
+      <i class="fab fa-whatsapp" style="margin-right:8px"></i>Invia richiesta su WhatsApp
+    </button>
+    <p class="form-privacy">Inviando accetti la nostra <a href="#" onclick="openModal('privacy'); return false;">Privacy Policy</a>. Nessuno spam, mai.</p>
+  </div>
+</div>
+
+<!-- ── MODALI LEGALI ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modalTitle"></h2>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+  /* ── FACEBOOK PIXEL HELPERS ── */
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+  }
+  function setCookie(name, value, days) {
+    const d = new Date(); d.setTime(d.getTime() + days * 864e5);
+    document.cookie = name + '=' + value + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
+  }
+  function initFacebookCookies() {
+    if (!getCookie('_fbp')) {
+      const r = Math.floor(1e9 + Math.random() * 9e9);
+      setCookie('_fbp', 'fb.1.' + Date.now() + '.' + r, 90);
+    }
+    const fbclid = new URLSearchParams(window.location.search).get('fbclid');
+    if (fbclid && !getCookie('_fbc')) {
+      setCookie('_fbc', 'fb.1.' + Date.now() + '.' + fbclid, 90);
+    }
+  }
+  initFacebookCookies();
+
+  function safeFbq() {
+    try { if (typeof fbq === 'function') fbq.apply(null, arguments); } catch(e) {}
+  }
+  function generateSubId() {
+    return 'primo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
+
+  /* ── VIEWCONTENT ── */
+  setTimeout(function() {
+    const eid = 'vc_' + generateSubId();
+    safeFbq('track', 'ViewContent', {
+      content_name: 'PrimoIT Landing Page',
+      content_category: 'IT B2B',
+      content_ids: ['primoit_preventivo'],
+      content_type: 'product'
+    }, { eventID: eid });
+  }, 500);
+
+  /* ── FORM MODAL ── */
+  function openFormModal() {
+    document.getElementById('formModalOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function() { document.getElementById('nome').focus(); }, 100);
+  }
+  function closeFormModal() {
+    document.getElementById('formModalOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  /* ── INITIATE CHECKOUT on first form input ── */
+  var _icFired = false;
+  function onFormInput() {
+    if (_icFired) return;
+    _icFired = true;
+    safeFbq('track', 'InitiateCheckout', { content_name: 'Form Preventivo PrimoIT' });
+  }
+  document.querySelectorAll('#formModalOverlay input, #formModalOverlay select').forEach(function(el) {
+    el.addEventListener('input', onFormInput, { once: true });
+  });
+
+  /* ── FORM SUBMIT → WHATSAPP ── */
+  function validateItalianPhone(phone) {
+    let clean = phone.replace(/[\s\-\(\)\.]/g, '');
+    clean = clean.replace(/^(\+39|0039)/, '');
+    return /^[034]\d{9}$/.test(clean);
+  }
+  function submitForm(e) {
+    e.preventDefault();
+    const nome = document.getElementById('nome').value.trim();
+    const tel = document.getElementById('telefono').value.trim();
+    const azienda = document.getElementById('azienda').value.trim();
+    const tipo = document.getElementById('tipo').value;
+
+    if (!nome) { alert('Inserisci il tuo nome.'); return; }
+    if (!validateItalianPhone(tel)) { alert('Inserisci un numero di telefono italiano valido.'); return; }
+
+    const tipoLabel = tipo || 'attività';
+    const msg = 'Ciao PrimoIT! Sono ' + nome + (azienda ? ' di ' + azienda : '') + '.'
+      + ' Tipo attività: ' + tipoLabel + '.'
+      + ' Vorrei ricevere un preventivo per laptop ricondizionati business.'
+      + ' Il mio numero è ' + tel + '.';
+
+    safeFbq('track', 'Lead', { content_name: 'Richiedi Preventivo PrimoIT' });
+
+    window.open('https://wa.me/393274894895?text=' + encodeURIComponent(msg), '_blank');
+  }
+
+  /* ── FAQ ACCORDION ── */
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(function(i) { i.classList.remove('open'); });
+    if (!isOpen) item.classList.add('open');
+  }
+
+  /* ── MODALI ── */
+  var MODALS = {
+    privacy: {
+      title: 'Privacy Policy',
+      content: '<p>PrimoIT raccoglie i dati personali (nome, telefono, nome azienda) esclusivamente per rispondere alle richieste di preventivo. I dati non vengono ceduti a terzi e vengono conservati per il tempo strettamente necessario alla gestione della richiesta.</p><p>Titolare del trattamento: PrimoIT, P.IVA PLACEHOLDER. Per esercitare i diritti GDPR (accesso, rettifica, cancellazione) scrivi a info@primoit.it.</p>'
+    },
+    cookie: {
+      title: 'Cookie Policy',
+      content: '<p>Questo sito utilizza cookie tecnici necessari al funzionamento e cookie di analisi/marketing (Facebook Pixel) per misurare le conversioni delle campagne pubblicitarie. Puoi disabilitare i cookie di marketing nelle impostazioni del browser.</p><p>I cookie tecnici non richiedono consenso. I cookie di marketing vengono attivati solo dopo il consenso implicito alla navigazione.</p>'
+    },
+    terms: {
+      title: 'Termini e Condizioni',
+      content: '<p>PrimoIT è un rivenditore di hardware ricondizionato certificato. I preventivi non costituiscono offerta vincolante fino alla conferma scritta da parte di PrimoIT. La garanzia di 12 mesi copre difetti di funzionamento hardware; non copre danni da uso improprio, cadute o liquidi.</p><p>Per qualsiasi controversia si applica la legge italiana e il foro competente è quello della sede legale di PrimoIT.</p>'
+    }
+  };
+  function openModal(type) {
+    var m = MODALS[type];
+    if (!m) return;
+    document.getElementById('modalTitle').textContent = m.title;
+    document.getElementById('modalContent').innerHTML = m.content;
+    document.getElementById('modalOverlay').classList.add('active');
+    return false;
+  }
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { closeModal(); closeFormModal(); }
+  });
+</script>
+
+</body>
+</html>
