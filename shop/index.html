@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrimoIT — Shop fornitori</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+<style>
+  :root{
+    --navy:#0F1F3A; --navy-dark:#0A1428; --navy-card:#162038;
+    --off-white:#F8F9FB; --lime:#D4FF3A; --lime-hover:#C2F020;
+    --text-dark:#0A0E1A; --muted:#5B6678; --line:#E6E9EF;
+    --green:#1E9E5A; --amber:#D98A1F; --teal:#0E9488; --blue:#2563EB;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{font-family:'Inter',system-ui,sans-serif;}
+  body{background:var(--off-white);color:var(--text-dark);}
+  a{text-decoration:none;color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ── HEADER ── */
+  header{
+    position:sticky;top:0;z-index:50;background:var(--navy);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    display:flex;align-items:center;gap:20px;padding:0 24px;height:64px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand img{height:34px;width:auto;display:block;}
+  .brand .tag{color:#fff;font-weight:700;font-size:.95rem;letter-spacing:.02em;}
+  .brand .tag span{color:var(--lime);}
+  .search{flex:1;max-width:520px;position:relative;}
+  .search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#7E8BA3;font-size:.9rem;}
+  .search input{
+    width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+    border-radius:10px;padding:10px 14px 10px 38px;color:#fff;font-size:.9rem;outline:none;
+  }
+  .search input::placeholder{color:rgba(255,255,255,.4);}
+  .search input:focus{border-color:var(--lime);}
+  .cart-btn{
+    position:relative;background:var(--lime);color:var(--navy-dark);border:none;
+    border-radius:10px;padding:10px 16px;font-weight:700;font-size:.88rem;display:flex;align-items:center;gap:8px;
+  }
+  .cart-btn:hover{background:var(--lime-hover);}
+  .cart-count{
+    background:var(--navy-dark);color:var(--lime);border-radius:100px;font-size:.72rem;
+    min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;font-weight:800;
+  }
+  .filters-toggle{display:none;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15);
+    border-radius:10px;padding:10px 14px;font-weight:600;font-size:.85rem;}
+
+  /* ── LAYOUT ── */
+  .layout{display:flex;align-items:flex-start;}
+  aside{
+    width:248px;flex-shrink:0;background:#fff;border-right:1px solid var(--line);
+    position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;padding:20px 18px;
+  }
+  .fgroup{border-bottom:1px solid var(--line);padding:14px 0;}
+  .fgroup:first-child{padding-top:0;}
+  .fgroup h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;font-weight:700;}
+  .fopt{display:flex;align-items:center;gap:9px;padding:4px 0;font-size:.86rem;color:#2B3344;cursor:pointer;}
+  .fopt input{accent-color:var(--navy);width:15px;height:15px;cursor:pointer;}
+  .fopt .cnt{margin-left:auto;color:#9AA4B5;font-size:.76rem;}
+  .price-row{display:flex;gap:8px;align-items:center;}
+  .price-row input{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:.84rem;outline:none;}
+  .price-row input:focus{border-color:var(--navy);}
+  .reset{margin-top:14px;width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px;font-size:.82rem;color:var(--muted);font-weight:600;}
+  .reset:hover{border-color:var(--navy);color:var(--navy);}
+
+  main{flex:1;min-width:0;padding:20px 24px 60px;}
+  .topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+  .count{font-size:.9rem;color:var(--muted);}
+  .count b{color:var(--text-dark);}
+  .topbar .spacer{flex:1;}
+  .topbar select{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.84rem;background:#fff;outline:none;color:var(--text-dark);}
+  .viewtoggle{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .viewtoggle button{background:#fff;border:none;padding:8px 12px;color:var(--muted);font-size:.9rem;}
+  .viewtoggle button.active{background:var(--navy);color:#fff;}
+
+  /* ── BADGES ── */
+  .badge{display:inline-block;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:.02em;}
+  .grade-Aplus{background:rgba(30,158,90,.14);color:var(--green);}
+  .grade-A{background:rgba(14,148,136,.14);color:var(--teal);}
+  .grade-Aminus{background:rgba(37,99,235,.12);color:var(--blue);}
+  .grade-B{background:rgba(217,138,31,.14);color:var(--amber);}
+  .grade-C{background:rgba(192,105,122,.18);color:#B0485E;}
+  .grade-none{background:#EEF1F6;color:#5B6678;}
+  .badge.cond{background:#EEF1F6;color:#5B6678;}
+  .badge.sup{background:var(--navy);color:#fff;}
+
+  /* ── GRID VIEW ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:16px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;position:relative;transition:box-shadow .15s,border-color .15s;}
+  .card:hover{box-shadow:0 8px 24px rgba(15,31,58,.08);border-color:#D2D8E2;}
+  .card.selected{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy);}
+  .card-img{height:120px;background:linear-gradient(135deg,#F2F5FA,#E9EEF6);display:flex;align-items:center;justify-content:center;color:#AEB9CC;font-size:2.4rem;position:relative;}
+  .card-check{position:absolute;top:10px;left:10px;z-index:2;}
+  .card-check input{width:18px;height:18px;accent-color:var(--navy);cursor:pointer;}
+  .card-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1;}
+  .card-badges{display:flex;gap:6px;flex-wrap:wrap;}
+  .card-title{font-size:.9rem;font-weight:700;line-height:1.3;}
+  .card-specs{font-size:.78rem;color:#42506A;line-height:1.5;}
+  .card-gpu{font-size:.75rem;color:#5B6678;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .card-gpu i{font-size:.72rem;color:#AEB9CC;}
+  .card-gpu.ded{color:var(--navy);font-weight:600;}
+  .card-gpu.ded i{color:var(--green);}
+  .card-gpu .gpu-tag{background:rgba(30,158,90,.14);color:var(--green);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:100px;}
+  .card-meta{font-size:.74rem;color:#9AA4B5;}
+  .card-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;}
+  .price{font-size:1.05rem;font-weight:800;color:var(--navy);white-space:nowrap;}
+  .price small{font-size:.7rem;color:var(--muted);font-weight:600;}
+  .price.req{font-size:.82rem;color:var(--amber);}
+  .add{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:.78rem;font-weight:700;white-space:nowrap;}
+  .add:hover{background:var(--navy-dark);}
+  .add.in{background:var(--lime);color:var(--navy-dark);}
+
+  /* ── LIST VIEW ── */
+  .list{display:flex;flex-direction:column;gap:10px;}
+  .row{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:16px;transition:box-shadow .15s,border-color .15s;}
+  .row:hover{box-shadow:0 6px 18px rgba(15,31,58,.07);}
+  .row.selected{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy);}
+  .row>input{width:18px;height:18px;accent-color:var(--navy);flex-shrink:0;cursor:pointer;}
+  .row-main{width:230px;flex-shrink:0;}
+  .row-title{font-size:.9rem;font-weight:700;line-height:1.3;margin-bottom:5px;}
+  .row-sub{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:.72rem;color:#9AA4B5;}
+  .row-attrs{flex:1;display:grid;grid-template-columns:1.15fr .62fr .95fr 1.5fr .6fr .55fr;gap:10px;min-width:0;}
+  .row-attrs .a span{display:block;font-size:.64rem;text-transform:uppercase;letter-spacing:.05em;color:#A6AFBF;margin-bottom:2px;}
+  .row-attrs .a div{font-size:.8rem;color:#2B3344;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .row-price{width:150px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+
+  .empty{text-align:center;padding:60px 20px;color:var(--muted);}
+  .empty i{font-size:2rem;margin-bottom:12px;color:#C4CCD8;}
+
+  /* ── CART PANEL ── */
+  .overlay{position:fixed;inset:0;background:rgba(10,20,40,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;}
+  .overlay.open{opacity:1;pointer-events:auto;}
+  .cart{position:fixed;top:0;right:0;height:100%;width:400px;max-width:92vw;background:#fff;z-index:70;
+    transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.2);}
+  .cart.open{transform:translateX(0);}
+  .cart-head{background:var(--navy);color:#fff;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .cart-head h3{font-size:1rem;font-weight:700;}
+  .cart-head button{background:none;border:none;color:#fff;font-size:1.2rem;}
+  .cart-items{flex:1;overflow-y:auto;padding:12px 16px;}
+  .citem{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
+  .citem-body{flex:1;min-width:0;}
+  .citem-title{font-size:.84rem;font-weight:700;line-height:1.3;margin-bottom:3px;}
+  .citem-sku{font-size:.7rem;color:#9AA4B5;margin-bottom:6px;}
+  .qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:7px;overflow:hidden;}
+  .qty button{background:#F4F6FA;border:none;width:26px;height:26px;font-size:.95rem;color:var(--navy);}
+  .qty span{min-width:30px;text-align:center;font-size:.82rem;font-weight:700;}
+  .citem-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+  .citem-price{font-size:.86rem;font-weight:800;color:var(--navy);}
+  .citem-del{background:none;border:none;color:#C0697A;font-size:.74rem;}
+  .cart-foot{border-top:1px solid var(--line);padding:16px 20px;}
+  .cart-total{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+  .cart-total b{font-size:1.3rem;color:var(--navy);}
+  .cart-note{font-size:.72rem;color:var(--muted);margin-bottom:12px;}
+  .cart-send{width:100%;background:var(--lime);color:var(--navy-dark);border:none;border-radius:10px;padding:14px;font-weight:800;font-size:.95rem;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .cart-send:hover{background:var(--lime-hover);}
+  .cart-empty{text-align:center;color:var(--muted);padding:50px 20px;}
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:1100px){.row-attrs{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:900px){
+    .filters-toggle{display:block;}
+    .search{order:3;flex-basis:100%;max-width:none;}
+    header{flex-wrap:wrap;height:auto;padding:12px 16px;gap:12px;}
+    aside{position:fixed;top:0;left:0;height:100%;z-index:65;transform:translateX(-100%);transition:transform .25s;box-shadow:10px 0 40px rgba(0,0,0,.2);}
+    aside.open{transform:translateX(0);}
+    main{padding:16px;}
+    .row{flex-wrap:wrap;}
+    .row-main{width:100%;}
+    .row-attrs{grid-template-columns:repeat(2,1fr);width:100%;}
+    .row-price{width:100%;flex-direction:row;justify-content:space-between;align-items:center;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../landing/index.html">
+    <img src="../landing/images/logo.png" alt="PrimoIT" onerror="this.style.display='none'">
+    <span class="tag"><span>Primo</span>IT · Shop</span>
+  </a>
+  <button class="filters-toggle" onclick="toggleSidebar()"><i class="fas fa-sliders-h"></i> Filtri</button>
+  <div class="search">
+    <i class="fas fa-search"></i>
+    <input id="search" type="text" placeholder="Cerca per modello, CPU, brand, SKU…" oninput="onSearch(this.value)">
+  </div>
+  <button class="cart-btn" onclick="openCart()">
+    <i class="fas fa-cart-shopping"></i> Carrello
+    <span class="cart-count" id="cartCount">0</span>
+  </button>
+</header>
+
+<div class="layout">
+  <aside id="sidebar"></aside>
+  <main>
+    <div class="topbar">
+      <div class="count"><b id="resCount">0</b> prodotti</div>
+      <div class="spacer"></div>
+      <select id="sort" onchange="setSort(this.value)">
+        <option value="default">Categoria (predefinito)</option>
+        <option value="price-asc">Prezzo crescente</option>
+        <option value="price-desc">Prezzo decrescente</option>
+        <option value="name">Nome A-Z</option>
+        <option value="stock">Disponibilità</option>
+      </select>
+      <div class="viewtoggle">
+        <button id="vGrid" onclick="setView('grid')" title="Griglia"><i class="fas fa-th-large"></i></button>
+        <button id="vList" onclick="setView('list')" title="Lista"><i class="fas fa-list"></i></button>
+      </div>
+    </div>
+    <div id="products"></div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeCart();closeSidebar()"></div>
+<div class="cart" id="cartPanel">
+  <div class="cart-head">
+    <h3><i class="fas fa-cart-shopping"></i> La tua richiesta</h3>
+    <button onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-foot">
+    <div class="cart-total"><span>Totale indicativo</span><b id="cartTotal">€0</b></div>
+    <div class="cart-note">Prezzi rivenditore IVA esclusa · articoli "su richiesta" esclusi dal totale.</div>
+    <button class="cart-send" onclick="sendRequest()"><i class="fab fa-whatsapp"></i> Invia richiesta su WhatsApp</button>
+  </div>
+</div>
+
+<script src="catalog.js"></script>
+<script>
+  var WHATSAPP = '393274894895';
+  var CAT_ICON = {'Laptop':'fa-laptop','Computer':'fa-desktop','Monitor':'fa-display','Tablet & Smartphone':'fa-mobile-screen','Accessori':'fa-plug'};
+  var CAT_ORDER = ['Laptop','Computer','Monitor','Tablet & Smartphone','Accessori'];
+  function catRank(c){ var i=CAT_ORDER.indexOf(c); return i<0?99:i; }
+  var GRADE_CLASS = {'A+':'grade-Aplus','A':'grade-A','A-':'grade-Aminus','B':'grade-B','C':'grade-C','—':'grade-none'};
+
+  var state = {
+    suppliers:new Set(), categories:new Set(), conditions:new Set(),
+    grades:new Set(), gpuTypes:new Set(), brands:new Set(), priceMin:null, priceMax:null,
+    search:'', sort:'default', view:'grid'
+  };
+  var cart = {}; // id -> qty
+  var ALL = window.CATALOG || [];
+  var META = window.CATALOG_META || {};
+
+  function eur(n){ return '€' + n.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  /* ── SIDEBAR ── */
+  function countBy(field, val){ return ALL.filter(function(p){return p[field]===val;}).length; }
+  function buildSidebar(){
+    var s = META.suppliers.map(function(x){return checkRow('suppliers',x.id,x.name,countBy('supplier',x.id));}).join('');
+    var html = ''
+      + group('Fornitore', s)
+      + group('Categoria', META.categories.map(function(c){return checkRow('categories',c,c,countBy('category',c));}).join(''))
+      + group('Condizione', META.conditions.map(function(c){return checkRow('conditions',c,c,countBy('condition',c));}).join(''))
+      + group('Grado', META.grades.map(function(g){return checkRow('grades',g,g==='—'?'Open Box':'Grado '+g,countBy('grade',g));}).join(''))
+      + group('Scheda video', (META.gpuTypes||[]).map(function(g){return checkRow('gpuTypes',g,g==='Dedicata'?'GPU dedicata':'Integrata',countBy('gpu_type',g));}).join(''))
+      + group('Prezzo (€)',
+          '<div class="price-row"><input type="number" id="pmin" placeholder="min" oninput="setPrice()"> <span>–</span> '
+          + '<input type="number" id="pmax" placeholder="max" oninput="setPrice()"></div>')
+      + group('Brand', META.brands.map(function(b){return checkRow('brands',b,b,countBy('brand',b));}).join(''))
+      + '<button class="reset" onclick="resetFilters()">Azzera filtri</button>';
+    document.getElementById('sidebar').innerHTML = html;
+  }
+  function group(title, body){ return '<div class="fgroup"><h4>'+title+'</h4>'+body+'</div>'; }
+  function checkRow(set, val, label, cnt){
+    return '<label class="fopt"><input type="checkbox" onchange="toggleFilter(\''+set+'\',\''+esc(val)+'\',this.checked)">'
+      + '<span>'+esc(label)+'</span><span class="cnt">'+cnt+'</span></label>';
+  }
+  function toggleFilter(set,val,on){ on?state[set].add(val):state[set].delete(val); render(); }
+  function setPrice(){
+    var mn=parseFloat(document.getElementById('pmin').value), mx=parseFloat(document.getElementById('pmax').value);
+    state.priceMin=isNaN(mn)?null:mn; state.priceMax=isNaN(mx)?null:mx; render();
+  }
+  function resetFilters(){
+    ['suppliers','categories','conditions','grades','gpuTypes','brands'].forEach(function(k){state[k].clear();});
+    state.priceMin=state.priceMax=null; state.search='';
+    document.getElementById('search').value='';
+    buildSidebar(); render();
+  }
+
+  /* ── FILTER + SORT ── */
+  function applyFilters(){
+    return ALL.filter(function(p){
+      if(state.suppliers.size && !state.suppliers.has(p.supplier)) return false;
+      if(state.categories.size && !state.categories.has(p.category)) return false;
+      if(state.conditions.size && !state.conditions.has(p.condition)) return false;
+      if(state.grades.size && !state.grades.has(p.grade)) return false;
+      if(state.gpuTypes.size && !state.gpuTypes.has(p.gpu_type)) return false;
+      if(state.brands.size && !state.brands.has(p.brand)) return false;
+      if(state.priceMin!=null && (p.price==null||p.price<state.priceMin)) return false;
+      if(state.priceMax!=null && (p.price==null||p.price>state.priceMax)) return false;
+      if(state.search){
+        var q=state.search.toLowerCase();
+        var hay=(p.title+' '+p.cpu+' '+p.brand+' '+p.id+' '+p.ram+' '+p.drive).toLowerCase();
+        if(hay.indexOf(q)<0) return false;
+      }
+      return true;
+    });
+  }
+  function sortList(list){
+    var s=state.sort;
+    function pr(x){ return x.price==null?Infinity:x.price; }
+    return list.slice().sort(function(a,b){
+      if(s==='default'){ var d=catRank(a.category)-catRank(b.category); return d!==0?d:pr(a)-pr(b); }
+      if(s==='name') return a.title.localeCompare(b.title);
+      if(s==='stock') return b.stock-a.stock;
+      if(s==='price-desc') return pr(b)-pr(a);
+      return pr(a)-pr(b);
+    });
+  }
+
+  /* ── RENDER ── */
+  function render(){
+    var list=sortList(applyFilters());
+    document.getElementById('resCount').textContent=list.length;
+    var c=document.getElementById('products');
+    if(!list.length){ c.innerHTML='<div class="empty"><i class="fas fa-box-open"></i><div>Nessun prodotto con questi filtri.</div></div>'; return; }
+    if(state.view==='grid'){
+      c.className='grid';
+      c.innerHTML=list.map(cardGrid).join('');
+    }else{
+      c.className='list';
+      c.innerHTML=list.map(cardList).join('');
+    }
+  }
+  function priceHtml(p){
+    return p.price==null ? '<span class="price req">Su richiesta</span>'
+      : '<span class="price">'+eur(p.price)+' <small>+IVA</small></span>';
+  }
+  function badges(p){
+    var cond='<span class="badge cond">'+esc(p.condition)+'</span>';
+    if(p.grade==='—') return cond;
+    return '<span class="badge '+(GRADE_CLASS[p.grade]||'grade-none')+'">Grado '+p.grade+'</span>'+cond;
+  }
+  function specLine(p){
+    return [p.cpu,p.ram,p.drive].filter(Boolean).map(esc).join(' · ') || '<span style="color:#AEB9CC">Specifiche nel dettaglio</span>';
+  }
+  function gpuFull(p){ return esc(p.gpu)+(p.gpu_vram?' '+esc(p.gpu_vram):''); }
+  function gpuLine(p){
+    if(!p.gpu_type) return '';
+    if(p.gpu_type==='Dedicata')
+      return '<div class="card-gpu ded"><i class="fas fa-bolt"></i> '+gpuFull(p)+' <span class="gpu-tag">dedicata</span></div>';
+    return '<div class="card-gpu"><i class="fas fa-microchip"></i> '+gpuFull(p)+'</div>';
+  }
+  function attrGpu(p){
+    if(!p.gpu_type) return attr('GPU','—');
+    var name=(p.gpu||'').replace(/^GeForce /,'')+(p.gpu_vram?' '+p.gpu_vram:'');
+    var st = p.gpu_type==='Dedicata' ? ' style="color:var(--green);font-weight:700"' : '';
+    return '<div class="a"><span>GPU</span><div'+st+' title="'+esc((p.gpu||'')+(p.gpu_vram?' '+p.gpu_vram:''))+' · '+esc(p.gpu_type)+'">'+esc(name)+'</div></div>';
+  }
+  function attrKb(p){
+    return '<div class="a"><span>Tastiera</span><div title="'+esc(p.keyboard||'')+'">'+esc(p.keyboard_short||'—')+'</div></div>';
+  }
+  function inCart(id){ return cart[id]!=null; }
+  function cardGrid(p){
+    var sel=inCart(p.id)?' selected':'';
+    return '<div class="card'+sel+'">'
+      + '<div class="card-img"><span class="card-check"><input type="checkbox" '+(inCart(p.id)?'checked':'')+' onchange="toggleCart(\''+p.id+'\')"></span><i class="fas '+(CAT_ICON[p.category]||'fa-box')+'"></i></div>'
+      + '<div class="card-body">'
+      +   '<div class="card-badges">'+badges(p)+'</div>'
+      +   '<div class="card-title">'+esc(p.title)+'</div>'
+      +   '<div class="card-specs">'+specLine(p)+'</div>'
+      +   gpuLine(p)
+      +   '<div class="card-meta">'+esc(p.brand)+(p.keyboard_short?' · '+esc(p.keyboard_short):'')+' · '+p.stock+' pz</div>'
+      +   '<div class="card-foot">'+priceHtml(p)
+      +     '<button class="add'+(inCart(p.id)?' in':'')+'" onclick="toggleCart(\''+p.id+'\')">'+(inCart(p.id)?'✓ Aggiunto':'Aggiungi')+'</button>'
+      +   '</div>'
+      + '</div></div>';
+  }
+  function attr(label,val){ return '<div class="a"><span>'+label+'</span><div>'+(val?esc(val):'—')+'</div></div>'; }
+  function cardList(p){
+    var sel=inCart(p.id)?' selected':'';
+    return '<div class="row'+sel+'">'
+      + '<input type="checkbox" '+(inCart(p.id)?'checked':'')+' onchange="toggleCart(\''+p.id+'\')">'
+      + '<div class="row-main"><div class="row-title">'+esc(p.title)+'</div>'
+      +   '<div class="row-sub">'+badges(p)+' <span>'+esc(p.brand)+'</span> · <span>'+esc(p.id)+'</span></div></div>'
+      + '<div class="row-attrs">'+attr('CPU',p.cpu)+attr('RAM',p.ram)+attr('Drive',p.drive)+attrGpu(p)+attrKb(p)+attr('Stock',p.stock+' pz')+'</div>'
+      + '<div class="row-price">'+priceHtml(p)
+      +   '<button class="add'+(inCart(p.id)?' in':'')+'" onclick="toggleCart(\''+p.id+'\')">'+(inCart(p.id)?'✓ Aggiunto':'Aggiungi')+'</button></div>'
+      + '</div>';
+  }
+
+  /* ── CART ── */
+  function findP(id){ for(var i=0;i<ALL.length;i++) if(ALL[i].id===id) return ALL[i]; return null; }
+  function toggleCart(id){ if(cart[id]!=null) delete cart[id]; else cart[id]=1; updateCart(); render(); }
+  function setQty(id,d){ if(cart[id]==null)return; cart[id]=Math.max(1,cart[id]+d); updateCart(); }
+  function removeCart(id){ delete cart[id]; updateCart(); render(); }
+  function cartQtyTotal(){ var n=0; for(var k in cart) n+=cart[k]; return n; }
+  function updateCart(){
+    document.getElementById('cartCount').textContent=cartQtyTotal();
+    var ids=Object.keys(cart), box=document.getElementById('cartItems'), total=0;
+    if(!ids.length){ box.innerHTML='<div class="cart-empty"><i class="fas fa-cart-shopping" style="font-size:2rem;color:#D2D8E2;display:block;margin-bottom:12px"></i>Carrello vuoto.<br>Aggiungi prodotti dalla lista.</div>'; }
+    else{
+      box.innerHTML=ids.map(function(id){
+        var p=findP(id), q=cart[id]; var line=p.price!=null?p.price*q:null; if(line!=null) total+=line;
+        return '<div class="citem"><div class="citem-body"><div class="citem-title">'+esc(p.title)+'</div>'
+          + '<div class="citem-sku">'+esc(p.id)+' · '+esc(p.brand)+'</div>'
+          + '<div class="qty"><button onclick="setQty(\''+id+'\',-1)">−</button><span>'+q+'</span><button onclick="setQty(\''+id+'\',1)">+</button></div></div>'
+          + '<div class="citem-right"><div class="citem-price">'+(p.price!=null?eur(p.price*q):'<span style="color:#D98A1F">su richiesta</span>')+'</div>'
+          + '<button class="citem-del" onclick="removeCart(\''+id+'\')">Rimuovi</button></div></div>';
+      }).join('');
+    }
+    document.getElementById('cartTotal').textContent=eur(total);
+  }
+  function openCart(){ document.getElementById('cartPanel').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+  function closeCart(){ document.getElementById('cartPanel').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+  function sendRequest(){
+    var ids=Object.keys(cart);
+    if(!ids.length){ alert('Il carrello è vuoto.'); return; }
+    var lines=['Ciao PrimoIT! Vorrei un preventivo per questi articoli:',''];
+    var total=0;
+    ids.forEach(function(id){ var p=findP(id),q=cart[id];
+      lines.push('• '+p.title+' ['+p.id+'] x'+q+(p.price!=null?' — '+eur(p.price*q):' — su richiesta'));
+      if(p.price!=null) total+=p.price*q;
+    });
+    lines.push(''); lines.push('Totale indicativo (IVA escl.): '+eur(total));
+    window.open('https://wa.me/'+WHATSAPP+'?text='+encodeURIComponent(lines.join('\n')),'_blank');
+  }
+
+  /* ── UI CONTROLS ── */
+  function onSearch(v){ state.search=v.trim(); render(); }
+  function setSort(v){ state.sort=v; render(); }
+  function setView(v){ state.view=v;
+    document.getElementById('vGrid').classList.toggle('active',v==='grid');
+    document.getElementById('vList').classList.toggle('active',v==='list');
+    render();
+  }
+  function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); }
+  function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); }
+
+  /* ── INIT ── */
+  buildSidebar(); setView('list'); updateCart(); render();
+</script>
+</body>
+</html>
