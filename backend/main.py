@@ -59,6 +59,8 @@ class OrderResponse(BaseModel):
 async def startup():
     init_db()
     logger.info("Database initialized")
+    _pass_state = "DEFAULT (env NON applicata!)" if ADMIN_PASS in ("cambia-questa-password", "trico2026!", "") else f"custom ({len(ADMIN_PASS)} caratteri)"
+    logger.info(f"Admin login -> user={ADMIN_USER!r} | password={_pass_state}")
 
 
 def verify_admin(credentials: HTTPBasicCredentials = Depends(security)):
