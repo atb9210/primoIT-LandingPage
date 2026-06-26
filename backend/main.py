@@ -36,7 +36,7 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 # Admin credentials
 ADMIN_USER = os.getenv("ADMIN_USER", "admin")
 ADMIN_PASS = os.getenv("ADMIN_PASS", "trico2026!")
-security = HTTPBasic()
+security = HTTPBasic(auto_error=False)  # niente popup nativo del browser: gestiamo noi il login
 
 # Facebook Conversion API
 FB_PIXEL_ID = os.getenv("FB_PIXEL_ID", "2095934291260128")
@@ -62,10 +62,14 @@ async def startup():
 
 
 def verify_admin(credentials: HTTPBasicCredentials = Depends(security)):
+    # 401 SENZA header WWW-Authenticate → il browser non mostra il suo popup nativo;
+    # il login lo gestisce il nostro form in admin.html
+    if credentials is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     correct_user = secrets.compare_digest(credentials.username, ADMIN_USER)
     correct_pass = secrets.compare_digest(credentials.password, ADMIN_PASS)
     if not (correct_user and correct_pass):
-        raise HTTPException(status_code=401, detail="Unauthorized", headers={"WWW-Authenticate": "Basic"})
+        raise HTTPException(status_code=401, detail="Unauthorized")
     return credentials.username
 
 
