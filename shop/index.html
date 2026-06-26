@@ -636,8 +636,11 @@
     if(window.IcecatLive){ cb(); return; }
     if(ICECAT.loading){ var t=setInterval(function(){ if(window.IcecatLive){ clearInterval(t); cb(); } },150); return; }
     ICECAT.loading=true;
-    var s=document.createElement('script'); s.src='https://live.icecat.biz/api.js';
-    s.onload=function(){ cb(); };
+    var s=document.createElement('script'); s.src='https://live.icecat.biz/js/live-current-2.js';
+    s.onload=function(){ // la libreria può finire l'init poco dopo il load
+      if(window.IcecatLive) return cb();
+      var n=0, t=setInterval(function(){ if(window.IcecatLive||++n>20){ clearInterval(t); cb(window.IcecatLive?null:new Error('init')); } },100);
+    };
     s.onerror=function(){ ICECAT.loading=false; cb(new Error('load')); };
     document.head.appendChild(s);
   }
@@ -661,12 +664,12 @@
     var ov=iceMap()[p.id];
     if(ov){
       if(ov.gtin) return {params:{GTIN:ov.gtin}, source:'override · EAN'};
-      if(ov.icecatId) return {params:{icecat_id:ov.icecatId}, source:'override · Icecat ID'};
-      if(ov.partCode) return {params:{Brand:ov.brand||p.brand, PartCode:ov.partCode}, source:'override · codice'};
+      if(ov.icecatId) return {params:{IcecatProductId:ov.icecatId}, source:'override · Icecat ID'};
+      if(ov.partCode) return {params:{Brand:ov.brand||p.brand, ProductCode:ov.partCode}, source:'override · codice'};
     }
     var brand=(p.brand && p.brand!=='Altro')?p.brand:'';
     var model=extractModel(p.title, p.brand);
-    if(brand && model) return {params:{Brand:brand, PartCode:model}, source:'auto da titolo'};
+    if(brand && model) return {params:{Brand:brand, ProductCode:model}, source:'auto da titolo'};
     return {params:null, source:'nessun identificatore'};
   }
 
