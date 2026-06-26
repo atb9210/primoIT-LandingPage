@@ -1,0 +1,21 @@
+# Deploy PrimoIT su Dokploy (tipo: Compose)
+# Il volume "primoit_data" persiste il DB SQLite dei deal tra i redeploy.
+services:
+  primoit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - "80"          # Dokploy instrada il dominio su questa porta
+    environment:
+      ENVIRONMENT: production
+      LOG_LEVEL: INFO
+      DB_PATH: /app/data/primoit.db
+      ADMIN_USER: ${ADMIN_USER:-admin}
+      ADMIN_PASS: ${ADMIN_PASS:?imposta ADMIN_PASS nelle env di Dokploy}
+    volumes:
+      - primoit_data:/app/data   # ← volume persistente per il DB
+
+volumes:
+  primoit_data:
