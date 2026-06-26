@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request, Depends, Query
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 import uuid
@@ -9,13 +10,22 @@ import logging
 import os
 import hashlib
 import time
-from database import init_db, save_lead, get_leads, get_lead_stats
+from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, update_deal
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Trico Rosmarinus API", version="1.0.0")
+
+# CORS: lo shop statico (file:// o altro host) chiama l'API. L'admin usa Basic Auth via header.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Environment variables (from Docker environment)
 WORLDFILIA_API_KEY = os.getenv("WORLDFILIA_API_KEY", "cDLJTb14RzaP7SzsLfdP7Q")
@@ -600,6 +610,77 @@ async def create_order_2x(order: OrderRequest):
         save_lead(name=order.name.strip(), phone=order.phone.strip(), address=order.address.strip(),
                   aff_sub1=order.aff_sub1, aff_sub2=order.aff_sub2, status="failed", error=str(e))
         return OrderResponse(success=False, error=str(e), message="Order processing failed")
+
+
+# ============ PrimoIT Shop — Deals (mini-CRM) ============
+
+class DealCreate(BaseModel):
+    items: list
+    customer_name: Optional[str] = None
+    customer_contact: Optional[str] = None
+    total: Optional[float] = None
+
+class DealUpdate(BaseModel):
+    status: Optional[str] = None
+    notes: Optional[str] = None
+    details: Optional[dict] = None
+
+class ViesRequest(BaseModel):
+    country: str
+    vat: str
+
+@app.post("/api/deals")
+async def api_create_deal(deal: DealCreate):
+    """Crea un deal dallo shop (pubblico). Chiamato al click di 'Invia richiesta'."""
+    if not deal.items:
+        raise HTTPException(status_code=400, detail="Carrello vuoto")
+    res = create_deal(
+        items=deal.items,
+        customer_name=(deal.customer_name or None),
+        customer_contact=(deal.customer_contact or None),
+        total=deal.total,
+    )
+    logger.info(f"Nuovo deal {res['ref']}: {len(deal.items)} articoli, totale {deal.total}")
+    return {"success": True, **res}
+
+@app.get("/api/admin/deals")
+async def api_list_deals(status: str = Query(None), username: str = Depends(verify_admin)):
+    """Lista deal per l'area admin (Basic Auth)."""
+    return {"deals": get_deals(status=status)}
+
+@app.patch("/api/admin/deals/{deal_id}")
+async def api_update_deal(deal_id: int, upd: DealUpdate, username: str = Depends(verify_admin)):
+    """Aggiorna stato/note/dettagli di un deal (Basic Auth)."""
+    ok = update_deal(deal_id, status=upd.status, notes=upd.notes, details=upd.details)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Deal non trovato o nessuna modifica")
+    return {"success": True}
+
+@app.post("/api/admin/vies")
+async def api_vies(req: ViesRequest, username: str = Depends(verify_admin)):
+    """Verifica una partita IVA UE tramite il servizio VIES (REST API ufficiale)."""
+    try:
+        cc = (req.country or "").strip().upper()
+        num = (req.vat or "").strip().replace(" ", "").replace("-", "").replace(".", "")
+        if num.upper().startswith(cc):
+            num = num[len(cc):]
+        r = requests.post(
+            "https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number",
+            json={"countryCode": cc, "vatNumber": num},
+            timeout=12,
+        )
+        if r.status_code == 200:
+            d = r.json()
+            return {
+                "valid": bool(d.get("valid")),
+                "name": d.get("name"),
+                "address": d.get("address"),
+                "vatNumber": cc + num,
+            }
+        return {"valid": None, "error": f"VIES ha risposto {r.status_code}"}
+    except Exception as e:
+        logger.error(f"VIES error: {e}")
+        return {"valid": None, "error": str(e)}
 
 
 if __name__ == "__main__":

@@ -1,2 +1,5 @@
 .claude/
 .DS_Store
+backend/data/
+*.db
+__pycache__/

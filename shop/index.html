@@ -157,9 +157,49 @@
   .cart-total{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
   .cart-total b{font-size:1.3rem;color:var(--navy);}
   .cart-note{font-size:.72rem;color:var(--muted);margin-bottom:12px;}
+  .cart-input{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.85rem;margin-bottom:8px;outline:none;font-family:inherit;}
+  .cart-input:focus{border-color:var(--navy);}
   .cart-send{width:100%;background:var(--lime);color:var(--navy-dark);border:none;border-radius:10px;padding:14px;font-weight:800;font-size:.95rem;display:flex;align-items:center;justify-content:center;gap:8px;}
   .cart-send:hover{background:var(--lime-hover);}
   .cart-empty{text-align:center;color:var(--muted);padding:50px 20px;}
+  .citem-svc{font-size:.72rem;color:#5B6678;margin:4px 0 6px;line-height:1.5;}
+
+  /* ── CONFIGURATORE ── */
+  .cfg-back{position:fixed;inset:0;background:rgba(10,20,40,.55);z-index:80;display:none;align-items:center;justify-content:center;padding:20px;}
+  .cfg-back.open{display:flex;}
+  .cfg-box{background:#fff;border-radius:16px;width:100%;max-width:480px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.35);}
+  .cfg-head{background:var(--navy);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .cfg-head .t{font-size:.92rem;font-weight:700;line-height:1.3;}
+  .cfg-head .s{font-size:.72rem;color:rgba(255,255,255,.6);margin-top:3px;}
+  .cfg-head button{background:none;border:none;color:#fff;font-size:1.2rem;flex-shrink:0;cursor:pointer;}
+  .cfg-body{padding:4px 20px 10px;overflow-y:auto;}
+  .cfg-grp{padding:12px 0;border-bottom:1px solid var(--line);}
+  .cfg-grp:last-child{border-bottom:none;}
+  .cfg-grp h5{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:700;}
+  .cfg-opt{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:.85rem;cursor:pointer;}
+  .cfg-opt input{accent-color:var(--navy);width:16px;height:16px;flex-shrink:0;}
+  .cfg-opt .lab{flex:1;}
+  .cfg-opt .pr{font-weight:700;color:var(--navy);font-size:.8rem;white-space:nowrap;}
+  .cfg-opt .pr.free{color:var(--green);font-weight:600;}
+  .cfg-foot{border-top:1px solid var(--line);padding:14px 20px;display:flex;flex-direction:column;gap:10px;}
+  .cfg-total{display:flex;justify-content:space-between;align-items:baseline;}
+  .cfg-total b{font-size:1.25rem;color:var(--navy);}
+  .cfg-add{background:var(--lime);color:var(--navy-dark);border:none;border-radius:10px;padding:13px;font-weight:800;font-size:.92rem;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .cfg-add:hover{background:var(--lime-hover);}
+  .cfg-sel{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:.85rem;font-family:inherit;background:#fff;color:var(--text-dark);outline:none;cursor:pointer;}
+  .cfg-sel:focus{border-color:var(--navy);}
+  .cfg-info{margin-left:6px;color:#9AA4B5;cursor:help;position:relative;font-size:.72rem;text-transform:none;}
+  .cfg-info:hover{color:var(--navy);}
+  .cfg-info .tip{display:none;position:absolute;top:16px;left:-8px;width:232px;background:var(--navy-dark);color:#fff;font-size:.72rem;font-weight:400;line-height:1.45;padding:9px 11px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:6;letter-spacing:normal;}
+  .cfg-info:hover .tip{display:block;}
+  .cfg-stock{font-size:.78rem;color:var(--green);font-weight:600;display:flex;align-items:center;gap:6px;}
+  .cfg-stock b{color:var(--text-dark);}
+  .cfg-actions{display:flex;gap:10px;align-items:stretch;}
+  .cfg-qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-shrink:0;}
+  .cfg-qty button{background:#F4F6FA;border:none;width:38px;font-size:1.1rem;color:var(--navy);cursor:pointer;}
+  .cfg-qty button:disabled{opacity:.4;cursor:not-allowed;}
+  .cfg-qty span{min-width:36px;text-align:center;font-size:.95rem;font-weight:700;}
+  .cfg-actions .cfg-add{flex:1;}
 
   /* ── RESPONSIVE ── */
   @media(max-width:1100px){.row-attrs{grid-template-columns:repeat(3,1fr);}}
@@ -227,13 +267,18 @@
   <div class="cart-foot">
     <div class="cart-total"><span>Totale indicativo</span><b id="cartTotal">€0</b></div>
     <div class="cart-note">Prezzi rivenditore IVA esclusa · articoli "su richiesta" esclusi dal totale.</div>
+    <input id="custName" class="cart-input" type="text" placeholder="Nome / azienda (opzionale)">
+    <input id="custContact" class="cart-input" type="text" placeholder="Telefono o email (opzionale)">
     <button class="cart-send" onclick="sendRequest()"><i class="fab fa-whatsapp"></i> Invia richiesta su WhatsApp</button>
   </div>
 </div>
 
+<div class="cfg-back" id="cfgBack" onclick="if(event.target===this)closeConfig()"><div class="cfg-box" id="cfgBox"></div></div>
+
 <script src="catalog.js"></script>
 <script>
   var WHATSAPP = '393274894895';
+  var API_BASE = 'http://localhost:8000';  // backend FastAPI (in prod: URL del backend deployato)
   var CAT_ICON = {'Laptop':'fa-laptop','Computer':'fa-desktop','Monitor':'fa-display','Tablet & Smartphone':'fa-mobile-screen','Accessori':'fa-plug'};
   var CAT_ORDER = ['Laptop','Computer','Monitor','Tablet & Smartphone','Accessori'];
   function catRank(c){ var i=CAT_ORDER.indexOf(c); return i<0?99:i; }
@@ -362,7 +407,7 @@
   function cardGrid(p){
     var sel=inCart(p.id)?' selected':'';
     return '<div class="card'+sel+'">'
-      + '<div class="card-img"><span class="card-check"><input type="checkbox" '+(inCart(p.id)?'checked':'')+' onchange="toggleCart(\''+p.id+'\')"></span><i class="fas '+(CAT_ICON[p.category]||'fa-box')+'"></i></div>'
+      + '<div class="card-img"><span class="card-check"><input type="checkbox" '+(inCart(p.id)?'checked':'')+' onchange="addAction(\''+p.id+'\')"></span><i class="fas '+(CAT_ICON[p.category]||'fa-box')+'"></i></div>'
       + '<div class="card-body">'
       +   '<div class="card-badges">'+badges(p)+'</div>'
       +   '<div class="card-title">'+esc(p.title)+'</div>'
@@ -370,7 +415,7 @@
       +   gpuLine(p)
       +   '<div class="card-meta">'+esc(p.brand)+(p.keyboard_short?' · '+esc(p.keyboard_short):'')+' · '+p.stock+' pz</div>'
       +   '<div class="card-foot">'+priceHtml(p)
-      +     '<button class="add'+(inCart(p.id)?' in':'')+'" onclick="toggleCart(\''+p.id+'\')">'+(inCart(p.id)?'✓ Aggiunto':'Aggiungi')+'</button>'
+      +     '<button class="add'+(inCart(p.id)?' in':'')+'" onclick="addAction(\''+p.id+'\')">'+(inCart(p.id)?'✓ Aggiunto':'Aggiungi')+'</button>'
       +   '</div>'
       + '</div></div>';
   }
@@ -378,32 +423,35 @@
   function cardList(p){
     var sel=inCart(p.id)?' selected':'';
     return '<div class="row'+sel+'">'
-      + '<input type="checkbox" '+(inCart(p.id)?'checked':'')+' onchange="toggleCart(\''+p.id+'\')">'
+      + '<input type="checkbox" '+(inCart(p.id)?'checked':'')+' onchange="addAction(\''+p.id+'\')">'
       + '<div class="row-main"><div class="row-title">'+esc(p.title)+'</div>'
       +   '<div class="row-sub">'+badges(p)+' <span>'+esc(p.brand)+'</span> · <span>'+esc(p.id)+'</span></div></div>'
       + '<div class="row-attrs">'+attr('CPU',p.cpu)+attr('RAM',p.ram)+attr('Drive',p.drive)+attrGpu(p)+attrKb(p)+attr('Stock',p.stock+' pz')+'</div>'
       + '<div class="row-price">'+priceHtml(p)
-      +   '<button class="add'+(inCart(p.id)?' in':'')+'" onclick="toggleCart(\''+p.id+'\')">'+(inCart(p.id)?'✓ Aggiunto':'Aggiungi')+'</button></div>'
+      +   '<button class="add'+(inCart(p.id)?' in':'')+'" onclick="addAction(\''+p.id+'\')">'+(inCart(p.id)?'✓ Aggiunto':'Aggiungi')+'</button></div>'
       + '</div>';
   }
 
-  /* ── CART ── */
+  /* ── CART ── (cart[id] = {qty, services:[{label,price}], price:unitaria}) */
   function findP(id){ for(var i=0;i<ALL.length;i++) if(ALL[i].id===id) return ALL[i]; return null; }
-  function toggleCart(id){ if(cart[id]!=null) delete cart[id]; else cart[id]=1; updateCart(); render(); }
-  function setQty(id,d){ if(cart[id]==null)return; cart[id]=Math.max(1,cart[id]+d); updateCart(); }
+  function cartQtyTotal(){ var n=0; for(var k in cart) n+=cart[k].qty; return n; }
+  function svcSum(services){ var s=0; services.forEach(function(x){s+=x.price;}); return s; }
+  function quickAdd(id){ var p=findP(id); cart[id]={qty:1,services:[],price:(p.price!=null?p.price:null)}; updateCart(); render(); }
+  function setQty(id,d){ if(!cart[id])return; var p=findP(id), mx=p.stock>0?p.stock:99; cart[id].qty=Math.min(mx,Math.max(1,cart[id].qty+d)); updateCart(); }
   function removeCart(id){ delete cart[id]; updateCart(); render(); }
-  function cartQtyTotal(){ var n=0; for(var k in cart) n+=cart[k]; return n; }
+  function addAction(id){ if(inCart(id)) removeCart(id); else openConfig(id); }
   function updateCart(){
     document.getElementById('cartCount').textContent=cartQtyTotal();
     var ids=Object.keys(cart), box=document.getElementById('cartItems'), total=0;
     if(!ids.length){ box.innerHTML='<div class="cart-empty"><i class="fas fa-cart-shopping" style="font-size:2rem;color:#D2D8E2;display:block;margin-bottom:12px"></i>Carrello vuoto.<br>Aggiungi prodotti dalla lista.</div>'; }
     else{
       box.innerHTML=ids.map(function(id){
-        var p=findP(id), q=cart[id]; var line=p.price!=null?p.price*q:null; if(line!=null) total+=line;
+        var p=findP(id), it=cart[id]; var line=it.price!=null?it.price*it.qty:null; if(line!=null) total+=line;
+        var svc=it.services.length?'<div class="citem-svc">'+it.services.map(function(s){return '+ '+esc(s.label)+(s.price?' <b>('+eur(s.price)+')</b>':'');}).join('<br>')+'</div>':'';
         return '<div class="citem"><div class="citem-body"><div class="citem-title">'+esc(p.title)+'</div>'
-          + '<div class="citem-sku">'+esc(p.id)+' · '+esc(p.brand)+'</div>'
-          + '<div class="qty"><button onclick="setQty(\''+id+'\',-1)">−</button><span>'+q+'</span><button onclick="setQty(\''+id+'\',1)">+</button></div></div>'
-          + '<div class="citem-right"><div class="citem-price">'+(p.price!=null?eur(p.price*q):'<span style="color:#D98A1F">su richiesta</span>')+'</div>'
+          + '<div class="citem-sku">'+esc(p.id)+' · '+esc(p.brand)+'</div>'+svc
+          + '<div class="qty"><button onclick="setQty(\''+id+'\',-1)">−</button><span>'+it.qty+'</span><button onclick="setQty(\''+id+'\',1)">+</button></div></div>'
+          + '<div class="citem-right"><div class="citem-price">'+(it.price!=null?eur(it.price*it.qty):'<span style="color:#D98A1F">su richiesta</span>')+'</div>'
           + '<button class="citem-del" onclick="removeCart(\''+id+'\')">Rimuovi</button></div></div>';
       }).join('');
     }
@@ -414,15 +462,126 @@
   function sendRequest(){
     var ids=Object.keys(cart);
     if(!ids.length){ alert('Il carrello è vuoto.'); return; }
-    var lines=['Ciao PrimoIT! Vorrei un preventivo per questi articoli:',''];
-    var total=0;
-    ids.forEach(function(id){ var p=findP(id),q=cart[id];
-      lines.push('• '+p.title+' ['+p.id+'] x'+q+(p.price!=null?' — '+eur(p.price*q):' — su richiesta'));
-      if(p.price!=null) total+=p.price*q;
+    var nameEl=document.getElementById('custName'), contactEl=document.getElementById('custContact');
+    var name=nameEl&&nameEl.value?nameEl.value.trim():'';
+    var contact=contactEl&&contactEl.value?contactEl.value.trim():'';
+    var lines=['Ciao PrimoIT! Vorrei un preventivo per questi articoli:'];
+    if(name) lines.push('Nome: '+name);
+    if(contact) lines.push('Contatto: '+contact);
+    lines.push('');
+    var total=0, items=[];
+    ids.forEach(function(id){ var p=findP(id),it=cart[id];
+      lines.push('• '+p.title+' ['+p.id+'] x'+it.qty+(it.price!=null?' — '+eur(it.price*it.qty):' — su richiesta'));
+      it.services.forEach(function(s){ lines.push('    ◦ '+s.label+(s.price?' (+'+eur(s.price)+')':'')); });
+      if(it.price!=null) total+=it.price*it.qty;
+      items.push({sku:p.id, title:p.title, brand:p.brand, qty:it.qty, unit:it.price,
+        total:(it.price!=null?it.price*it.qty:null), services:it.services.map(function(s){return s.label;})});
     });
     lines.push(''); lines.push('Totale indicativo (IVA escl.): '+eur(total));
+    // salva il deal nel mini-CRM (non bloccante: WhatsApp si apre comunque)
+    try{
+      fetch(API_BASE+'/api/deals',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({items:items, total:total, customer_name:name, customer_contact:contact})}).catch(function(){});
+    }catch(e){}
     window.open('https://wa.me/'+WHATSAPP+'?text='+encodeURIComponent(lines.join('\n')),'_blank');
   }
+
+  /* ── CONFIGURATORE SERVIZI (bozza, prezzi fornitore) ── */
+  var SVC_BASE = [
+    {key:'os', label:'Sistema operativo',
+     desc:'Il prodotto è consegnato senza sistema operativo. Puoi installarlo tu oppure lasciarlo ai nostri tecnici: Windows 11 (Home o Pro) con le applicazioni di base preinstallate.',
+     opts:[
+      {l:'Lo installo io (nessun OS)', p:0},
+      {l:'Windows 11 Home + applicazioni', p:30},
+      {l:'Windows 11 Pro + applicazioni', p:50}]},
+    {key:'warranty', label:'Garanzia',
+     desc:'Estende la copertura oltre la garanzia inclusa. Il costo dipende dal valore del prodotto.',
+     opts:[
+      {l:'Inclusa (standard)', p:0},
+      {l:'Estensione +12 mesi', p:45},
+      {l:'Estensione +24 mesi', p:75}]},
+    {key:'office', label:'Microsoft Office',
+     desc:'Licenza Microsoft Office originale, installata e attivata. Scegli una versione perpetua oppure l\'abbonamento 365.',
+     opts:[
+      {l:'Nessuno', p:0},
+      {l:'Office Home 2024', p:159},
+      {l:'Office Home & Business 2024', p:289},
+      {l:'Office 365 Personal (1 anno)', p:89},
+      {l:'Office 2016 Standard (volume)', p:99},
+      {l:'Office 2019 Standard (volume)', p:129},
+      {l:'Office 2021 LTSC Standard (volume)', p:219}]},
+    {key:'ssd', label:'Upgrade SSD',
+     desc:'Sostituiamo il disco attuale con un SSD di capacità superiore prima della spedizione.',
+     opts:[
+      {l:'Disco attuale', p:0},
+      {l:'480 GB SSD', p:49},
+      {l:'1 TB SSD', p:85},
+      {l:'2 TB SSD', p:160}]},
+    {key:'antivirus', label:'Antivirus',
+     desc:'Licenza Kaspersky installata: protezione in tempo reale da virus, trojan, spyware e malware.',
+     opts:[
+      {l:'Nessuno', p:0},
+      {l:'Kaspersky 1 anno', p:25},
+      {l:'Kaspersky 1 anno · 5 PC', p:39}]},
+    {key:'keyboard', label:'Tastiera',
+     desc:'Adesivi del layout nella tua lingua applicati sulla tastiera originale (in alternativa, incisione laser dei caratteri).',
+     opts:[
+      {l:'Layout standard (incluso)', p:0},
+      {l:'Adesivi layout nella tua lingua', p:3}]}
+  ];
+  var SVC_MONITOR = [
+    {key:'cable', label:'Cavo incluso',
+     desc:'Cavo di collegamento fornito col monitor. VGA e DVI gratuiti; HDMI e DisplayPort a supplemento.',
+     opts:[
+      {l:'Nessuno', p:0},
+      {l:'VGA', p:0},
+      {l:'DVI', p:0},
+      {l:'HDMI', p:10},
+      {l:'DisplayPort', p:10}]}
+  ];
+  function servicesFor(cat){
+    if(cat==='Laptop'||cat==='Computer') return SVC_BASE;
+    if(cat==='Monitor') return SVC_MONITOR;
+    return null;
+  }
+  var cfg=null;
+  function openConfig(id){
+    var p=findP(id), groups=servicesFor(p.category);
+    if(!groups){ quickAdd(id); return; }  // categorie senza servizi → aggiunta diretta
+    cfg={id:id, groups:groups, sel:{}, qty:(cart[id]?cart[id].qty:1)};
+    if(p.stock>0) cfg.qty=Math.min(p.stock, cfg.qty);
+    groups.forEach(function(g){ cfg.sel[g.key]=0; });
+    renderConfig(); document.getElementById('cfgBack').classList.add('open');
+  }
+  function selectOpt(key,idx){ cfg.sel[key]=idx; renderConfig(); }
+  function cfgQtyChange(d){ var p=findP(cfg.id), mx=p.stock>0?p.stock:99; cfg.qty=Math.min(mx,Math.max(1,cfg.qty+d)); renderConfig(); }
+  function cfgTotal(p){ var t=(p.price||0); cfg.groups.forEach(function(g){ t+=g.opts[cfg.sel[g.key]].p; }); return t; }
+  function renderConfig(){
+    var p=findP(cfg.id);
+    function optText(o){ if(o.p>0) return o.l+' (+'+eur(o.p)+')'; return /incl|nessun|installo|attuale|standard/i.test(o.l)?o.l:o.l+' (Gratis)'; }
+    var body=cfg.groups.map(function(g){
+      var info=g.desc?'<span class="cfg-info"><i class="fas fa-circle-info"></i><span class="tip">'+esc(g.desc)+'</span></span>':'';
+      var opts=g.opts.map(function(o,i){ return '<option'+(cfg.sel[g.key]===i?' selected':'')+'>'+esc(optText(o))+'</option>'; }).join('');
+      return '<div class="cfg-grp"><h5>'+esc(g.label)+info+'</h5><select class="cfg-sel" onchange="selectOpt(\''+g.key+'\',this.selectedIndex)">'+opts+'</select></div>';
+    }).join('');
+    document.getElementById('cfgBox').innerHTML=
+      '<div class="cfg-head"><div><div class="t">'+esc(p.title)+'</div><div class="s">Base '+(p.price!=null?eur(p.price):'su richiesta')+' · configura e aggiungi</div></div><button onclick="closeConfig()">✕</button></div>'
+      +'<div class="cfg-body">'+body+'</div>'
+      +'<div class="cfg-foot">'
+      +'<div class="cfg-total"><span>Totale <small style="color:var(--muted);font-weight:500">IVA escl.'+(cfg.qty>1&&p.price!=null?' · '+eur(cfgTotal(p))+' cad.':'')+'</small></span><b>'+(p.price!=null?eur(cfgTotal(p)*cfg.qty):'su richiesta')+'</b></div>'
+      +'<div class="cfg-stock"><i class="fas fa-circle-check"></i> '+esc(p.availability||'Disponibile')+' · <b>'+p.stock+' pz disponibili</b></div>'
+      +'<div class="cfg-actions"><div class="cfg-qty"><button onclick="cfgQtyChange(-1)"'+(cfg.qty<=1?' disabled':'')+'>−</button><span>'+cfg.qty+'</span><button onclick="cfgQtyChange(1)"'+(cfg.qty>=p.stock?' disabled':'')+'>+</button></div>'
+      +'<button class="cfg-add" onclick="confirmConfig()"><i class="fas fa-cart-plus"></i> Aggiungi al carrello</button></div>'
+      +'</div>';
+  }
+  function confirmConfig(){
+    var p=findP(cfg.id), services=[];
+    cfg.groups.forEach(function(g){ if(cfg.sel[g.key]!==0){ var o=g.opts[cfg.sel[g.key]]; services.push({label:g.label+': '+o.l, price:o.p}); }});
+    cart[cfg.id]={qty:cfg.qty, services:services, price:(p.price!=null?cfgTotal(p):null)};
+    closeConfigSilent(); updateCart(); render(); openCart();
+  }
+  function closeConfigSilent(){ document.getElementById('cfgBack').classList.remove('open'); cfg=null; }
+  function closeConfig(){ closeConfigSilent(); render(); }
 
   /* ── UI CONTROLS ── */
   function onSearch(v){ state.search=v.trim(); render(); }

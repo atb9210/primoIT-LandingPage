@@ -1,9 +1,12 @@
 import sqlite3
 import os
+import json
+import secrets
 from datetime import datetime, date
 from typing import List, Dict, Optional
 
-DB_PATH = os.getenv("DB_PATH", "/app/data/trico.db")
+# In Docker viene impostato via env (es. /app/data/primoit.db); in locale ricade su backend/data/
+DB_PATH = os.getenv("DB_PATH") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "primoit.db")
 
 
 def get_db():
@@ -33,6 +36,27 @@ def init_db():
             error TEXT
         )
     """)
+    # PrimoIT Shop — deals (mini-CRM richieste preventivo)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS deals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            ref TEXT,
+            customer_name TEXT,
+            customer_contact TEXT,
+            items_json TEXT NOT NULL,
+            total REAL,
+            status TEXT NOT NULL DEFAULT 'Nuovo',
+            notes TEXT,
+            details_json TEXT,
+            updated_at TEXT
+        )
+    """)
+    # migrazione DB esistenti: aggiungi details_json se manca
+    try:
+        cursor.execute("ALTER TABLE deals ADD COLUMN details_json TEXT")
+    except sqlite3.OperationalError:
+        pass
     conn.commit()
     conn.close()
 
@@ -138,3 +162,75 @@ def get_lead_stats() -> Dict:
         "success_rate": round((success / total * 100), 1) if total > 0 else 0,
         "date": today,
     }
+
+
+# ============ PrimoIT Shop — Deals (mini-CRM) ============
+
+DEAL_STATUSES = [
+    "Nuovo", "Contattato", "Preventivo inviato",
+    "Pagato acconto 20%", "Pagato", "Spedito", "Perso",
+]
+
+
+def create_deal(items, customer_name=None, customer_contact=None, total=None) -> Dict:
+    """Crea un deal dal carrello dello shop. Ritorna {id, ref}."""
+    conn = get_db()
+    cursor = conn.cursor()
+    ref = "PR-" + secrets.token_hex(3).upper()
+    cursor.execute(
+        """INSERT INTO deals (ref, customer_name, customer_contact, items_json, total, status)
+           VALUES (?, ?, ?, ?, ?, 'Nuovo')""",
+        (ref, customer_name, customer_contact, json.dumps(items, ensure_ascii=False), total),
+    )
+    conn.commit()
+    deal_id = cursor.lastrowid
+    conn.close()
+    return {"id": deal_id, "ref": ref}
+
+
+def get_deals(status: str = None) -> List[Dict]:
+    """Lista deal (opz. filtrata per stato), più recenti prima."""
+    conn = get_db()
+    cursor = conn.cursor()
+    if status:
+        cursor.execute("SELECT * FROM deals WHERE status = ? ORDER BY created_at DESC", (status,))
+    else:
+        cursor.execute("SELECT * FROM deals ORDER BY created_at DESC")
+    rows = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+    for r in rows:
+        try:
+            r["items"] = json.loads(r.get("items_json") or "[]")
+        except Exception:
+            r["items"] = []
+        try:
+            r["details"] = json.loads(r.get("details_json") or "{}")
+        except Exception:
+            r["details"] = {}
+    return rows
+
+
+def update_deal(deal_id: int, status: str = None, notes: str = None, details: dict = None) -> bool:
+    """Aggiorna stato, note e/o dettagli (contatto/spedizione/fatturazione/tracking) di un deal."""
+    conn = get_db()
+    cursor = conn.cursor()
+    sets, vals = [], []
+    if status is not None:
+        sets.append("status = ?")
+        vals.append(status)
+    if notes is not None:
+        sets.append("notes = ?")
+        vals.append(notes)
+    if details is not None:
+        sets.append("details_json = ?")
+        vals.append(json.dumps(details, ensure_ascii=False))
+    if not sets:
+        conn.close()
+        return False
+    sets.append("updated_at = datetime('now')")
+    vals.append(deal_id)
+    cursor.execute("UPDATE deals SET " + ", ".join(sets) + " WHERE id = ?", vals)
+    conn.commit()
+    ok = cursor.rowcount > 0
+    conn.close()
+    return ok

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrimoIT — Richieste (Admin)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+<style>
+  :root{
+    --navy:#0F1F3A; --navy-dark:#0A1428; --lime:#D4FF3A; --lime-hover:#C2F020;
+    --off-white:#F8F9FB; --text-dark:#0A0E1A; --muted:#5B6678; --line:#E6E9EF;
+    --green:#1E9E5A; --amber:#D98A1F; --teal:#0E9488; --blue:#2563EB; --red:#C0485E;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{font-family:'Inter',system-ui,sans-serif;}
+  body{background:var(--off-white);color:var(--text-dark);}
+  button{font-family:inherit;cursor:pointer;}
+  a{color:inherit;}
+
+  header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;display:flex;align-items:center;gap:16px;padding:0 24px;height:62px;}
+  header .tag{font-weight:700;font-size:.98rem;}
+  header .tag span{color:var(--lime);}
+  header .spacer{flex:1;}
+  header button{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:8px 14px;font-size:.84rem;font-weight:600;}
+  header button:hover{background:rgba(255,255,255,.18);}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 24px 60px;}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:104px;}
+  .stat .n{font-size:1.4rem;font-weight:800;}
+  .stat .l{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:600;}
+
+  .toolbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .toolbar select{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.85rem;background:#fff;outline:none;}
+  .toolbar .count{color:var(--muted);font-size:.88rem;}
+
+  .deal{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;}
+  .deal-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;}
+  .deal-ref{font-weight:800;font-size:.95rem;}
+  .deal-date{font-size:.74rem;color:var(--muted);margin-top:2px;}
+  .deal-cust{font-size:.86rem;margin-top:6px;}
+  .deal-cust .nm{font-weight:700;}
+  .deal-cust a{color:var(--blue);font-weight:600;text-decoration:none;}
+  .deal-spacer{flex:1;}
+  .deal-total{font-size:1.15rem;font-weight:800;color:var(--navy);white-space:nowrap;text-align:right;}
+  .deal-total small{font-size:.66rem;color:var(--muted);font-weight:600;}
+
+  .deal-items{margin:12px 0;border-top:1px solid var(--line);padding-top:10px;}
+  .di{font-size:.84rem;padding:4px 0;}
+  .di .q{color:var(--navy);font-weight:700;}
+  .di .pr{color:var(--muted);}
+  .di-svc{font-size:.74rem;color:#7A8699;padding-left:14px;}
+
+  .mng-btn{background:#EEF1F6;border:none;border-radius:8px;padding:8px 14px;font-size:.82rem;font-weight:700;color:var(--navy);}
+  .mng-btn:hover{background:#E2E7EF;}
+
+  /* edit panel */
+  .edit{display:none;border-top:1px solid var(--line);margin-top:12px;padding-top:14px;}
+  .edit.open{display:block;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .fld{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
+  .fld label{font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;}
+  .fld input,.fld textarea,.fld select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.85rem;font-family:inherit;outline:none;background:#fff;}
+  .fld input:focus,.fld textarea:focus,.fld select:focus{border-color:var(--navy);}
+  .fld input:disabled{background:#F4F6FA;color:#9AA4B5;}
+  .sec-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--navy);margin:14px 0 8px;display:flex;align-items:center;gap:8px;}
+  .sec-title i{color:var(--muted);}
+  .chk{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--muted);}
+  .chk input{width:15px;height:15px;accent-color:var(--navy);}
+  .vies-row{display:flex;gap:8px;align-items:flex-end;}
+  .vies-btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px 12px;font-size:.8rem;font-weight:700;white-space:nowrap;height:36px;}
+  .vies-res{font-size:.8rem;margin-top:6px;min-height:18px;}
+  .vies-ok{color:var(--green);font-weight:700;}
+  .vies-no{color:var(--red);font-weight:700;}
+  .vies-wait{color:var(--muted);}
+  .edit-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .btn-pdf{background:#fff;border:1.5px solid var(--navy);color:var(--navy);border-radius:9px;padding:10px 16px;font-weight:700;font-size:.85rem;}
+  .btn-pdf:hover{background:#F4F6FA;}
+  .btn-primary{background:var(--lime);color:var(--navy-dark);border:none;border-radius:9px;padding:10px 20px;font-weight:800;font-size:.85rem;}
+  .btn-primary:hover{background:var(--lime-hover);}
+
+  .badge{display:inline-block;font-size:.66rem;font-weight:800;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.03em;}
+  .st-Nuovo{background:rgba(37,99,235,.12);color:var(--blue);}
+  .st-Contattato{background:rgba(217,138,31,.14);color:var(--amber);}
+  .st-Preventivoinviato{background:rgba(14,148,136,.14);color:var(--teal);}
+  .st-Pagatoacconto20{background:rgba(217,138,31,.18);color:#B0701A;}
+  .st-Pagato{background:rgba(30,158,90,.14);color:var(--green);}
+  .st-Spedito{background:rgba(15,31,58,.1);color:var(--navy);}
+  .st-Perso{background:rgba(192,72,94,.14);color:var(--red);}
+
+  .empty{text-align:center;color:var(--muted);padding:50px;}
+
+  .login{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .login.hidden{display:none;}
+  .login-box{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:360px;}
+  .login-box h2{font-size:1.1rem;margin-bottom:4px;}
+  .login-box h2 span{color:#8aa;}
+  .login-box p{font-size:.82rem;color:var(--muted);margin-bottom:18px;}
+  .login-box input{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px 13px;font-size:.9rem;margin-bottom:10px;outline:none;font-family:inherit;}
+  .login-box input:focus{border-color:var(--navy);}
+  .login-box button{width:100%;background:var(--lime);color:var(--navy-dark);border:none;border-radius:9px;padding:12px;font-weight:800;font-size:.92rem;}
+  .login-err{color:var(--red);font-size:.8rem;margin-bottom:10px;display:none;}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="tag"><span>Primo</span>IT · Richieste</span>
+  <div class="spacer"></div>
+  <button onclick="load()"><i class="fas fa-rotate"></i> Aggiorna</button>
+  <button onclick="logout()"><i class="fas fa-right-from-bracket"></i> Esci</button>
+</header>
+
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+  <div class="toolbar">
+    <select id="filter" onchange="load()"><option value="">Tutti gli stati</option></select>
+    <span class="count" id="count"></span>
+  </div>
+  <div id="deals"></div>
+</div>
+
+<div class="login" id="login">
+  <div class="login-box">
+    <h2><span>Primo</span>IT · Area Admin</h2>
+    <p>Accedi per gestire le richieste di preventivo.</p>
+    <div class="login-err" id="loginErr">Credenziali non valide.</div>
+    <input id="user" type="text" placeholder="Utente" autocomplete="username">
+    <input id="pass" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Entra</button>
+  </div>
+</div>
+
+<script>
+  var API_BASE = 'http://localhost:8000';
+  var STATUSES = ['Nuovo','Contattato','Preventivo inviato','Pagato acconto 20%','Pagato','Spedito','Perso'];
+  var COMPANY = { name:'PrimoIT', piva:'05621560266', wa:'+39 327 489 4895', email:'info@primoit.it' };
+  var auth = sessionStorage.getItem('primoit_auth') || '';
+  var DEALS = {};       // id -> deal
+  var viesCache = {};   // id -> {valid,name,address}
+
+  function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function eur(n){ return n==null?'—':'€'+Number(n).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function stKey(s){ return 'st-'+s.replace(/[\s%]/g,''); }
+  function val(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
+
+  function api(path, opts){
+    opts=opts||{}; opts.headers=opts.headers||{};
+    opts.headers['Authorization']=auth;
+    if(opts.body) opts.headers['Content-Type']='application/json';
+    return fetch(API_BASE+path, opts).then(function(r){
+      if(r.status===401){ logout(); throw new Error('unauth'); }
+      return r.json();
+    });
+  }
+
+  function doLogin(){
+    var u=document.getElementById('user').value.trim(), p=document.getElementById('pass').value;
+    auth='Basic '+btoa(u+':'+p);
+    fetch(API_BASE+'/api/admin/deals',{headers:{'Authorization':auth}}).then(function(r){
+      if(r.ok){ sessionStorage.setItem('primoit_auth',auth); document.getElementById('login').classList.add('hidden'); initFilter(); load(); }
+      else { document.getElementById('loginErr').style.display='block'; }
+    }).catch(function(){ document.getElementById('loginErr').style.display='block'; });
+  }
+  function logout(){ auth=''; sessionStorage.removeItem('primoit_auth'); document.getElementById('login').classList.remove('hidden'); }
+
+  function initFilter(){
+    var sel=document.getElementById('filter');
+    if(sel.options.length>1) return;
+    STATUSES.forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+  }
+
+  function load(){
+    var f=document.getElementById('filter').value;
+    api('/api/admin/deals'+(f?'?status='+encodeURIComponent(f):'')).then(function(data){ render(data.deals||[]); }).catch(function(){});
+  }
+
+  function waLink(contact){
+    if(!contact) return '';
+    if(contact.indexOf('@')>0) return '<a href="mailto:'+esc(contact)+'">'+esc(contact)+'</a>';
+    var digits=contact.replace(/\D/g,'');
+    if(digits.length>=8){ var n=digits.charAt(0)==='3'?('39'+digits):digits; return '<a href="https://wa.me/'+n+'" target="_blank"><i class="fab fa-whatsapp"></i> '+esc(contact)+'</a>'; }
+    return esc(contact);
+  }
+
+  function render(deals){
+    DEALS={}; deals.forEach(function(d){ DEALS[d.id]=d; });
+    document.getElementById('count').textContent=deals.length+' richieste';
+    var counts={}; STATUSES.forEach(function(s){counts[s]=0;});
+    deals.forEach(function(d){ if(counts[d.status]!=null) counts[d.status]++; });
+    document.getElementById('stats').innerHTML=STATUSES.map(function(s){
+      return '<div class="stat"><div class="n">'+counts[s]+'</div><div class="l">'+s+'</div></div>';
+    }).join('');
+    var box=document.getElementById('deals');
+    if(!deals.length){ box.innerHTML='<div class="empty"><i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:12px;color:#C4CCD8"></i>Nessuna richiesta.</div>'; return; }
+    box.innerHTML=deals.map(dealCard).join('');
+  }
+
+  function dealCard(d){
+    var det=d.details||{};
+    var items=(d.items||[]).map(function(it){
+      var svc=(it.services&&it.services.length)?'<div class="di-svc">+ '+it.services.map(esc).join('<br>+ ')+'</div>':'';
+      return '<div class="di"><span class="q">'+it.qty+'×</span> '+esc(it.title)+' <span class="pr">['+esc(it.sku)+'] — '+eur(it.total)+'</span>'+svc+'</div>';
+    }).join('');
+    var contactName = (det.contact&&det.contact.name) || d.customer_name || '';
+    var contactPhone = (det.contact&&det.contact.phone) || d.customer_contact || '';
+    var cust = (contactName||contactPhone)
+      ? '<div class="deal-cust">'+(contactName?'<span class="nm">'+esc(contactName)+'</span> ':'')+(contactPhone?'· '+waLink(contactPhone):'')+'</div>'
+      : '<div class="deal-cust" style="color:#A6AFBF">Cliente anonimo (identifica dalla chat WhatsApp)</div>';
+    return '<div class="deal">'
+      + '<div class="deal-top"><div><div class="deal-ref">'+esc(d.ref||('#'+d.id))+' <span class="badge '+stKey(d.status)+'">'+esc(d.status)+'</span></div>'
+      +   '<div class="deal-date">'+esc(d.created_at)+(det.tracking?' · <i class="fas fa-truck"></i> '+esc(det.tracking):'')+'</div>'+cust+'</div>'
+      +   '<div class="deal-spacer"></div><div class="deal-total">'+eur(d.total)+' <small>IVA escl.</small></div></div>'
+      + '<div class="deal-items">'+items+'</div>'
+      + '<button class="mng-btn" onclick="toggleEdit('+d.id+')"><i class="fas fa-sliders"></i> Gestisci richiesta</button>'
+      + editPanel(d, det)
+      + '</div>';
+  }
+
+  function fld(id,label,value,ph,attr){ return '<div class="fld"><label>'+label+'</label><input id="'+id+'" value="'+esc(value||'')+'" placeholder="'+(ph||'')+'" '+(attr||'')+'></div>'; }
+
+  function editPanel(d, det){
+    var i=d.id, c=det.contact||{}, s=det.shipping||{}, b=det.billing||{}, v=det.vies||{};
+    if(v.valid!=null) viesCache[i]=v;
+    var contactName=c.name||d.customer_name||'', contactPhone=c.phone||d.customer_contact||'';
+    var statusOpts=STATUSES.map(function(x){return '<option'+(d.status===x?' selected':'')+'>'+x+'</option>';}).join('');
+    var viesTxt = v.valid===true ? '<span class="vies-ok"><i class="fas fa-circle-check"></i> Valida — '+esc(v.name||'')+'</span>'
+                 : v.valid===false ? '<span class="vies-no"><i class="fas fa-circle-xmark"></i> Non valida in VIES</span>' : '';
+    return '<div class="edit" id="edit_'+i+'">'
+      + '<div class="grid2">'
+      +   '<div class="fld"><label>Stato</label><select id="f_'+i+'_status">'+statusOpts+'</select></div>'
+      +   fld('f_'+i+'_tracking','Tracking spedizione', det.tracking, 'es. BRT0000000000')
+      + '</div>'
+
+      + '<div class="sec-title"><i class="fas fa-user"></i> Contatto</div>'
+      + '<div class="grid3">'+fld('f_'+i+'_c_name','Nome', contactName)+fld('f_'+i+'_c_phone','Telefono', contactPhone)+fld('f_'+i+'_c_email','Email', c.email)+'</div>'
+
+      + '<div class="sec-title"><i class="fas fa-truck"></i> Spedizione</div>'
+      + '<div class="grid2">'+fld('f_'+i+'_s_name','Destinatario', s.name||contactName)+fld('f_'+i+'_s_phone','Telefono', s.phone||contactPhone)+'</div>'
+      + fld('f_'+i+'_s_addr','Indirizzo', s.address)
+      + '<div class="grid3">'+fld('f_'+i+'_s_city','Città', s.city)+fld('f_'+i+'_s_zip','CAP', s.zip)+fld('f_'+i+'_s_country','Paese', s.country||'IT')+'</div>'
+
+      + '<div class="sec-title"><i class="fas fa-file-invoice"></i> Fatturazione &nbsp;<label class="chk"><input type="checkbox" id="f_'+i+'_bsame" '+(det.billSame?'checked':'')+' onchange="toggleBillSame('+i+')"> uguale alla spedizione</label></div>'
+      + '<div class="grid2">'+fld('f_'+i+'_b_name','Intestatario / Azienda', b.name)+'<div class="fld"><label>Partita IVA</label><div class="vies-row"><input id="f_'+i+'_b_vat" value="'+esc(b.vat||'')+'" placeholder="es. IT05621560266" style="flex:1"><button class="vies-btn" onclick="viesCheck('+i+')">Verifica VIES</button></div><div class="vies-res" id="vies_'+i+'">'+viesTxt+'</div></div>'+'</div>'
+      + fld('f_'+i+'_b_sdi','Codice SDI / PEC', b.sdi)
+      + '<div id="billaddr_'+i+'" '+(det.billSame?'style="display:none"':'')+'>'
+      +   fld('f_'+i+'_b_addr','Indirizzo', b.address)
+      +   '<div class="grid3">'+fld('f_'+i+'_b_city','Città', b.city)+fld('f_'+i+'_b_zip','CAP', b.zip)+fld('f_'+i+'_b_country','Paese', b.country||'IT')+'</div>'
+      + '</div>'
+
+      + '<div class="fld" style="margin-top:8px"><label>Note interne</label><textarea id="f_'+i+'_notes" placeholder="Note…">'+esc(d.notes||'')+'</textarea></div>'
+
+      + '<div class="edit-actions">'
+      +   '<button class="btn-pdf" onclick="genPdf('+i+')"><i class="fas fa-file-pdf"></i> Genera PDF preventivo</button>'
+      +   '<button class="btn-primary" onclick="saveDeal('+i+')"><i class="fas fa-floppy-disk"></i> Salva</button>'
+      + '</div></div>';
+  }
+
+  function toggleEdit(id){ document.getElementById('edit_'+id).classList.toggle('open'); }
+  function toggleBillSame(id){ document.getElementById('billaddr_'+id).style.display = document.getElementById('f_'+id+'_bsame').checked ? 'none' : 'block'; }
+
+  function viesCheck(id){
+    var vat=val('f_'+id+'_b_vat'); if(!vat){ alert('Inserisci la partita IVA.'); return; }
+    var country=(vat.replace(/[^A-Za-z]/g,'').slice(0,2)||'IT').toUpperCase();
+    var box=document.getElementById('vies_'+id); box.innerHTML='<span class="vies-wait">Verifica in corso…</span>';
+    api('/api/admin/vies',{method:'POST',body:JSON.stringify({country:country,vat:vat})}).then(function(r){
+      if(r.valid===true){ viesCache[id]={valid:true,name:r.name,address:r.address}; box.innerHTML='<span class="vies-ok"><i class="fas fa-circle-check"></i> Valida — '+esc(r.name||'')+(r.address?' · '+esc(r.address):'')+'</span>'; }
+      else if(r.valid===false){ viesCache[id]={valid:false}; box.innerHTML='<span class="vies-no"><i class="fas fa-circle-xmark"></i> Non valida in VIES</span>'; }
+      else { box.innerHTML='<span class="vies-wait">VIES non disponibile ('+esc(r.error||'')+')</span>'; }
+    }).catch(function(){ box.innerHTML='<span class="vies-wait">Errore di rete</span>'; });
+  }
+
+  function gather(id){
+    var bsame=document.getElementById('f_'+id+'_bsame').checked;
+    return {
+      status: val('f_'+id+'_status'),
+      notes: document.getElementById('f_'+id+'_notes').value,
+      details: {
+        contact:{ name:val('f_'+id+'_c_name'), phone:val('f_'+id+'_c_phone'), email:val('f_'+id+'_c_email') },
+        shipping:{ name:val('f_'+id+'_s_name'), phone:val('f_'+id+'_s_phone'), address:val('f_'+id+'_s_addr'), city:val('f_'+id+'_s_city'), zip:val('f_'+id+'_s_zip'), country:val('f_'+id+'_s_country') },
+        billing:{ name:val('f_'+id+'_b_name'), vat:val('f_'+id+'_b_vat'), sdi:val('f_'+id+'_b_sdi'), address:val('f_'+id+'_b_addr'), city:val('f_'+id+'_b_city'), zip:val('f_'+id+'_b_zip'), country:val('f_'+id+'_b_country') },
+        billSame: bsame,
+        vies: viesCache[id]||{},
+        tracking: val('f_'+id+'_tracking')
+      }
+    };
+  }
+
+  function saveDeal(id){
+    var payload=gather(id);
+    api('/api/admin/deals/'+id,{method:'PATCH',body:JSON.stringify(payload)}).then(function(){ load(); }).catch(function(){ alert('Errore nel salvataggio.'); });
+  }
+
+  /* ── PDF preventivo brandizzato ── */
+  function genPdf(id){
+    var d=DEALS[id], g=gather(id).details, st=val('f_'+id+'_status');
+    var imponibile=Number(d.total||0), iva=imponibile*0.22, totale=imponibile+iva;
+    var bill = g.billSame ? g.shipping : g.billing;
+    var rows=(d.items||[]).map(function(it){
+      var svc=(it.services&&it.services.length)?'<div class="p-svc">'+it.services.map(esc).join('<br>').replace(/^/, '+ ').replace(/<br>/g,'<br>+ ')+'</div>':'';
+      return '<tr><td class="c">'+it.qty+'</td><td><b>'+esc(it.title)+'</b> <span class="sku">'+esc(it.sku)+'</span>'+svc+'</td><td class="r">'+eur(it.unit)+'</td><td class="r">'+eur(it.total)+'</td></tr>';
+    }).join('');
+    function block(title, o, extra){
+      if(!o) return '';
+      var L=[o.name,o.address,[o.zip,o.city].filter(Boolean).join(' '),o.country].filter(Boolean);
+      if(extra) L=L.concat(extra);
+      if(o.phone) L.push('Tel: '+o.phone);
+      return '<div class="party"><h4>'+title+'</h4>'+L.map(function(x){return '<div>'+esc(x)+'</div>';}).join('')+'</div>';
+    }
+    var billExtra=[]; if(g.billing&&g.billing.vat) billExtra.push('P.IVA: '+g.billing.vat); if(g.billing&&g.billing.sdi) billExtra.push('SDI/PEC: '+g.billing.sdi);
+    var html='<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Preventivo '+esc(d.ref)+'</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">'
+    +'<style>'
+    +'@page{size:A4;margin:0}*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+    +'body{font-family:Inter,sans-serif;color:#0A0E1A;font-size:12px}'
+    +'.page{width:210mm;min-height:297mm;padding:0 0 28px;background:#fff;position:relative}'
+    +'.top{background:#0F1F3A;color:#fff;padding:26px 40px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #D4FF3A}'
+    +'.brand{font-size:24px;font-weight:800}.brand span{color:#D4FF3A}'
+    +'.brand .sub{font-size:10px;color:#8B9BB4;font-weight:500;margin-top:3px;letter-spacing:.04em}'
+    +'.doc{text-align:right}.doc h1{font-size:22px;font-weight:900;font-style:italic;letter-spacing:-.5px}.doc .meta{font-size:11px;color:#8B9BB4;margin-top:4px}'
+    +'.parties{display:flex;gap:20px;padding:24px 40px}'
+    +'.party{flex:1;background:#F8F9FB;border:1px solid #E6E9EF;border-radius:10px;padding:14px 16px}'
+    +'.party h4{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#5B6678;margin-bottom:7px}'
+    +'.party div{font-size:11.5px;line-height:1.5}'
+    +'table{width:calc(100% - 80px);margin:6px 40px 0;border-collapse:collapse}'
+    +'th{background:#0F1F3A;color:#fff;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;padding:9px 12px;text-align:left}'
+    +'th.c,td.c{text-align:center;width:42px}th.r,td.r{text-align:right;width:90px}'
+    +'td{padding:10px 12px;border-bottom:1px solid #E6E9EF;font-size:11.5px;vertical-align:top}'
+    +'.sku{color:#9AA4B5;font-size:10px}.p-svc{font-size:10px;color:#5B6678;margin-top:3px;line-height:1.5}'
+    +'.totals{margin:14px 40px 0;display:flex;justify-content:flex-end}'
+    +'.totals table{width:300px;margin:0}.totals td{border:none;padding:5px 12px}'
+    +'.totals .lbl{color:#5B6678}.totals .val{text-align:right;font-weight:700}'
+    +'.totals .grand td{border-top:2px solid #0F1F3A;font-size:15px;font-weight:900;color:#0F1F3A;padding-top:9px}'
+    +'.note{margin:22px 40px 0;font-size:10px;color:#5B6678;line-height:1.6;border-top:1px solid #E6E9EF;padding-top:12px}'
+    +'.foot{position:absolute;bottom:0;left:0;right:0;background:#0A1428;color:#8B9BB4;font-size:10px;padding:12px 40px;display:flex;justify-content:space-between;border-top:2px solid #D4FF3A}'
+    +'.foot b{color:#fff}'
+    +'@media print{.noprint{display:none}}'
+    +'.noprint{position:fixed;top:14px;right:14px}.noprint button{background:#D4FF3A;border:none;border-radius:8px;padding:10px 16px;font-weight:800;font-family:Inter;cursor:pointer}'
+    +'</style></head><body>'
+    +'<div class="noprint"><button onclick="window.print()">Stampa / Salva PDF</button></div>'
+    +'<div class="page">'
+    +'<div class="top"><div class="brand"><span>Primo</span>IT<div class="sub">Consulenza IT · Rivenditore hardware</div></div>'
+    +'<div class="doc"><h1>PREVENTIVO</h1><div class="meta">N. '+esc(d.ref)+'<br>Data: '+new Date().toLocaleDateString('it-IT')+'<br>Stato: '+esc(st)+'</div></div></div>'
+    +'<div class="parties">'
+    + (block('Spedizione', g.shipping) || '<div class="party"><h4>Cliente</h4><div>'+esc(g.contact&&g.contact.name||'—')+'</div><div>'+esc(g.contact&&g.contact.phone||'')+'</div></div>')
+    + block('Fatturazione', bill, billExtra)
+    + '</div>'
+    +'<table><thead><tr><th class="c">Qtà</th><th>Descrizione</th><th class="r">Prezzo</th><th class="r">Totale</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    +'<div class="totals"><table>'
+    +'<tr><td class="lbl">Imponibile</td><td class="val">'+eur(imponibile)+'</td></tr>'
+    +'<tr><td class="lbl">IVA 22%</td><td class="val">'+eur(iva)+'</td></tr>'
+    +'<tr class="grand"><td>TOTALE</td><td class="val">'+eur(totale)+'</td></tr>'
+    +'</table></div>'
+    +'<div class="note">Preventivo indicativo, valido 14 giorni. Prezzi soggetti a disponibilità. Garanzia 12 mesi inclusa salvo diversa indicazione. Pagamento: bonifico anticipato o acconto 20% alla conferma.</div>'
+    +'<div class="foot"><span><b>PrimoIT</b> · P.IVA '+COMPANY.piva+'</span><span>'+COMPANY.wa+' · '+COMPANY.email+'</span></div>'
+    +'</div></body></html>';
+    var w=window.open('','_blank');
+    w.document.write(html); w.document.close();
+  }
+
+  if(auth){ document.getElementById('login').classList.add('hidden'); initFilter(); load(); }
+</script>
+</body>
+</html>
