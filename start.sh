@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Starting Trico Rosmarinus API..."
+echo "Starting PrimoIT API..."
 
 # Start FastAPI backend in background
 cd /app

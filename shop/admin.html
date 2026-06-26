@@ -135,7 +135,8 @@
 </div>
 
 <script>
-  var API_BASE = 'http://localhost:8000';
+  // In locale usa :8000; in produzione stessa origine (/api proxato da nginx)
+  var API_BASE = (location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'http://localhost:8000' : '';
   var STATUSES = ['Nuovo','Contattato','Preventivo inviato','Pagato acconto 20%','Pagato','Spedito','Perso'];
   var COMPANY = { name:'PrimoIT', piva:'05621560266', wa:'+39 327 489 4895', email:'info@primoit.it' };
   var auth = sessionStorage.getItem('primoit_auth') || '';

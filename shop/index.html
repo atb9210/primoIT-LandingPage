@@ -278,7 +278,8 @@
 <script src="catalog.js"></script>
 <script>
   var WHATSAPP = '393274894895';
-  var API_BASE = 'http://localhost:8000';  // backend FastAPI (in prod: URL del backend deployato)
+  // In locale (file:// o localhost) usa il backend su :8000; in produzione usa la stessa origine (/api proxato da nginx)
+  var API_BASE = (location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'http://localhost:8000' : '';
   var CAT_ICON = {'Laptop':'fa-laptop','Computer':'fa-desktop','Monitor':'fa-display','Tablet & Smartphone':'fa-mobile-screen','Accessori':'fa-plug'};
   var CAT_ORDER = ['Laptop','Computer','Monitor','Tablet & Smartphone','Accessori'];
   function catRank(c){ var i=CAT_ORDER.indexOf(c); return i<0?99:i; }

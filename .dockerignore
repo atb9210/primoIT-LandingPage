@@ -35,5 +35,10 @@ Thumbs.db
 # Logs
 *.log
 
+# DB di sviluppo (in prod usa il volume montato su /app/data)
+backend/data/
+*.db
+*.sqlite
+
 # Lead management scripts (sensitive data)
 doppie/
