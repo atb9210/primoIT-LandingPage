@@ -3,3 +3,10 @@
 backend/data/
 *.db
 __pycache__/
+
+# Icecat: indice Open scaricato (grande, riuso locale) + file upload temporanei
+icecat_data/
+shop/icecat_upload.csv
+shop/icecat_sample10.xlsx
+shop/icecat_full.xlsx
+icecat_taxonomy/

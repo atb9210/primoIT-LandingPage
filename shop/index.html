@@ -302,6 +302,7 @@
 <div class="ice-back" id="iceBack" onclick="if(event.target===this)closeIcecat()"><div class="ice-box" id="iceBox"></div></div>
 
 <script src="catalog.js"></script>
+<script src="icecat_map.js"></script>
 <script>
   var WHATSAPP = '393274894895';
   // In locale (file:// o localhost) usa il backend su :8000; in produzione usa la stessa origine (/api proxato da nginx)
@@ -443,7 +444,7 @@
       +   '<div class="card-meta">'+esc(p.brand)+(p.keyboard_short?' · '+esc(p.keyboard_short):'')+' · '+p.stock+' pz</div>'
       +   '<div class="card-foot">'+priceHtml(p)
       +     '<div class="foot-btns">'
-      +       '<button class="eye-btn" title="Dettagli prodotto" onclick="openIcecat(\''+p.id+'\')"><i class="fas fa-eye"></i></button>'
+      +       eyeBtn(p)
       +       '<button class="add'+(inCart(p.id)?' in':'')+'" onclick="addAction(\''+p.id+'\')">'+(inCart(p.id)?'✓ Aggiunto':'Aggiungi')+'</button>'
       +     '</div>'
       +   '</div>'
@@ -459,7 +460,7 @@
       + '<div class="row-attrs">'+attr('CPU',p.cpu)+attr('RAM',p.ram)+attr('Drive',p.drive)+attrGpu(p)+attrKb(p)+attr('Stock',p.stock+' pz')+'</div>'
       + '<div class="row-price">'+priceHtml(p)
       +   '<div class="foot-btns">'
-      +     '<button class="eye-btn" title="Dettagli prodotto" onclick="openIcecat(\''+p.id+'\')"><i class="fas fa-eye"></i></button>'
+      +     eyeBtn(p)
       +     '<button class="add'+(inCart(p.id)?' in':'')+'" onclick="addAction(\''+p.id+'\')">'+(inCart(p.id)?'✓ Aggiunto':'Aggiungi')+'</button>'
       +   '</div></div>'
       + '</div>';
@@ -659,6 +660,10 @@
     return t.replace(/\s+/g,' ').trim();
   }
 
+  // mappa generata dal matcher per nome (nostro_id -> IcecatProductId)
+  function shippedMatch(id){ return (window.ICECAT_MAP||{})[id]; }
+  function hasIcecat(p){ return !!(shippedMatch(p.id) || iceMap()[p.id]); }
+
   // sistema di matching → {params, source}
   function icecatQuery(p){
     var ov=iceMap()[p.id];
@@ -667,11 +672,16 @@
       if(ov.icecatId) return {params:{IcecatProductId:ov.icecatId}, source:'override · Icecat ID'};
       if(ov.partCode) return {params:{Brand:ov.brand||p.brand, ProductCode:ov.partCode}, source:'override · codice'};
     }
+    var sm=shippedMatch(p.id);
+    if(sm && sm.icecatId) return {params:{IcecatProductId:sm.icecatId}, source:'match per nome'};
     var brand=(p.brand && p.brand!=='Altro')?p.brand:'';
     var model=extractModel(p.title, p.brand);
     if(brand && model) return {params:{Brand:brand, ProductCode:model}, source:'auto da titolo'};
     return {params:null, source:'nessun identificatore'};
   }
+
+  // bottone occhio: mostrato solo dove c'è una scheda Icecat agganciata
+  function eyeBtn(p){ return hasIcecat(p) ? '<button class="eye-btn" title="Scheda tecnica" onclick="openIcecat(\''+p.id+'\')"><i class="fas fa-eye"></i></button>' : ''; }
 
   var iceCur=null;
   function openIcecat(id){ var p=findP(id); if(!p) return; iceCur=p; document.getElementById('iceBack').classList.add('open'); renderIcecat(p); }
