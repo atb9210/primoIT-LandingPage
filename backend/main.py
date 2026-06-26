@@ -51,6 +51,10 @@ try:
 except ImportError:
     stripe = None
 
+# Icecat Live (arricchimento schede prodotto nello shop)
+ICECAT_SHOPNAME = os.getenv("ICECAT_SHOPNAME", "")
+ICECAT_LANG = os.getenv("ICECAT_LANG", "IT")
+
 # Facebook Conversion API
 FB_PIXEL_ID = os.getenv("FB_PIXEL_ID", "2095934291260128")
 FB_ACCESS_TOKEN = os.getenv("FB_ACCESS_TOKEN", "EAAWzrJVNYx0BQr2wVNTXZB7E8YW0Sj2o9opMDcePaBAPkVLncJ55iyZC3Se74me2OGo3DhpGMfUCHHaYzeNefeHTsbsRYcJZBAzbVI6lQUhq9gZC3MuQkpP31NQyAJzKo6vp4tTqhDld9JuVWjsGgIcQcF0CLUZB1p1NquUZBnZCI0Pcl2l5CnDz9ccZAHoDcwZDZD")
@@ -100,6 +104,11 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+@app.get("/api/config")
+async def public_config():
+    """Config pubblica per il frontend dello shop (shopname Icecat letto dall'env)."""
+    return {"icecatShopname": ICECAT_SHOPNAME, "icecatLang": ICECAT_LANG}
 
 @app.post("/api/order", response_model=OrderResponse)
 async def create_order(order: OrderRequest):

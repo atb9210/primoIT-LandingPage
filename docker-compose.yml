@@ -21,5 +21,8 @@ services:
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       STRIPE_VAT_RATE_ID: ${STRIPE_VAT_RATE_ID:-}
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
+      # Icecat Live (arricchimento schede shop)
+      ICECAT_SHOPNAME: ${ICECAT_SHOPNAME:-}
+      ICECAT_LANG: ${ICECAT_LANG:-IT}
     volumes:
       - ../files/data:/app/data   # ← bind mount persistente Dokploy (DB SQLite)
