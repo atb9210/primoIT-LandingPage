@@ -17,6 +17,7 @@ services:
       # Stripe (opzionali: senza chiavi i link non vengono generati, il resto funziona)
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_VAT_RATE_ID: ${STRIPE_VAT_RATE_ID:-}
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
     volumes:
       - primoit_data:/app/data   # ← volume persistente per il DB

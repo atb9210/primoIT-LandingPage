@@ -42,6 +42,7 @@ security = HTTPBasic(auto_error=False)  # niente popup nativo del browser: gesti
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_CURRENCY = os.getenv("STRIPE_CURRENCY", "eur")
+STRIPE_VAT_RATE_ID = os.getenv("STRIPE_VAT_RATE_ID", "")  # opz.: id TaxRate IVA 22% (evita ricreazioni)
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "").rstrip("/")
 try:
     import stripe
@@ -710,10 +711,94 @@ class PaymentCreate(BaseModel):
 class MarkPaid(BaseModel):
     sessionId: Optional[str] = None
 
+# Paesi UE (+ UK/CH) per la raccolta indirizzo di spedizione al checkout
+STRIPE_SHIP_COUNTRIES = [
+    "IT", "FR", "DE", "ES", "PT", "AT", "BE", "NL", "LU", "IE",
+    "FI", "SE", "DK", "PL", "CZ", "SK", "SI", "HR", "HU", "RO",
+    "BG", "GR", "EE", "LV", "LT", "MT", "CY", "CH", "GB",
+]
+
+_vat_rate_cache = {"id": STRIPE_VAT_RATE_ID or None}
+
+def _get_vat_tax_rate():
+    """Ritorna l'id della TaxRate IVA 22% (inclusive). La crea una volta sola e la memorizza."""
+    if stripe is None:
+        return None
+    if _vat_rate_cache.get("id"):
+        return _vat_rate_cache["id"]
+    try:
+        rate = stripe.TaxRate.create(
+            display_name="IVA", percentage=22, inclusive=True,
+            country="IT", description="IVA 22%",
+        )
+        _vat_rate_cache["id"] = rate.id
+        logger.info(f"Stripe: creata TaxRate IVA 22% id={rate.id} — impostala in STRIPE_VAT_RATE_ID per riusarla")
+        return rate.id
+    except Exception as e:
+        logger.error(f"Stripe TaxRate error: {e}")
+        return None
+
 def _deal_status_for_mode(mode: str) -> str:
     return "Pagato acconto 20%" if mode == "acconto" else "Pagato"
 
-def _mark_payment_paid(deal_id: int, session_id: str = None, mode_hint: str = None) -> bool:
+def _g(obj, key, default=None):
+    """Accesso difensivo a dict o oggetti Stripe."""
+    if obj is None:
+        return default
+    try:
+        if isinstance(obj, dict):
+            return obj.get(key, default)
+        return getattr(obj, key, default)
+    except Exception:
+        return default
+
+def _apply_collected_info(details: dict, session) -> dict:
+    """Riempie i campi vuoti del deal con i dati raccolti al checkout; salva lo snapshot grezzo."""
+    cust = _g(session, "customer_details") or {}
+    addr = _g(cust, "address") or {}
+    ship = _g(session, "shipping_details") or _g(_g(session, "collected_information"), "shipping_details") or {}
+    ship_addr = _g(ship, "address") or {}
+    tax_ids = _g(cust, "tax_ids") or []
+    vat = _g(tax_ids[0], "value") if tax_ids else None
+
+    contact = details.get("contact") or {}
+    shipping = details.get("shipping") or {}
+    billing = details.get("billing") or {}
+
+    def fill(d, key, value):
+        if value and not d.get(key):
+            d[key] = value
+
+    fill(contact, "name", _g(cust, "name"))
+    fill(contact, "email", _g(cust, "email"))
+    fill(contact, "phone", _g(cust, "phone"))
+
+    fill(shipping, "name", _g(ship, "name") or _g(cust, "name"))
+    fill(shipping, "address", _g(ship_addr, "line1") or _g(addr, "line1"))
+    fill(shipping, "city", _g(ship_addr, "city") or _g(addr, "city"))
+    fill(shipping, "zip", _g(ship_addr, "postal_code") or _g(addr, "postal_code"))
+    fill(shipping, "country", _g(ship_addr, "country") or _g(addr, "country"))
+
+    fill(billing, "name", _g(cust, "name"))
+    fill(billing, "vat", vat)
+    fill(billing, "address", _g(addr, "line1"))
+    fill(billing, "city", _g(addr, "city"))
+    fill(billing, "zip", _g(addr, "postal_code"))
+    fill(billing, "country", _g(addr, "country"))
+
+    details["contact"] = contact
+    details["shipping"] = shipping
+    details["billing"] = billing
+    details["stripeOrder"] = {
+        "name": _g(cust, "name"), "email": _g(cust, "email"), "phone": _g(cust, "phone"),
+        "vat": vat,
+        "billingAddress": {k: _g(addr, k) for k in ("line1", "line2", "city", "postal_code", "country")},
+        "shippingAddress": {k: _g(ship_addr, k) for k in ("line1", "line2", "city", "postal_code", "country")},
+        "collectedAt": datetime.now().isoformat(timespec="seconds"),
+    }
+    return details
+
+def _mark_payment_paid(deal_id: int, session_id: str = None, mode_hint: str = None, session_obj=None) -> bool:
     deal = get_deal(deal_id)
     if not deal:
         return False
@@ -729,6 +814,11 @@ def _mark_payment_paid(deal_id: int, session_id: str = None, mode_hint: str = No
     target["status"] = "paid"
     target["paidAt"] = datetime.now().isoformat(timespec="seconds")
     details["payments"] = payments
+    if session_obj is not None:
+        try:
+            details = _apply_collected_info(details, session_obj)
+        except Exception as e:
+            logger.error(f"Stripe collected info error: {e}")
     update_deal(deal_id, status=_deal_status_for_mode(target.get("mode") or mode_hint or "intero"), details=details)
     return True
 
@@ -745,17 +835,37 @@ async def api_create_payment(deal_id: int, body: PaymentCreate, username: str = 
         raise HTTPException(status_code=400, detail="Importo non valido")
     ref = deal.get("ref") or f"#{deal_id}"
     base = PUBLIC_BASE_URL or ""
+    n_items = sum(int(it.get("qty") or 1) for it in (deal.get("items") or [])) or 1
+    mode_label = {"acconto": "Acconto 20%", "saldo": "Saldo", "intero": "Pagamento intero"}.get(body.mode, body.mode)
+    line_item = {
+        "quantity": 1,
+        "price_data": {
+            "currency": STRIPE_CURRENCY,
+            "unit_amount": int(round(amount * 100)),
+            "product_data": {
+                "name": f"PrimoIT — Ordine {ref}",
+                "description": f"{mode_label} · {n_items} {'pezzo' if n_items == 1 else 'pezzi'}",
+            },
+        },
+    }
+    vat_rate = _get_vat_tax_rate()
+    if vat_rate:
+        line_item["tax_rates"] = [vat_rate]
     try:
         session = stripe.checkout.Session.create(
             mode="payment",
-            line_items=[{
-                "quantity": 1,
-                "price_data": {
-                    "currency": STRIPE_CURRENCY,
-                    "unit_amount": int(round(amount * 100)),
-                    "product_data": {"name": f"PrimoIT {ref} - {body.mode}"},
-                },
-            }],
+            locale="it",
+            line_items=[line_item],
+            phone_number_collection={"enabled": True},
+            billing_address_collection="required",
+            shipping_address_collection={"allowed_countries": STRIPE_SHIP_COUNTRIES},
+            tax_id_collection={"enabled": True},
+            customer_creation="always",
+            payment_intent_data={
+                "description": f"PrimoIT {ref} ({body.mode})",
+                "statement_descriptor_suffix": "PRIMOIT",
+            },
+            custom_text={"submit": {"message": "Riceverai conferma e fattura da PrimoIT."}},
             metadata={"deal_id": str(deal_id), "ref": ref, "mode": body.mode},
             success_url=(base + "/shop/?paid=1") if base else "https://dashboard.stripe.com",
             cancel_url=(base + "/shop/") if base else "https://dashboard.stripe.com",
@@ -802,7 +912,16 @@ async def stripe_webhook(request: Request):
         meta = obj.get("metadata") or {}
         deal_id = meta.get("deal_id")
         if deal_id:
-            _mark_payment_paid(int(deal_id), session_id=obj.get("id"), mode_hint=meta.get("mode"))
+            session_obj = obj
+            # rilettura completa per avere customer_details/shipping espansi e aggiornati
+            try:
+                session_obj = stripe.checkout.Session.retrieve(
+                    obj.get("id"), expand=["customer_details"]
+                )
+            except Exception as e:
+                logger.error(f"Stripe session retrieve error: {e}")
+            _mark_payment_paid(int(deal_id), session_id=obj.get("id"),
+                               mode_hint=meta.get("mode"), session_obj=session_obj)
             logger.info(f"Stripe: deal {deal_id} pagato (session {obj.get('id')})")
     return {"received": True}
 

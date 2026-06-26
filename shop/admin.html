@@ -107,6 +107,20 @@
   .bank-line{padding:2px 0;}
   .pay-paid{background:rgba(30,158,90,.14);color:var(--green);}
   .pay-pending{background:rgba(217,138,31,.16);color:var(--amber);}
+  /* riga azioni card + bottone stato pagamento (grigio/giallo/verde) */
+  .deal-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .pay-state-btn{border:none;border-radius:8px;padding:8px 14px;font-size:.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;}
+  .pay-st-none{background:#E7EAF0;color:#5A6577;}
+  .pay-st-none:hover{background:#DCE0E9;}
+  .pay-st-pending{background:#FFF4CC;color:#9A6A12;}
+  .pay-st-pending:hover{background:#FCEDB4;}
+  .pay-st-paid{background:var(--lime,#D4FF3A);color:var(--navy,#0F1F3A);}
+  .pay-st-acconto{background:rgba(217,138,31,.20);color:#9A6A12;}
+  .pay-iva-detail{font-size:.78rem;color:#6B7689;margin:0 0 6px;line-height:1.5;}
+  .pay-iva-detail b{color:var(--navy);}
+  .stripe-order{background:#F2FBF5;border:1px solid rgba(30,158,90,.25);border-radius:10px;padding:9px 12px;margin:8px 0;font-size:.8rem;color:#2A4A38;}
+  .stripe-order .so-h{font-weight:800;color:var(--green);margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+  .stripe-order .so-line{padding:1px 0;}
 
   .empty{text-align:center;color:var(--muted);padding:50px;}
 
@@ -234,9 +248,37 @@
       +   '<div class="deal-date">'+esc(d.created_at)+(det.tracking?' · <i class="fas fa-truck"></i> '+esc(det.tracking):'')+'</div>'+cust+'</div>'
       +   '<div class="deal-spacer"></div><div class="deal-total">'+eur(d.total)+' <small>IVA escl.</small></div></div>'
       + '<div class="deal-items">'+items+'</div>'
-      + '<button class="mng-btn" onclick="toggleEdit('+d.id+')"><i class="fas fa-sliders"></i> Gestisci richiesta</button>'
+      + '<div class="deal-actions">'
+      +   '<button class="mng-btn" onclick="toggleEdit('+d.id+')"><i class="fas fa-sliders"></i> Gestisci richiesta</button>'
+      +   payStateButton(d, det)
+      + '</div>'
       + editPanel(d, det)
       + '</div>';
+  }
+
+  /* Stato pagamento aggregato per la card + bottone colorato */
+  function payState(det){
+    var pays=(det&&det.payments)||[];
+    if(!pays.length) return {key:'none', label:'Crea pagamento'};
+    var paid=pays.filter(function(p){return p.status==='paid';});
+    if(paid.length){
+      var onlyAcconto = paid.every(function(p){return p.mode==='acconto';}) && !paid.some(function(p){return p.mode!=='acconto';});
+      if(onlyAcconto) return {key:'acconto', label:'Acconto pagato'};
+      return {key:'paid', label:'Pagato'};
+    }
+    var pend=pays[pays.length-1];
+    return {key:'pending', label:'In attesa '+eur(pend.amount)};
+  }
+  function payStateButton(d, det){
+    var st=payState(det);
+    var ico=st.key==='paid'?'fa-circle-check':(st.key==='acconto'?'fa-circle-half-stroke':(st.key==='pending'?'fa-hourglass-half':'fa-credit-card'));
+    return '<button class="pay-state-btn pay-st-'+st.key+'" onclick="openPayment('+d.id+')"><i class="fas '+ico+'"></i> '+esc(st.label)+'</button>';
+  }
+  function openPayment(id){
+    var ed=document.getElementById('edit_'+id);
+    if(ed && !ed.classList.contains('open')) ed.classList.add('open');
+    var sec=document.getElementById('paysec_'+id);
+    if(sec) sec.scrollIntoView({behavior:'smooth', block:'center'});
   }
 
   function fld(id,label,value,ph,attr){ return '<div class="fld"><label>'+label+'</label><input id="'+id+'" value="'+esc(value||'')+'" placeholder="'+(ph||'')+'" '+(attr||'')+'></div>'; }
@@ -318,7 +360,9 @@
   /* ── Pagamento (Stripe + bonifico) ── */
   function paymentSection(d, det){
     var i=d.id;
-    var ivaTot=Math.round((d.total||0)*1.22*100)/100;
+    var imponibile=Math.round((d.total||0)*100)/100;
+    var iva=Math.round(imponibile*0.22*100)/100;
+    var ivaTot=Math.round((imponibile+iva)*100)/100;
     var pays=det.payments||[];
     var list = pays.length ? pays.map(function(p){
       var paid=p.status==='paid';
@@ -329,8 +373,22 @@
       if(!paid) acts+=' <button class="pay-mini" onclick="markPaid('+i+',\''+esc(p.sessionId||'')+'\')">Segna pagato</button>';
       return '<div class="pay-row">'+badge+' <b>'+esc(p.mode)+'</b> '+eur(p.amount)+acts+'</div>';
     }).join('') : '<div class="pay-empty">Nessun pagamento ancora.</div>';
-    return '<div class="sec-title"><i class="fas fa-building-columns"></i> Pagamento</div>'
+    var so=det.stripeOrder;
+    var soBox='';
+    if(so){
+      var sa=so.shippingAddress||{}, parts=[sa.line1,sa.postal_code,sa.city,sa.country].filter(Boolean).join(', ');
+      soBox='<div class="stripe-order"><div class="so-h"><i class="fas fa-circle-check"></i> Dati raccolti al pagamento</div>'
+        + (so.name?'<div class="so-line"><b>'+esc(so.name)+'</b></div>':'')
+        + (so.phone?'<div class="so-line">Tel: '+esc(so.phone)+'</div>':'')
+        + (so.email?'<div class="so-line">Email: '+esc(so.email)+'</div>':'')
+        + (parts?'<div class="so-line">Spedizione: '+esc(parts)+'</div>':'')
+        + (so.vat?'<div class="so-line">P.IVA: '+esc(so.vat)+'</div>':'')
+        + '<div class="so-line" style="color:#6B8A78;margin-top:3px;font-size:.74rem">I campi del deal sono stati precompilati con questi dati.</div></div>';
+    }
+    return '<div class="sec-title" id="paysec_'+i+'"><i class="fas fa-building-columns"></i> Pagamento</div>'
       + '<div class="pay-box">'+list+'</div>'
+      + soBox
+      + '<div class="pay-iva-detail">Imponibile <b>'+eur(imponibile)+'</b> + IVA 22% <b>'+eur(iva)+'</b> = Totale <b>'+eur(ivaTot)+'</b> <span style="color:#9AA4B5">(addebito IVA inclusa)</span></div>'
       + '<div class="pay-gen">'
       +   '<select id="f_'+i+'_pmode" onchange="onPmode('+i+','+ivaTot+')">'
       +     '<option value="intero">Intero</option><option value="acconto">Acconto 20%</option><option value="saldo">Saldo</option>'
