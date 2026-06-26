@@ -1,5 +1,7 @@
 # Deploy PrimoIT su Dokploy (tipo: Compose)
-# Il volume "primoit_data" persiste il DB SQLite dei deal tra i redeploy.
+# Persistenza DB SQLite: bind mount su ../files/ — la cartella "files" è il volume
+# persistente che Dokploy tiene separato dal codice e NON ricrea a ogni deploy
+# (il named volume invece veniva rigenerato, perdendo i deal).
 services:
   primoit:
     build:
@@ -20,7 +22,4 @@ services:
       STRIPE_VAT_RATE_ID: ${STRIPE_VAT_RATE_ID:-}
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
     volumes:
-      - primoit_data:/app/data   # ← volume persistente per il DB
-
-volumes:
-  primoit_data:
+      - ../files/data:/app/data   # ← bind mount persistente Dokploy (DB SQLite)
