@@ -10,7 +10,7 @@ import logging
 import os
 import hashlib
 import time
-from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, update_deal
+from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, get_deal, update_deal
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -37,6 +37,18 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 ADMIN_USER = os.getenv("ADMIN_USER", "admin")
 ADMIN_PASS = os.getenv("ADMIN_PASS", "trico2026!")
 security = HTTPBasic(auto_error=False)  # niente popup nativo del browser: gestiamo noi il login
+
+# Stripe (pagamenti)
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_CURRENCY = os.getenv("STRIPE_CURRENCY", "eur")
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "").rstrip("/")
+try:
+    import stripe
+    if STRIPE_SECRET_KEY:
+        stripe.api_key = STRIPE_SECRET_KEY
+except ImportError:
+    stripe = None
 
 # Facebook Conversion API
 FB_PIXEL_ID = os.getenv("FB_PIXEL_ID", "2095934291260128")
@@ -687,6 +699,112 @@ async def api_vies(req: ViesRequest, username: str = Depends(verify_admin)):
     except Exception as e:
         logger.error(f"VIES error: {e}")
         return {"valid": None, "error": str(e)}
+
+
+# ============ Stripe — pagamenti sui deal ============
+
+class PaymentCreate(BaseModel):
+    mode: str = "intero"      # 'acconto' | 'saldo' | 'intero'
+    amount: float             # EUR, IVA inclusa (calcolato/editato in admin)
+
+class MarkPaid(BaseModel):
+    sessionId: Optional[str] = None
+
+def _deal_status_for_mode(mode: str) -> str:
+    return "Pagato acconto 20%" if mode == "acconto" else "Pagato"
+
+def _mark_payment_paid(deal_id: int, session_id: str = None, mode_hint: str = None) -> bool:
+    deal = get_deal(deal_id)
+    if not deal:
+        return False
+    details = deal.get("details") or {}
+    payments = details.get("payments") or []
+    target = None
+    if session_id:
+        target = next((p for p in payments if p.get("sessionId") == session_id), None)
+    if target is None:
+        target = next((p for p in reversed(payments) if p.get("status") != "paid"), None)
+    if target is None:
+        return False
+    target["status"] = "paid"
+    target["paidAt"] = datetime.now().isoformat(timespec="seconds")
+    details["payments"] = payments
+    update_deal(deal_id, status=_deal_status_for_mode(target.get("mode") or mode_hint or "intero"), details=details)
+    return True
+
+@app.post("/api/admin/deals/{deal_id}/payment")
+async def api_create_payment(deal_id: int, body: PaymentCreate, username: str = Depends(verify_admin)):
+    """Crea una Stripe Checkout Session per il deal e salva il link."""
+    if stripe is None or not STRIPE_SECRET_KEY:
+        raise HTTPException(status_code=503, detail="Stripe non configurato (manca STRIPE_SECRET_KEY)")
+    deal = get_deal(deal_id)
+    if not deal:
+        raise HTTPException(status_code=404, detail="Deal non trovato")
+    amount = round(float(body.amount or 0), 2)
+    if amount <= 0:
+        raise HTTPException(status_code=400, detail="Importo non valido")
+    ref = deal.get("ref") or f"#{deal_id}"
+    base = PUBLIC_BASE_URL or ""
+    try:
+        session = stripe.checkout.Session.create(
+            mode="payment",
+            line_items=[{
+                "quantity": 1,
+                "price_data": {
+                    "currency": STRIPE_CURRENCY,
+                    "unit_amount": int(round(amount * 100)),
+                    "product_data": {"name": f"PrimoIT {ref} - {body.mode}"},
+                },
+            }],
+            metadata={"deal_id": str(deal_id), "ref": ref, "mode": body.mode},
+            success_url=(base + "/shop/?paid=1") if base else "https://dashboard.stripe.com",
+            cancel_url=(base + "/shop/") if base else "https://dashboard.stripe.com",
+        )
+    except Exception as e:
+        logger.error(f"Stripe create session error: {e}")
+        raise HTTPException(status_code=502, detail=f"Stripe: {e}")
+    details = deal.get("details") or {}
+    payments = details.get("payments") or []
+    payments.append({
+        "mode": body.mode, "amount": amount, "currency": STRIPE_CURRENCY,
+        "sessionId": session.id, "url": session.url, "status": "pending",
+        "createdAt": datetime.now().isoformat(timespec="seconds"), "paidAt": None,
+    })
+    details["payments"] = payments
+    update_deal(deal_id, details=details)
+    return {"success": True, "url": session.url, "sessionId": session.id}
+
+@app.post("/api/admin/deals/{deal_id}/payment/mark-paid")
+async def api_mark_paid(deal_id: int, body: MarkPaid = MarkPaid(), username: str = Depends(verify_admin)):
+    """Override manuale: marca pagato (fallback se il webhook non scatta)."""
+    if not _mark_payment_paid(deal_id, session_id=body.sessionId):
+        raise HTTPException(status_code=404, detail="Pagamento non trovato")
+    return {"success": True}
+
+@app.post("/api/stripe/webhook")
+async def stripe_webhook(request: Request):
+    """Webhook Stripe: su checkout.session.completed marca il deal come pagato."""
+    if stripe is None:
+        return {"received": False}
+    payload = await request.body()
+    sig = request.headers.get("stripe-signature", "")
+    try:
+        if STRIPE_WEBHOOK_SECRET:
+            event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
+        else:
+            import json as _json
+            event = _json.loads(payload)  # solo dev senza webhook secret
+    except Exception as e:
+        logger.error(f"Stripe webhook verify error: {e}")
+        raise HTTPException(status_code=400, detail="Firma non valida")
+    if event["type"] == "checkout.session.completed":
+        obj = event["data"]["object"]
+        meta = obj.get("metadata") or {}
+        deal_id = meta.get("deal_id")
+        if deal_id:
+            _mark_payment_paid(int(deal_id), session_id=obj.get("id"), mode_hint=meta.get("mode"))
+            logger.info(f"Stripe: deal {deal_id} pagato (session {obj.get('id')})")
+    return {"received": True}
 
 
 if __name__ == "__main__":

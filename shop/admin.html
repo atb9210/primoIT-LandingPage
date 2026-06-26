@@ -91,6 +91,23 @@
   .st-Spedito{background:rgba(15,31,58,.1);color:var(--navy);}
   .st-Perso{background:rgba(192,72,94,.14);color:var(--red);}
 
+  /* pagamento */
+  .pay-box{background:#F8F9FB;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:8px;}
+  .pay-row{font-size:.84rem;padding:5px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .pay-empty{font-size:.82rem;color:#9AA4B5;padding:4px 0;}
+  .pay-link{color:var(--blue);font-weight:600;text-decoration:none;font-size:.8rem;}
+  .pay-mini{background:#EEF1F6;border:none;border-radius:6px;padding:4px 8px;font-size:.74rem;font-weight:600;color:var(--navy);cursor:pointer;}
+  .pay-gen{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .pay-gen select,.pay-gen input{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.85rem;font-family:inherit;outline:none;}
+  .pay-gen input{width:120px;}
+  .pay-gen-btn{background:#635BFF;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:.82rem;font-weight:700;}
+  .pay-gen-btn:hover{background:#5249e0;}
+  .pay-info-btn{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:.82rem;font-weight:700;color:var(--navy);}
+  .bank-box{background:#F8F9FB;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:.84rem;}
+  .bank-line{padding:2px 0;}
+  .pay-paid{background:rgba(30,158,90,.14);color:var(--green);}
+  .pay-pending{background:rgba(217,138,31,.16);color:var(--amber);}
+
   .empty{text-align:center;color:var(--muted);padding:50px;}
 
   .login{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
@@ -138,7 +155,8 @@
   // In locale usa :8000; in produzione stessa origine (/api proxato da nginx)
   var API_BASE = (location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'http://localhost:8000' : '';
   var STATUSES = ['Nuovo','Contattato','Preventivo inviato','Pagato acconto 20%','Pagato','Spedito','Perso'];
-  var COMPANY = { name:'PrimoIT', piva:'05621560266', wa:'+39 327 489 4895', email:'info@primoit.it' };
+  var COMPANY = { name:'PrimoIT', piva:'05621560266', wa:'+39 327 489 4895', email:'info@primoit.it',
+    bankHolder:'PrimoIT', iban:'IT00 X000 0000 0000 0000 0000 000', bank:'(banca da impostare)' };
   var auth = sessionStorage.getItem('primoit_auth') || '';
   var DEALS = {};       // id -> deal
   var viesCache = {};   // id -> {valid,name,address}
@@ -252,6 +270,8 @@
       +   '<div class="grid3">'+fld('f_'+i+'_b_city','Città', b.city)+fld('f_'+i+'_b_zip','CAP', b.zip)+fld('f_'+i+'_b_country','Paese', b.country||'IT')+'</div>'
       + '</div>'
 
+      + paymentSection(d, det)
+
       + '<div class="fld" style="margin-top:8px"><label>Note interne</label><textarea id="f_'+i+'_notes" placeholder="Note…">'+esc(d.notes||'')+'</textarea></div>'
 
       + '<div class="edit-actions">'
@@ -293,6 +313,60 @@
   function saveDeal(id){
     var payload=gather(id);
     api('/api/admin/deals/'+id,{method:'PATCH',body:JSON.stringify(payload)}).then(function(){ load(); }).catch(function(){ alert('Errore nel salvataggio.'); });
+  }
+
+  /* ── Pagamento (Stripe + bonifico) ── */
+  function paymentSection(d, det){
+    var i=d.id;
+    var ivaTot=Math.round((d.total||0)*1.22*100)/100;
+    var pays=det.payments||[];
+    var list = pays.length ? pays.map(function(p){
+      var paid=p.status==='paid';
+      var badge='<span class="badge '+(paid?'pay-paid':'pay-pending')+'">'+(paid?'Pagato':'In attesa')+'</span>';
+      var acts='';
+      if(p.url){ acts+=' <a class="pay-link" href="'+esc(p.url)+'" target="_blank"><i class="fas fa-up-right-from-square"></i> Apri</a>'
+               + ' <button class="pay-mini" onclick="copyText(\''+esc(p.url)+'\',this)">Copia link</button>'; }
+      if(!paid) acts+=' <button class="pay-mini" onclick="markPaid('+i+',\''+esc(p.sessionId||'')+'\')">Segna pagato</button>';
+      return '<div class="pay-row">'+badge+' <b>'+esc(p.mode)+'</b> '+eur(p.amount)+acts+'</div>';
+    }).join('') : '<div class="pay-empty">Nessun pagamento ancora.</div>';
+    return '<div class="sec-title"><i class="fas fa-building-columns"></i> Pagamento</div>'
+      + '<div class="pay-box">'+list+'</div>'
+      + '<div class="pay-gen">'
+      +   '<select id="f_'+i+'_pmode" onchange="onPmode('+i+','+ivaTot+')">'
+      +     '<option value="intero">Intero</option><option value="acconto">Acconto 20%</option><option value="saldo">Saldo</option>'
+      +   '</select>'
+      +   '<input id="f_'+i+'_pamount" type="number" step="0.01" value="'+ivaTot.toFixed(2)+'" title="Importo IVA inclusa (€)">'
+      +   '<button class="pay-gen-btn" onclick="genPayment('+i+')"><i class="fas fa-credit-card"></i> Genera link Stripe</button>'
+      +   '<button class="pay-info-btn" onclick="toggleBank('+i+')"><i class="fas fa-circle-info"></i> Bonifico</button>'
+      + '</div>'
+      + '<div class="bank-box" id="bank_'+i+'" style="display:none"></div>';
+  }
+  function onPmode(i, ivaTot){
+    var m=document.getElementById('f_'+i+'_pmode').value;
+    var v = m==='acconto' ? Math.round(ivaTot*0.2*100)/100 : ivaTot;
+    document.getElementById('f_'+i+'_pamount').value=v.toFixed(2);
+  }
+  function genPayment(i){
+    var mode=val('f_'+i+'_pmode'), amount=parseFloat(val('f_'+i+'_pamount'));
+    if(!amount||amount<=0){ alert('Importo non valido.'); return; }
+    api('/api/admin/deals/'+i+'/payment',{method:'POST',body:JSON.stringify({mode:mode,amount:amount})}).then(function(r){
+      if(r&&r.url){ window.open(r.url,'_blank'); load(); }
+      else { alert('Impossibile creare il link: '+((r&&r.detail)||'Stripe non configurato sul backend')); }
+    }).catch(function(){ alert('Errore: backend non raggiungibile o Stripe non configurato.'); });
+  }
+  function markPaid(i, sid){ api('/api/admin/deals/'+i+'/payment/mark-paid',{method:'POST',body:JSON.stringify({sessionId:sid})}).then(function(){ load(); }); }
+  function copyText(t, btn){ if(navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ if(btn){var o=btn.textContent;btn.textContent='Copiato ✓';setTimeout(function(){btn.textContent=o;},1000);} }); }
+  function copyBank(i){ var d=DEALS[i]; copyText('Intestatario: '+COMPANY.bankHolder+'\nIBAN: '+COMPANY.iban+'\nBanca: '+COMPANY.bank+'\nCausale: PrimoIT '+(d.ref||''), null); var b=document.getElementById('bankcopy_'+i); if(b){b.textContent='Copiato ✓';setTimeout(function(){b.textContent='Copia coordinate';},1000);} }
+  function toggleBank(i){
+    var d=DEALS[i], box=document.getElementById('bank_'+i);
+    if(box.style.display==='none'){
+      box.innerHTML='<div class="bank-line"><b>Intestatario:</b> '+esc(COMPANY.bankHolder)+'</div>'
+        +'<div class="bank-line"><b>IBAN:</b> '+esc(COMPANY.iban)+'</div>'
+        +'<div class="bank-line"><b>Banca:</b> '+esc(COMPANY.bank)+'</div>'
+        +'<div class="bank-line"><b>Causale:</b> PrimoIT '+esc(d.ref||'')+'</div>'
+        +'<button class="pay-mini" id="bankcopy_'+i+'" style="margin-top:6px" onclick="copyBank('+i+')">Copia coordinate</button>';
+      box.style.display='block';
+    } else box.style.display='none';
   }
 
   /* ── PDF preventivo brandizzato ── */

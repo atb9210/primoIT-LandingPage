@@ -14,6 +14,10 @@ services:
       DB_PATH: /app/data/primoit.db
       ADMIN_USER: ${ADMIN_USER:-admin}
       ADMIN_PASS: ${ADMIN_PASS:?imposta ADMIN_PASS nelle env di Dokploy}
+      # Stripe (opzionali: senza chiavi i link non vengono generati, il resto funziona)
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
     volumes:
       - primoit_data:/app/data   # ← volume persistente per il DB
 

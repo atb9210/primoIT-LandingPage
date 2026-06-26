@@ -210,6 +210,27 @@ def get_deals(status: str = None) -> List[Dict]:
     return rows
 
 
+def get_deal(deal_id: int) -> Optional[Dict]:
+    """Un singolo deal (con items e details già parse), o None."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM deals WHERE id = ?", (deal_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return None
+    r = dict(row)
+    try:
+        r["items"] = json.loads(r.get("items_json") or "[]")
+    except Exception:
+        r["items"] = []
+    try:
+        r["details"] = json.loads(r.get("details_json") or "{}")
+    except Exception:
+        r["details"] = {}
+    return r
+
+
 def update_deal(deal_id: int, status: str = None, notes: str = None, details: dict = None) -> bool:
     """Aggiorna stato, note e/o dettagli (contatto/spedizione/fatturazione/tracking) di un deal."""
     conn = get_db()
