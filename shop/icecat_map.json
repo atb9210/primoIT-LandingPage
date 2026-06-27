@@ -1,680 +1,906 @@
 {
-"I53CHC54SHO1": {
-"icecatId": "128684006",
-"iceName": "AORUS 16X ASG-53ESC64SH",
-"cov": 1.0,
-"conf": "high"
-},
-"7Y980AWR": {
-"icecatId": "99950538",
-"iceName": "EliteBook 840 G9",
-"cov": 1.0,
-"conf": "high"
-},
-"D4DD0E8R": {
-"icecatId": "131241985",
-"iceName": "ProBook 465 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"8X8N2ES": {
-"icecatId": "128710778",
-"iceName": "255 G10",
-"cov": 1.0,
-"conf": "high"
-},
-"C1LL0EAR": {
-"icecatId": "132089251",
-"iceName": "OmniBook 5 16-ba1004na",
-"cov": 1.0,
-"conf": "high"
-},
-"C1LL1EAR": {
-"icecatId": "132089237",
-"iceName": "OmniBook 5 16-ba1005na",
-"cov": 1.0,
-"conf": "high"
-},
-"AK9U9ATR": {
-"icecatId": "128710778",
-"iceName": "255 G10",
-"cov": 1.0,
-"conf": "high"
-},
-"IAD3G8ET": {
-"icecatId": "129317606",
-"iceName": "EliteBook 8 G1i",
-"cov": 1.0,
-"conf": "high"
-},
-"AD1Q4ETR": {
-"icecatId": "128692776",
-"iceName": "ProBook 460 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"43D73UCR": {
-"icecatId": "89216452",
-"iceName": "EliteBook x360 1030 G8 Notebook PC",
-"cov": 1.0,
-"conf": "high"
-},
-"I8Y1P6AV": {
-"icecatId": "131518154",
-"iceName": "Elite x360 1040 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"C52QTE8R": {
-"icecatId": "128640278",
-"iceName": "EliteBook 830 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"970Q0ETR": {
-"icecatId": "128640278",
-"iceName": "EliteBook 830 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"I8A4B7EA": {
-"icecatId": "131528808",
-"iceName": "Elite Dragonfly G4",
-"cov": 1.0,
-"conf": "high"
-},
-"AD1Q6ETR": {
-"icecatId": "130239054",
-"iceName": "ProBook 440 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"I8R633AV": {
-"icecatId": "131527403",
-"iceName": "EliteBook 845 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"CN9L8E8R": {
-"icecatId": "128640278",
-"iceName": "EliteBook 830 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"BA5L5ECR": {
-"icecatId": "128640278",
-"iceName": "EliteBook 830 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"816N5EARI": {
-"icecatId": "131241988",
-"iceName": "ProBook 440 G10",
-"cov": 1.0,
-"conf": "high"
-},
-"5Z4G1ESR": {
-"icecatId": "110095035",
-"iceName": "Elite x360 1040 G10",
-"cov": 1.0,
-"conf": "high"
-},
-"BH3G1EAR": {
-"icecatId": "129506290",
-"iceName": "OmniBook X FlipNGAI 16-as0008na",
-"cov": 0.6,
-"conf": "high"
-},
-"CW3U6E8R": {
-"icecatId": "130239054",
-"iceName": "ProBook 440 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"BG3L0EAR": {
-"icecatId": "129506421",
-"iceName": "OmniBook 5 16-bc1002na",
-"cov": 1.0,
-"conf": "high"
-},
-"C1LK9EAR": {
-"icecatId": "132089304",
-"iceName": "OmniBook 5 16-ba1003na",
-"cov": 1.0,
-"conf": "high"
-},
-"IAD3K9ET": {
-"icecatId": "129317606",
-"iceName": "EliteBook 8 G1i",
-"cov": 1.0,
-"conf": "high"
-},
-"I86B24EA": {
-"icecatId": "134442606",
-"iceName": "ZBook Power 16 G11 A",
-"cov": 1.0,
-"conf": "high"
-},
-"D1BA6ATR": {
-"icecatId": "131650904",
-"iceName": "250R G10",
-"cov": 1.0,
-"conf": "high"
-},
-"C38KMATR": {
-"icecatId": "131650904",
-"iceName": "250R G10",
-"cov": 1.0,
-"conf": "high"
-},
-"B9ZL8ETR": {
-"icecatId": "128710778",
-"iceName": "255 G10",
-"cov": 1.0,
-"conf": "high"
-},
-"A93KFECR": {
-"icecatId": "130662502",
-"iceName": "EliteBook 645 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"9G1V1ETR": {
-"icecatId": "128692776",
-"iceName": "ProBook 460 G11",
-"cov": 1.0,
-"conf": "high"
-},
-"AD4G8ETR": {
-"icecatId": "133687357",
-"iceName": "EliteBook 8 G1a 16",
-"cov": 1.0,
-"conf": "high"
-},
-"C67J3ATR": {
-"icecatId": "140229478",
-"iceName": "EliteBook 6 G1iR 14 inch Notebook PC",
-"cov": 1.0,
-"conf": "high"
-},
-"C14ZNETR": {
-"icecatId": "133741741",
-"iceName": "EliteBook 6 G1i 16",
-"cov": 1.0,
-"conf": "high"
-},
-"C5JB8ECR": {
-"icecatId": "133735889",
-"iceName": "EliteBook 6 G1i 14",
-"cov": 1.0,
-"conf": "high"
-},
-"D9DK4E8R": {
-"icecatId": "133741741",
-"iceName": "EliteBook 6 G1i 16",
-"cov": 1.0,
-"conf": "high"
-},
-"A26YJEAR": {
-"icecatId": "134279563",
-"iceName": "EliteBook 8 G1i 13 AI",
-"cov": 1.0,
-"conf": "high"
-},
-"CB4L9EAR": {
-"icecatId": "139707563",
-"iceName": "ProBook 4 G1i 16 inch Notebook AI PC",
-"cov": 1.0,
-"conf": "high"
-},
-"D2QK6E8R": {
-"icecatId": "132964983",
-"iceName": "ProBook 4 G1a 14",
-"cov": 1.0,
-"conf": "high"
-},
-"C07PXES": {
-"icecatId": "128710945",
-"iceName": "250 G10",
-"cov": 1.0,
-"conf": "high"
-},
-"I0MMD9N": {
-"icecatId": "133022138",
-"iceName": "Pro 16 Plus PB16250",
-"cov": 1.0,
-"conf": "high"
-},
-"I0V009T": {
-"icecatId": "131192069",
-"iceName": "Pro 14 Plus PB14250",
-"cov": 1.0,
-"conf": "high"
-},
-"82XQ00NHGE-S": {
-"icecatId": "128898798",
-"iceName": "IdeaPad Slim 3 15AMN8",
-"cov": 1.0,
-"conf": "high"
-},
-"83JH006UGE": {
-"icecatId": "128742740",
-"iceName": "LOQ 17IRX10",
-"cov": 1.0,
-"conf": "high"
-},
-"I83JX0058GE": {
-"icecatId": "138809603",
-"iceName": "Yoga Slim 7 14ILL10",
-"cov": 1.0,
-"conf": "high"
-},
-"I82XX00C6GE1O1": {
-"icecatId": "128687785",
-"iceName": "IdeaPad Flex 5 14ABR8",
-"cov": 1.0,
-"conf": "high"
-},
-"82RQ007MGE": {
-"icecatId": "128687821",
-"iceName": "IdeaPad 3 17ABA7",
-"cov": 0.67,
-"conf": "high"
-},
-"I83KT": {
-"icecatId": "128742729",
-"iceName": "IdeaPad 5 2-in-1 14AKP10 Copilot+ PC",
-"cov": 1.0,
-"conf": "high"
-},
-"I1VH93DEC64AH": {
-"icecatId": "131193915",
-"iceName": "GIGABYTE AERO X16 1VH93DEC64AH",
-"cov": 1.0,
-"conf": "high"
-},
-"I0017LN1008": {
-"icecatId": "133559795",
-"iceName": "Katana A17 AI B8VG-1008",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL741I5019M1": {
-"icecatId": "94493028",
-"iceName": "Latitude 7410",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL345I5319": {
-"icecatId": "27128191",
-"iceName": "LATITUDE 3450-0062 I5-5200U",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL742I7119": {
-"icecatId": "94492886",
-"iceName": "Latitude 7420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL741I50191": {
-"icecatId": "94493028",
-"iceName": "Latitude 7410",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL542I51119M1": {
-"icecatId": "12549457",
-"iceName": "Latitude 5420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDP775XW1R3197": {
-"icecatId": "94492995",
-"iceName": "Precision 7750",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL342I7119": {
-"icecatId": "94492838",
-"iceName": "Latitude 3420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL742I51191": {
-"icecatId": "94492886",
-"iceName": "Latitude 7420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL345I5319M": {
-"icecatId": "27128191",
-"iceName": "LATITUDE 3450-0062 I5-5200U",
-"cov": 1.0,
-"conf": "high"
-},
-"IDP554I79T138MP1": {
-"icecatId": "94492977",
-"iceName": "Precision 5540",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL342I5119M": {
-"icecatId": "94492838",
-"iceName": "Latitude 3420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL742I7119MT3": {
-"icecatId": "94492886",
-"iceName": "Latitude 7420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDP756I51T6194": {
-"icecatId": "94492845",
-"iceName": "Precision 7560",
-"cov": 1.0,
-"conf": "high"
-},
-"IDP556I71A219B4": {
-"icecatId": "94492854",
-"iceName": "Precision 5560",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL342I7119M": {
-"icecatId": "94492838",
-"iceName": "Latitude 3420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDP775XW1R319M7": {
-"icecatId": "94492995",
-"iceName": "Precision 7750",
-"cov": 1.0,
-"conf": "high"
-},
-"IDP775I70R319B7": {
-"icecatId": "94492995",
-"iceName": "Precision 7750",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL342I71191": {
-"icecatId": "94492838",
-"iceName": "Latitude 3420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL542I5119B1": {
-"icecatId": "12549457",
-"iceName": "Latitude 5420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL341I5019M3": {
-"icecatId": "94493003",
-"iceName": "Latitude 3410",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL551I5019MH11": {
-"icecatId": "94493048",
-"iceName": "Latitude 5510",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL342I5119MH13": {
-"icecatId": "94492838",
-"iceName": "Latitude 3420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL542I5119MP13": {
-"icecatId": "12549457",
-"iceName": "Latitude 5420",
-"cov": 1.0,
-"conf": "high"
-},
-"IDP556W1A238TM4G": {
-"icecatId": "94492854",
-"iceName": "Precision 5560",
-"cov": 1.0,
-"conf": "high"
-},
-"IDL742I7119TM1": {
-"icecatId": "94492886",
-"iceName": "Latitude 7420",
-"cov": 1.0,
-"conf": "high"
-},
-"IHEX36I5819T1": {
-"icecatId": "72677907",
-"iceName": "EliteBook x360 1040 G6 notebook-pc",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE8459R5619B1": {
-"icecatId": "117667358",
-"iceName": "EliteBook 845 G9",
-"cov": 1.0,
-"conf": "high"
-},
-"IHEX36I5819TM1": {
-"icecatId": "72677907",
-"iceName": "EliteBook x360 1040 G6 notebook-pc",
-"cov": 1.0,
-"conf": "high"
-},
-"IHZF178I51A219": {
-"icecatId": "92866709",
-"iceName": "ZBook Fury 17.3 G8 Mobile Workstation PC",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE847I7019B": {
-"icecatId": "129237630",
-"iceName": "EliteBook 840 G7",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE8459R5619M1": {
-"icecatId": "117667358",
-"iceName": "EliteBook 845 G9",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE857I5019T1": {
-"icecatId": "80305020",
-"iceName": "EliteBook 850 G7 Notebook PC",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE85G7I5019MTK1": {
-"icecatId": "80305020",
-"iceName": "EliteBook 850 G7 Notebook PC",
-"cov": 1.0,
-"conf": "high"
-},
-"IHEX36I5119TB1": {
-"icecatId": "89501886",
-"iceName": "EliteBook x360 1040 G8 Notebook PC",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE146I5819T1": {
-"icecatId": "72677907",
-"iceName": "EliteBook x360 1040 G6 notebook-pc",
-"cov": 1.0,
-"conf": "high"
-},
-"IHZP7I70P6219T6": {
-"icecatId": "101892102",
-"iceName": "ZBook Power G7 Mobile Workstation Configurable Material",
-"cov": 1.0,
-"conf": "high"
-},
-"IXHF178I51A219M": {
-"icecatId": "92866709",
-"iceName": "ZBook Fury 17.3 G8 Mobile Workstation PC",
-"cov": 1.0,
-"conf": "high"
-},
-"IHEX36I70DTF": {
-"icecatId": "86056596",
-"iceName": "EliteBook x360 1040 G7 Notebook PC",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE84G8I5119M1": {
-"icecatId": "87290979",
-"iceName": "EliteBook 840 G8",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE847I5019M1": {
-"icecatId": "129237630",
-"iceName": "EliteBook 840 G7",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE846I5819T1": {
-"icecatId": "131588629",
-"iceName": "EliteBook 840 G6",
-"cov": 1.0,
-"conf": "high"
-},
-"IHZ15VG5I78P619": {
-"icecatId": "58813059",
-"iceName": "ZBook 15v G5 Mobile Workstation",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE848I7119M": {
-"icecatId": "87290979",
-"iceName": "EliteBook 840 G8",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE84G7I5019H11": {
-"icecatId": "129237630",
-"iceName": "EliteBook 840 G7",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE84G7I5019MP12": {
-"icecatId": "129237630",
-"iceName": "EliteBook 840 G7",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE846I5819TM1": {
-"icecatId": "131588629",
-"iceName": "EliteBook 840 G6",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE847I50191": {
-"icecatId": "129237630",
-"iceName": "EliteBook 840 G7",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE847I5019B1": {
-"icecatId": "129237630",
-"iceName": "EliteBook 840 G7",
-"cov": 1.0,
-"conf": "high"
-},
-"IHE857I5019TN1": {
-"icecatId": "80305020",
-"iceName": "EliteBook 850 G7 Notebook PC",
-"cov": 1.0,
-"conf": "high"
-},
-"IHP654I58193": {
-"icecatId": "53690215",
-"iceName": "ProBook 650 G4 notebook pc",
-"cov": 1.0,
-"conf": "high"
-},
-"IHP654I5819T3": {
-"icecatId": "53690215",
-"iceName": "ProBook 650 G4 notebook pc",
-"cov": 1.0,
-"conf": "high"
-},
-"IHZP7I70T1197": {
-"icecatId": "101892102",
-"iceName": "ZBook Power G7 Mobile Workstation Configurable Material",
-"cov": 1.0,
-"conf": "high"
-},
-"IHZP7I70T119M7": {
-"icecatId": "101892102",
-"iceName": "ZBook Power G7 Mobile Workstation Configurable Material",
-"cov": 1.0,
-"conf": "high"
-},
-"ILTE15I7019M1": {
-"icecatId": "144537659",
-"iceName": "ThinkPad E15",
-"cov": 1.0,
-"conf": "high"
-},
-"ILVXR7519MH3": {
-"icecatId": "144670530",
-"iceName": "V15 G2 ALC",
-"cov": 1.0,
-"conf": "high"
-},
-"ILTE15I70191": {
-"icecatId": "144537659",
-"iceName": "ThinkPad E15",
-"cov": 1.0,
-"conf": "high"
-},
-"ILTC14I5219": {
-"icecatId": "99962777",
-"iceName": "ThinkPad C14 Gen 1 Chromebook",
-"cov": 1.0,
-"conf": "high"
-},
-"ILTT49SI5819MK1": {
-"icecatId": "144551983",
-"iceName": "ThinkPad T490s",
-"cov": 1.0,
-"conf": "high"
-},
-"ILTT49SI58193": {
-"icecatId": "144551983",
-"iceName": "ThinkPad T490s",
-"cov": 1.0,
-"conf": "high"
-},
-"ILTX28I7819TMH": {
-"icecatId": "41742615",
-"iceName": "ThinkPad X280",
-"cov": 1.0,
-"conf": "high"
-},
-"ILTT49I5819MH11": {
-"icecatId": "144491208",
-"iceName": "ThinkPad T490",
-"cov": 1.0,
-"conf": "high"
-},
-"IMS4I7122T1": {
-"icecatId": "128935603",
-"iceName": "Surface Laptop 3",
-"cov": 1.0,
-"conf": "high"
-},
-"IMS4I7122M1": {
-"icecatId": "128935603",
-"iceName": "Surface Laptop 3",
-"cov": 1.0,
-"conf": "high"
-}
+  "I53CHC54SHO1": {
+    "icecatId": "128684006",
+    "iceName": "AORUS 16X ASG-53ESC64SH",
+    "conf": "high"
+  },
+  "IBWHC3DEC65SPO1": {
+    "icecatId": "130590713",
+    "iceName": "AORUS ELITE 16 BWHC3FRC65SP",
+    "conf": "high"
+  },
+  "7Y980AWR": {
+    "icecatId": "99950538",
+    "iceName": "EliteBook 840 G9",
+    "conf": "high"
+  },
+  "D4DD0E8R": {
+    "icecatId": "131241985",
+    "iceName": "ProBook 465 G11",
+    "conf": "high"
+  },
+  "8X8N2ES": {
+    "icecatId": "128710778",
+    "iceName": "255 G10",
+    "conf": "high"
+  },
+  "BH6V4ECR": {
+    "icecatId": "128640281",
+    "iceName": "EliteBook 640 G11",
+    "conf": "high"
+  },
+  "C1LL0EAR": {
+    "icecatId": "132089251",
+    "iceName": "OmniBook 5 16-ba1004na",
+    "conf": "high"
+  },
+  "C1LL1EAR": {
+    "icecatId": "132089237",
+    "iceName": "OmniBook 5 16-ba1005na",
+    "conf": "high"
+  },
+  "AK9U9ATR": {
+    "icecatId": "128710778",
+    "iceName": "255 G10",
+    "conf": "high"
+  },
+  "IAD3G8ET": {
+    "icecatId": "129317606",
+    "iceName": "EliteBook 8 G1i",
+    "conf": "high"
+  },
+  "AD1Q4ETR": {
+    "icecatId": "128692776",
+    "iceName": "ProBook 460 G11",
+    "conf": "high"
+  },
+  "43D73UCR": {
+    "icecatId": "93992456",
+    "iceName": "Laptop HP EliteBook x360 1030 G8",
+    "conf": "high"
+  },
+  "I8Y1P6AV": {
+    "icecatId": "131518154",
+    "iceName": "Elite x360 1040 G11",
+    "conf": "high"
+  },
+  "C52QTE8R": {
+    "icecatId": "128640278",
+    "iceName": "EliteBook 830 G11",
+    "conf": "high"
+  },
+  "C3RE6E8R": {
+    "icecatId": "128640278",
+    "iceName": "EliteBook 830 G11",
+    "conf": "high"
+  },
+  "970Q0ETR": {
+    "icecatId": "128640278",
+    "iceName": "EliteBook 830 G11",
+    "conf": "high"
+  },
+  "I8A4B7EA": {
+    "icecatId": "131528808",
+    "iceName": "Elite Dragonfly G4",
+    "conf": "high"
+  },
+  "AD1Q6ETR": {
+    "icecatId": "130239054",
+    "iceName": "ProBook 440 G11",
+    "conf": "high"
+  },
+  "CN9L8E8R": {
+    "icecatId": "128640278",
+    "iceName": "EliteBook 830 G11",
+    "conf": "high"
+  },
+  "BA5L5ECR": {
+    "icecatId": "128640278",
+    "iceName": "EliteBook 830 G11",
+    "conf": "high"
+  },
+  "816N5EARI": {
+    "icecatId": "131241988",
+    "iceName": "ProBook 440 G10",
+    "conf": "high"
+  },
+  "5Z4G1ESR": {
+    "icecatId": "110095035",
+    "iceName": "Elite x360 1040 G10",
+    "conf": "high"
+  },
+  "BH3G1EAR": {
+    "icecatId": "129506290",
+    "iceName": "OmniBook X FlipNGAI 16-as0008na",
+    "conf": "med"
+  },
+  "CW3U6E8R": {
+    "icecatId": "130239054",
+    "iceName": "ProBook 440 G11",
+    "conf": "high"
+  },
+  "BG3L0EAR": {
+    "icecatId": "129506421",
+    "iceName": "OmniBook 5 16-bc1002na",
+    "conf": "high"
+  },
+  "C1LK9EAR": {
+    "icecatId": "132089304",
+    "iceName": "OmniBook 5 16-ba1003na",
+    "conf": "high"
+  },
+  "IAD3K9ET": {
+    "icecatId": "129317606",
+    "iceName": "EliteBook 8 G1i",
+    "conf": "high"
+  },
+  "I86B24EA": {
+    "icecatId": "134442606",
+    "iceName": "ZBook Power 16 G11 A",
+    "conf": "high"
+  },
+  "D1BA6ATR": {
+    "icecatId": "131650904",
+    "iceName": "250R G10",
+    "conf": "high"
+  },
+  "C38KMATR": {
+    "icecatId": "131650904",
+    "iceName": "250R G10",
+    "conf": "high"
+  },
+  "B9ZL8ETR": {
+    "icecatId": "128710778",
+    "iceName": "255 G10",
+    "conf": "high"
+  },
+  "A93KFECR": {
+    "icecatId": "130662502",
+    "iceName": "EliteBook 645 G11",
+    "conf": "high"
+  },
+  "9G1V1ETR": {
+    "icecatId": "128692776",
+    "iceName": "ProBook 460 G11",
+    "conf": "high"
+  },
+  "AD4G8ETR": {
+    "icecatId": "133687357",
+    "iceName": "EliteBook 8 G1a 16",
+    "conf": "high"
+  },
+  "C67J3ATR": {
+    "icecatId": "140229478",
+    "iceName": "EliteBook 6 G1iR 14 inch Notebook PC",
+    "conf": "high"
+  },
+  "C14ZNETR": {
+    "icecatId": "133741741",
+    "iceName": "EliteBook 6 G1i 16",
+    "conf": "high"
+  },
+  "C5JB8ECR": {
+    "icecatId": "133735889",
+    "iceName": "EliteBook 6 G1i 14",
+    "conf": "high"
+  },
+  "D9DK4E8R": {
+    "icecatId": "133741741",
+    "iceName": "EliteBook 6 G1i 16",
+    "conf": "high"
+  },
+  "A26YJEAR": {
+    "icecatId": "134279563",
+    "iceName": "EliteBook 8 G1i 13 AI",
+    "conf": "high"
+  },
+  "CB4L9EAR": {
+    "icecatId": "139707563",
+    "iceName": "ProBook 4 G1i 16 inch Notebook AI PC",
+    "conf": "high"
+  },
+  "D2QK6E8R": {
+    "icecatId": "132964983",
+    "iceName": "ProBook 4 G1a 14",
+    "conf": "high"
+  },
+  "C07PXES": {
+    "icecatId": "128710945",
+    "iceName": "250 G10",
+    "conf": "high"
+  },
+  "NB0190740-R0029606-SA": {
+    "icecatId": "132208564",
+    "iceName": "DC16250",
+    "conf": "med"
+  },
+  "I0W8RP8": {
+    "icecatId": "129467232",
+    "iceName": "PB13250",
+    "conf": "med"
+  },
+  "I0MMD9N": {
+    "icecatId": "133022138",
+    "iceName": "Pro 16 Plus PB16250",
+    "conf": "high"
+  },
+  "I0V009T": {
+    "icecatId": "131192069",
+    "iceName": "Pro 14 Plus PB14250",
+    "conf": "high"
+  },
+  "I08RYDN": {
+    "icecatId": "132208564",
+    "iceName": "DC16250",
+    "conf": "med"
+  },
+  "82XQ00NHGE-S": {
+    "icecatId": "128898798",
+    "iceName": "IdeaPad Slim 3 15AMN8",
+    "conf": "high"
+  },
+  "83JH006UGE": {
+    "icecatId": "128742740",
+    "iceName": "LOQ 17IRX10",
+    "conf": "high"
+  },
+  "I83JX0058GE": {
+    "icecatId": "138809603",
+    "iceName": "Yoga Slim 7 14ILL10",
+    "conf": "high"
+  },
+  "I82XX00C6GE1O1": {
+    "icecatId": "128687785",
+    "iceName": "IdeaPad Flex 5 14ABR8",
+    "conf": "high"
+  },
+  "I83KT": {
+    "icecatId": "128742729",
+    "iceName": "IdeaPad 5 2-in-1 14AKP10 Copilot+ PC",
+    "conf": "high"
+  },
+  "I1VH93DEC64AH": {
+    "icecatId": "131193915",
+    "iceName": "GIGABYTE AERO X16 1VH93DEC64AH",
+    "conf": "high"
+  },
+  "I0017LN1008": {
+    "icecatId": "133559795",
+    "iceName": "Katana A17 AI B8VG-1008",
+    "conf": "high"
+  },
+  "IDL741I5019M1": {
+    "icecatId": "94493028",
+    "iceName": "Latitude 7410",
+    "conf": "high"
+  },
+  "IDL344I5219M": {
+    "icecatId": "24217863",
+    "iceName": "3440",
+    "conf": "high"
+  },
+  "IDL345I5319": {
+    "icecatId": "27128191",
+    "iceName": "LATITUDE 3450-0062 I5-5200U",
+    "conf": "high"
+  },
+  "IDL742I7119": {
+    "icecatId": "94492886",
+    "iceName": "Latitude 7420",
+    "conf": "high"
+  },
+  "IDL741I50191": {
+    "icecatId": "94493028",
+    "iceName": "Latitude 7410",
+    "conf": "high"
+  },
+  "IDL542I51119M1": {
+    "icecatId": "12549457",
+    "iceName": "Latitude 5420",
+    "conf": "high"
+  },
+  "IDP775XW1R3197": {
+    "icecatId": "94492995",
+    "iceName": "Precision 7750",
+    "conf": "high"
+  },
+  "IDL344I5319M1": {
+    "icecatId": "24217863",
+    "iceName": "3440",
+    "conf": "high"
+  },
+  "IDP557I72A119M8": {
+    "icecatId": "30983888",
+    "iceName": "5570",
+    "conf": "med"
+  },
+  "IDL342I7119": {
+    "icecatId": "94492838",
+    "iceName": "Latitude 3420",
+    "conf": "high"
+  },
+  "IDL742I51191": {
+    "icecatId": "94492886",
+    "iceName": "Latitude 7420",
+    "conf": "high"
+  },
+  "IDL743I7219T": {
+    "icecatId": "113003388",
+    "iceName": "7430",
+    "conf": "high"
+  },
+  "IDL743I7219TM": {
+    "icecatId": "113003388",
+    "iceName": "7430",
+    "conf": "high"
+  },
+  "IDL344I5219": {
+    "icecatId": "24217863",
+    "iceName": "3440",
+    "conf": "high"
+  },
+  "IDL345I5319M": {
+    "icecatId": "27128191",
+    "iceName": "LATITUDE 3450-0062 I5-5200U",
+    "conf": "high"
+  },
+  "IDP554I79T138MP1": {
+    "icecatId": "94492977",
+    "iceName": "Precision 5540",
+    "conf": "high"
+  },
+  "IDL559I7819SB": {
+    "icecatId": "74281523",
+    "iceName": "5590",
+    "conf": "high"
+  },
+  "IDL342I5119M": {
+    "icecatId": "94492838",
+    "iceName": "Latitude 3420",
+    "conf": "high"
+  },
+  "IDL742I7119MT3": {
+    "icecatId": "94492886",
+    "iceName": "Latitude 7420",
+    "conf": "high"
+  },
+  "IDP756I51T6194": {
+    "icecatId": "94492845",
+    "iceName": "Precision 7560",
+    "conf": "high"
+  },
+  "IDL743I7219T3": {
+    "icecatId": "113003388",
+    "iceName": "7430",
+    "conf": "high"
+  },
+  "IDP556I71A219B4": {
+    "icecatId": "94492854",
+    "iceName": "Precision 5560",
+    "conf": "high"
+  },
+  "IDL342I7119M": {
+    "icecatId": "94492838",
+    "iceName": "Latitude 3420",
+    "conf": "high"
+  },
+  "IDL743I7219BT": {
+    "icecatId": "113003388",
+    "iceName": "7430",
+    "conf": "high"
+  },
+  "IDL544I5319M1": {
+    "icecatId": "113936874",
+    "iceName": "5440",
+    "conf": "high"
+  },
+  "IDP356I5119M1": {
+    "icecatId": "14378738",
+    "iceName": "3560",
+    "conf": "med"
+  },
+  "IDP356I5119B1": {
+    "icecatId": "14378738",
+    "iceName": "3560",
+    "conf": "med"
+  },
+  "IDP775XW1R319M7": {
+    "icecatId": "94492995",
+    "iceName": "Precision 7750",
+    "conf": "high"
+  },
+  "IDP775I70R319B7": {
+    "icecatId": "94492995",
+    "iceName": "Precision 7750",
+    "conf": "high"
+  },
+  "IDL342I71191": {
+    "icecatId": "94492838",
+    "iceName": "Latitude 3420",
+    "conf": "high"
+  },
+  "IDL542I5119B1": {
+    "icecatId": "12549457",
+    "iceName": "Latitude 5420",
+    "conf": "high"
+  },
+  "IDL341I5019M3": {
+    "icecatId": "94493003",
+    "iceName": "Latitude 3410",
+    "conf": "high"
+  },
+  "IDL344I5319B1": {
+    "icecatId": "24217863",
+    "iceName": "3440",
+    "conf": "high"
+  },
+  "IDV3591I70191": {
+    "icecatId": "128743633",
+    "iceName": "3591",
+    "conf": "med"
+  },
+  "IDL551I5019MH11": {
+    "icecatId": "94493048",
+    "iceName": "Latitude 5510",
+    "conf": "high"
+  },
+  "IDL342I5119MH13": {
+    "icecatId": "94492838",
+    "iceName": "Latitude 3420",
+    "conf": "high"
+  },
+  "IDL542I5119MP13": {
+    "icecatId": "12549457",
+    "iceName": "Latitude 5420",
+    "conf": "high"
+  },
+  "IDP556W1A238TM4G": {
+    "icecatId": "94492854",
+    "iceName": "Precision 5560",
+    "conf": "high"
+  },
+  "I0CFP7M2": {
+    "icecatId": "130622111",
+    "iceName": "MC16250",
+    "conf": "med"
+  },
+  "IDL742I7119TM1": {
+    "icecatId": "94492886",
+    "iceName": "Latitude 7420",
+    "conf": "high"
+  },
+  "IHZS15I71A219M4": {
+    "icecatId": "92930301",
+    "iceName": "ZBook Fury G8",
+    "conf": "high"
+  },
+  "IHEX36I5819T1": {
+    "icecatId": "122819005",
+    "iceName": "EliteBook x360 1040 G6",
+    "conf": "high"
+  },
+  "IHZF147I5019M1": {
+    "icecatId": "79747145",
+    "iceName": "14 G7",
+    "conf": "med"
+  },
+  "IHE8459R5619B1": {
+    "icecatId": "117667358",
+    "iceName": "EliteBook 845 G9",
+    "conf": "high"
+  },
+  "IHZF148I5119M1": {
+    "icecatId": "130989601",
+    "iceName": "14 G8",
+    "conf": "med"
+  },
+  "IHZS15I71A219B4": {
+    "icecatId": "92930301",
+    "iceName": "ZBook Fury G8",
+    "conf": "high"
+  },
+  "IHEX36I5819TM1": {
+    "icecatId": "122819005",
+    "iceName": "EliteBook x360 1040 G6",
+    "conf": "high"
+  },
+  "IHZF178I51A219": {
+    "icecatId": "92866709",
+    "iceName": "ZBook Fury 17.3 G8 Mobile Workstation PC",
+    "conf": "high"
+  },
+  "IHZFG8I5119B": {
+    "icecatId": "130989601",
+    "iceName": "14 G8",
+    "conf": "med"
+  },
+  "IHE847I7019B": {
+    "icecatId": "129237630",
+    "iceName": "EliteBook 840 G7",
+    "conf": "high"
+  },
+  "IHZF157I70T2197": {
+    "icecatId": "131592087",
+    "iceName": "15 G7",
+    "conf": "med"
+  },
+  "IHE8459R5619M1": {
+    "icecatId": "117667358",
+    "iceName": "EliteBook 845 G9",
+    "conf": "high"
+  },
+  "IHZF147I50191": {
+    "icecatId": "79747145",
+    "iceName": "14 G7",
+    "conf": "med"
+  },
+  "IHE857I5019T1": {
+    "icecatId": "136879761",
+    "iceName": "EliteBook 850 G7 Refurbished",
+    "conf": "high"
+  },
+  "IHE85G7I5019MTK1": {
+    "icecatId": "136879761",
+    "iceName": "EliteBook 850 G7 Refurbished",
+    "conf": "high"
+  },
+  "IHEX36I5119TB1": {
+    "icecatId": "89501886",
+    "iceName": "EliteBook x360 1040 G8 Notebook PC",
+    "conf": "high"
+  },
+  "IHZFG8I5119": {
+    "icecatId": "130989601",
+    "iceName": "14 G8",
+    "conf": "med"
+  },
+  "IHE146I5819T1": {
+    "icecatId": "122819005",
+    "iceName": "EliteBook x360 1040 G6",
+    "conf": "high"
+  },
+  "IHZP7I70P6219T6": {
+    "icecatId": "101892102",
+    "iceName": "ZBook Power G7 Mobile Workstation Configurable Material",
+    "conf": "high"
+  },
+  "IXHF178I51A219M": {
+    "icecatId": "92866709",
+    "iceName": "ZBook Fury 17.3 G8 Mobile Workstation PC",
+    "conf": "high"
+  },
+  "IHEX36I70DTF": {
+    "icecatId": "88594757",
+    "iceName": "Laptop EliteBook x360 1040 G7",
+    "conf": "high"
+  },
+  "IHZS7I70T119M7": {
+    "icecatId": "80512932",
+    "iceName": "ZBook Create G7 Notebook-PC",
+    "conf": "high"
+  },
+  "IHZ15G7I70T2192": {
+    "icecatId": "131592087",
+    "iceName": "15 G7",
+    "conf": "med"
+  },
+  "IHE84G8I5119M1": {
+    "icecatId": "87290979",
+    "iceName": "EliteBook 840 G8",
+    "conf": "high"
+  },
+  "IHZS15I71A219M4K": {
+    "icecatId": "92930301",
+    "iceName": "ZBook Fury G8",
+    "conf": "high"
+  },
+  "IHZS15I71A2194": {
+    "icecatId": "92930301",
+    "iceName": "ZBook Fury G8",
+    "conf": "high"
+  },
+  "IHE847I5019M1": {
+    "icecatId": "129237630",
+    "iceName": "EliteBook 840 G7",
+    "conf": "high"
+  },
+  "IHE846I5819T1": {
+    "icecatId": "131588629",
+    "iceName": "EliteBook 840 G6",
+    "conf": "high"
+  },
+  "IHZF157I70T1196": {
+    "icecatId": "131592087",
+    "iceName": "15 G7",
+    "conf": "med"
+  },
+  "IHZF157I70T119M6": {
+    "icecatId": "131592087",
+    "iceName": "15 G7",
+    "conf": "med"
+  },
+  "IHZF157I70319M7": {
+    "icecatId": "131592087",
+    "iceName": "15 G7",
+    "conf": "med"
+  },
+  "IHZP15G8I71T119": {
+    "icecatId": "87290994",
+    "iceName": "15 G8",
+    "conf": "med"
+  },
+  "IHZP15I71T1219M4": {
+    "icecatId": "87290994",
+    "iceName": "15 G8",
+    "conf": "med"
+  },
+  "IHZS7I70T1197": {
+    "icecatId": "80512932",
+    "iceName": "ZBook Create G7 Notebook-PC",
+    "conf": "high"
+  },
+  "IHZS158I71A219M7": {
+    "icecatId": "92930301",
+    "iceName": "ZBook Fury G8",
+    "conf": "high"
+  },
+  "IHZ15UG6I7838B": {
+    "icecatId": "71165175",
+    "iceName": "15u G6",
+    "conf": "high"
+  },
+  "IHZ15VG5I78P619": {
+    "icecatId": "58813059",
+    "iceName": "ZBook 15v G5 Mobile Workstation",
+    "conf": "high"
+  },
+  "IHE848I7119M": {
+    "icecatId": "87290979",
+    "iceName": "EliteBook 840 G8",
+    "conf": "high"
+  },
+  "IHE84G7I5019H11": {
+    "icecatId": "129237630",
+    "iceName": "EliteBook 840 G7",
+    "conf": "high"
+  },
+  "IHE84G7I5019MP12": {
+    "icecatId": "129237630",
+    "iceName": "EliteBook 840 G7",
+    "conf": "high"
+  },
+  "IHZ15G7I7019MP1": {
+    "icecatId": "131592087",
+    "iceName": "15 G7",
+    "conf": "med"
+  },
+  "IHZ15G7I70R438M4": {
+    "icecatId": "131592087",
+    "iceName": "15 G7",
+    "conf": "med"
+  },
+  "IHE846I5819TM1": {
+    "icecatId": "131588629",
+    "iceName": "EliteBook 840 G6",
+    "conf": "high"
+  },
+  "IHE847I50191": {
+    "icecatId": "129237630",
+    "iceName": "EliteBook 840 G7",
+    "conf": "high"
+  },
+  "IHE847I5019B1": {
+    "icecatId": "129237630",
+    "iceName": "EliteBook 840 G7",
+    "conf": "high"
+  },
+  "IHE857I5019TN1": {
+    "icecatId": "136879761",
+    "iceName": "EliteBook 850 G7 Refurbished",
+    "conf": "high"
+  },
+  "IHP654I58193": {
+    "icecatId": "75041058",
+    "iceName": "ProBook 650 G4筆記型電腦",
+    "conf": "high"
+  },
+  "IHP654I5819T3": {
+    "icecatId": "75041058",
+    "iceName": "ProBook 650 G4筆記型電腦",
+    "conf": "high"
+  },
+  "IHZP158I71T119M7": {
+    "icecatId": "87290994",
+    "iceName": "15 G8",
+    "conf": "med"
+  },
+  "IHZP7I70T1197": {
+    "icecatId": "101892102",
+    "iceName": "ZBook Power G7 Mobile Workstation Configurable Material",
+    "conf": "high"
+  },
+  "IHZP7I70T119M7": {
+    "icecatId": "101892102",
+    "iceName": "ZBook Power G7 Mobile Workstation Configurable Material",
+    "conf": "high"
+  },
+  "IHZS7I70T119B7": {
+    "icecatId": "80512932",
+    "iceName": "ZBook Create G7 Notebook-PC",
+    "conf": "high"
+  },
+  "ILTT14S2I5119M1": {
+    "icecatId": "93734584",
+    "iceName": "T14s + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTL14G2I7119MT": {
+    "icecatId": "93734435",
+    "iceName": "L14 + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTT142I5119B1": {
+    "icecatId": "93734578",
+    "iceName": "T14 + Usb-C Dock G2",
+    "conf": "high"
+  },
+  "ILTX13G2I5119M1": {
+    "icecatId": "93734587",
+    "iceName": "X13 + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTT14S2I5119M": {
+    "icecatId": "93734584",
+    "iceName": "T14s + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTE15I7019M1": {
+    "icecatId": "144537659",
+    "iceName": "ThinkPad E15",
+    "conf": "high"
+  },
+  "ILTT14SR5519": {
+    "icecatId": "93734584",
+    "iceName": "T14s + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTT14S2R5519M3": {
+    "icecatId": "93734584",
+    "iceName": "T14s + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILVXR7519MH3": {
+    "icecatId": "144670530",
+    "iceName": "V15 G2 ALC",
+    "conf": "high"
+  },
+  "ILTE15I70191": {
+    "icecatId": "144537659",
+    "iceName": "ThinkPad E15",
+    "conf": "high"
+  },
+  "ILTX132I51191": {
+    "icecatId": "93734587",
+    "iceName": "X13 + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTT14S2I5119TB": {
+    "icecatId": "93734584",
+    "iceName": "T14s + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTT14G2I5119P11": {
+    "icecatId": "93734578",
+    "iceName": "T14 + Usb-C Dock G2",
+    "conf": "high"
+  },
+  "ILTC14I5219": {
+    "icecatId": "99962777",
+    "iceName": "ThinkPad C14 Gen 1 Chromebook",
+    "conf": "high"
+  },
+  "ILTT14SR5519M": {
+    "icecatId": "93734584",
+    "iceName": "T14s + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTT49SI5819MK1": {
+    "icecatId": "144551983",
+    "iceName": "ThinkPad T490s",
+    "conf": "high"
+  },
+  "ILTT14SG2R5519M": {
+    "icecatId": "93734584",
+    "iceName": "T14s + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTT49SI58193": {
+    "icecatId": "144551983",
+    "iceName": "ThinkPad T490s",
+    "conf": "high"
+  },
+  "ILTX28I7819TMH": {
+    "icecatId": "41742615",
+    "iceName": "ThinkPad X280",
+    "conf": "high"
+  },
+  "ILTT14S2I5119B": {
+    "icecatId": "93734584",
+    "iceName": "T14s + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTL15G2I7119B": {
+    "icecatId": "93734435",
+    "iceName": "L14 + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTL14I7119MTP1": {
+    "icecatId": "93734435",
+    "iceName": "L14 + USB-C Dock G2",
+    "conf": "high"
+  },
+  "ILTT14I5119MP13": {
+    "icecatId": "93734578",
+    "iceName": "T14 + Usb-C Dock G2",
+    "conf": "high"
+  },
+  "ILTT49I5819MH11": {
+    "icecatId": "144491208",
+    "iceName": "ThinkPad T490",
+    "conf": "high"
+  },
+  "ILTT14S2I7119T1": {
+    "icecatId": "93734584",
+    "iceName": "T14s + USB-C Dock G2",
+    "conf": "high"
+  },
+  "IFLE54I5119B4": {
+    "icecatId": "132183278",
+    "iceName": "E5411",
+    "conf": "med"
+  },
+  "IFLE54I5119M3": {
+    "icecatId": "132183278",
+    "iceName": "E5411",
+    "conf": "med"
+  },
+  "IFLE54I51193": {
+    "icecatId": "132183278",
+    "iceName": "E5411",
+    "conf": "med"
+  },
+  "IFLE54I5119MH3O1": {
+    "icecatId": "132183278",
+    "iceName": "E5411",
+    "conf": "med"
+  },
+  "IFLE54I51191": {
+    "icecatId": "132183278",
+    "iceName": "E5411",
+    "conf": "med"
+  },
+  "IFLE54I5119M4": {
+    "icecatId": "132183278",
+    "iceName": "E5411",
+    "conf": "med"
+  },
+  "IFLU741I7019M": {
+    "icecatId": "78655999",
+    "iceName": "U7410",
+    "conf": "med"
+  },
+  "9U9V3UAR": {
+    "icecatId": "120566123",
+    "iceName": "HP ENVY x360 16-ac0002sa",
+    "conf": "manual-test",
+    "match": "same-series",
+    "source": "Icecat browser search: HP Envy x360 16-ac0097 Core Ultra 7 155U 16GB 512GB"
+  },
+  "9V9F4EA": {
+    "icecatId": "117998809",
+    "iceName": "HP 17-cp2006na",
+    "conf": "manual-test",
+    "match": "same-series",
+    "source": "Icecat browser search: HP 17-cp2536ng Ryzen 3 7320U 8GB 512GB"
+  }
 }
