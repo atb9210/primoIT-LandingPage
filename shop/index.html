@@ -302,7 +302,7 @@
 <div class="ice-back" id="iceBack" onclick="if(event.target===this)closeIcecat()"><div class="ice-box" id="iceBox"></div></div>
 
 <script src="catalog.js"></script>
-<script src="icecat_map.js?v=3ea27d2"></script>
+<script src="icecat_map.js?v=fix-partcode"></script>
 <script>
   var WHATSAPP = '393274894895';
   // In locale (file:// o localhost) usa il backend su :8000; in produzione usa la stessa origine (/api proxato da nginx)
@@ -685,7 +685,10 @@
       if(ov.partCode) return {params:{Brand:ov.brand||p.brand, ProductCode:ov.partCode}, source:'override locale · codice'};
     }
     var sm=shippedMatch(p.id);
-    if(sm && sm.icecatId) return {params:{IcecatProductId:sm.icecatId}, source:'match per nome'};
+    if(sm){
+      if(sm.partCode) return {params:{Brand:sm.brand||p.brand, ProductCode:sm.partCode}, source:'match verificato · codice'};
+      if(sm.icecatId) return {params:{IcecatProductId:sm.icecatId}, source:'match per nome'};
+    }
     var brand=(p.brand && p.brand!=='Altro')?p.brand:'';
     var model=extractModel(p.title, p.brand);
     if(brand && model) return {params:{Brand:brand, ProductCode:model}, source:'auto da titolo'};
