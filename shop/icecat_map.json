@@ -896,7 +896,8 @@
     "match": "same-series",
     "source": "Icecat browser search: HP Envy x360 16-ac0097 Core Ultra 7 155U 16GB 512GB",
     "brand": "HP",
-    "partCode": "A2WC6EA"
+    "partCode": "A2WC6EA",
+    "gtin": "0198415022424"
   },
   "9V9F4EA": {
     "icecatId": "117998809",
@@ -905,6 +906,7 @@
     "match": "same-series",
     "source": "Icecat browser search: HP 17-cp2536ng Ryzen 3 7320U 8GB 512GB",
     "brand": "HP",
-    "partCode": "9S9N8EA"
+    "partCode": "9S9N8EA",
+    "gtin": "0198122093144"
   }
 }

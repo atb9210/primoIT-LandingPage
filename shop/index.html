@@ -302,7 +302,7 @@
 <div class="ice-back" id="iceBack" onclick="if(event.target===this)closeIcecat()"><div class="ice-box" id="iceBox"></div></div>
 
 <script src="catalog.js"></script>
-<script src="icecat_map.js?v=fix-partcode"></script>
+<script src="icecat_map.js?v=fix-gtin"></script>
 <script>
   var WHATSAPP = '393274894895';
   // In locale (file:// o localhost) usa il backend su :8000; in produzione usa la stessa origine (/api proxato da nginx)
@@ -686,6 +686,7 @@
     }
     var sm=shippedMatch(p.id);
     if(sm){
+      if(sm.gtin) return {params:{GTIN:sm.gtin}, source:'match verificato · EAN'};
       if(sm.partCode) return {params:{Brand:sm.brand||p.brand, ProductCode:sm.partCode}, source:'match verificato · codice'};
       if(sm.icecatId) return {params:{IcecatProductId:sm.icecatId}, source:'match per nome'};
     }
