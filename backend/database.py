@@ -52,6 +52,15 @@ def init_db():
             updated_at TEXT
         )
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS icecat_overrides (
+            product_id TEXT PRIMARY KEY,
+            kind TEXT NOT NULL,
+            value TEXT NOT NULL,
+            brand TEXT,
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )
+    """)
     # migrazione DB esistenti: aggiungi details_json se manca
     try:
         cursor.execute("ALTER TABLE deals ADD COLUMN details_json TEXT")
@@ -255,3 +264,52 @@ def update_deal(deal_id: int, status: str = None, notes: str = None, details: di
     ok = cursor.rowcount > 0
     conn.close()
     return ok
+
+
+# ============ PrimoIT Shop — Icecat manual overrides ============
+
+def get_icecat_overrides() -> Dict[str, Dict]:
+    """Ritorna gli override Icecat manuali: product_id -> {kind, value, brand, updated_at}."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT product_id, kind, value, brand, updated_at FROM icecat_overrides ORDER BY product_id")
+    rows = cursor.fetchall()
+    conn.close()
+    return {row["product_id"]: {
+        "kind": row["kind"],
+        "value": row["value"],
+        "brand": row["brand"],
+        "updated_at": row["updated_at"],
+    } for row in rows}
+
+
+def upsert_icecat_override(product_id: str, kind: str, value: str, brand: str = None) -> Dict:
+    """Crea/aggiorna un override Icecat manuale per uno SKU catalogo."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        """INSERT INTO icecat_overrides (product_id, kind, value, brand, updated_at)
+           VALUES (?, ?, ?, ?, datetime('now'))
+           ON CONFLICT(product_id) DO UPDATE SET
+             kind=excluded.kind,
+             value=excluded.value,
+             brand=excluded.brand,
+             updated_at=datetime('now')""",
+        (product_id, kind, value, brand),
+    )
+    conn.commit()
+    cursor.execute("SELECT product_id, kind, value, brand, updated_at FROM icecat_overrides WHERE product_id = ?", (product_id,))
+    row = dict(cursor.fetchone())
+    conn.close()
+    return row
+
+
+def delete_icecat_override(product_id: str) -> bool:
+    """Rimuove un override Icecat manuale. Ritorna True se esisteva."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM icecat_overrides WHERE product_id = ?", (product_id,))
+    changed = cursor.rowcount > 0
+    conn.commit()
+    conn.close()
+    return changed

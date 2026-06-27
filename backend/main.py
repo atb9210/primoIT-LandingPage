@@ -10,7 +10,7 @@ import logging
 import os
 import hashlib
 import time
-from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, get_deal, update_deal
+from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, get_deal, update_deal, get_icecat_overrides, upsert_icecat_override, delete_icecat_override
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -656,6 +656,61 @@ class DealUpdate(BaseModel):
 class ViesRequest(BaseModel):
     country: str
     vat: str
+
+
+class IcecatOverrideIn(BaseModel):
+    kind: str
+    value: str
+    brand: Optional[str] = None
+
+
+def _normalize_icecat_override(req: IcecatOverrideIn) -> dict:
+    raw_kind = (req.kind or "").strip().lower()
+    kind = {"icecatid": "icecatId", "gtin": "gtin", "partcode": "partCode"}.get(raw_kind)
+    value = (req.value or "").strip()
+    brand = (req.brand or "").strip() or None
+    if not kind:
+        raise HTTPException(status_code=400, detail="kind deve essere icecatId, gtin o partCode")
+    if not value:
+        raise HTTPException(status_code=400, detail="value obbligatorio")
+    if kind == "icecatId" and not value.isdigit():
+        raise HTTPException(status_code=400, detail="Icecat ID deve essere numerico")
+    if kind == "gtin" and (not value.isdigit() or len(value) < 8 or len(value) > 14):
+        raise HTTPException(status_code=400, detail="GTIN/EAN deve avere 8-14 cifre")
+    if kind == "partCode" and len(value) > 128:
+        raise HTTPException(status_code=400, detail="partCode troppo lungo")
+    if brand and len(brand) > 64:
+        raise HTTPException(status_code=400, detail="brand troppo lungo")
+    return {"kind": kind, "value": value, "brand": brand}
+
+
+@app.get("/api/icecat-overrides")
+async def api_public_icecat_overrides():
+    """Override Icecat manuali pubblici: lo shop li usa sopra la mappa auto."""
+    return {"overrides": get_icecat_overrides()}
+
+
+@app.get("/api/admin/icecat-overrides")
+async def api_admin_icecat_overrides(username: str = Depends(verify_admin)):
+    """Lista override Icecat manuali (Basic Auth)."""
+    return {"overrides": get_icecat_overrides()}
+
+
+@app.put("/api/admin/icecat-overrides/{product_id}")
+async def api_set_icecat_override(product_id: str, req: IcecatOverrideIn, username: str = Depends(verify_admin)):
+    """Salva override Icecat manuale per uno SKU catalogo (Basic Auth)."""
+    pid = (product_id or "").strip()
+    if not pid or len(pid) > 80:
+        raise HTTPException(status_code=400, detail="product_id non valido")
+    norm = _normalize_icecat_override(req)
+    return {"success": True, "override": upsert_icecat_override(pid, norm["kind"], norm["value"], norm["brand"])}
+
+
+@app.delete("/api/admin/icecat-overrides/{product_id}")
+async def api_delete_icecat_override(product_id: str, username: str = Depends(verify_admin)):
+    """Rimuove override Icecat manuale per uno SKU catalogo (Basic Auth)."""
+    delete_icecat_override((product_id or "").strip())
+    return {"success": True}
 
 @app.post("/api/deals")
 async def api_create_deal(deal: DealCreate):

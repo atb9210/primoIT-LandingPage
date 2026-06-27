@@ -33,6 +33,24 @@
   .stat .l{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:600;}
 
   .toolbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .toolbar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;font-size:.85rem;font-weight:700;color:var(--navy);}
+  .toolbar button.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .icecat-panel{display:none;}
+  .icecat-panel.open{display:block;}
+  .ice-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+  .ice-tools input,.ice-tools select{border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:.85rem;background:#fff;outline:none;}
+  .ice-tools input{min-width:280px;flex:1;}
+  .ice-product{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px;}
+  .ice-product .top{display:grid;grid-template-columns:1fr 120px 190px 105px;gap:8px;align-items:center;}
+  .ice-product .title{font-weight:800;font-size:.86rem;line-height:1.3;}
+  .ice-product .meta{font-size:.72rem;color:var(--muted);margin-top:3px;}
+  .ice-product input,.ice-product select{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 9px;font-size:.82rem;font-family:inherit;}
+  .ice-product .save{background:var(--lime);border:none;border-radius:8px;padding:9px 10px;font-weight:800;color:var(--navy);}
+  .ice-product .clear{background:#EEF1F6;border:none;border-radius:8px;padding:9px 10px;font-weight:700;color:var(--muted);margin-left:6px;}
+  .ice-badge{display:inline-block;border-radius:999px;padding:2px 7px;font-size:.65rem;font-weight:800;text-transform:uppercase;margin-left:6px;}
+  .ice-auto{background:#EEF1F6;color:var(--muted);}
+  .ice-manual{background:rgba(30,158,90,.14);color:var(--green);}
+  .ice-med{background:rgba(217,138,31,.16);color:var(--amber);}
   .toolbar select{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.85rem;background:#fff;outline:none;}
   .toolbar .count{color:var(--muted);font-size:.88rem;}
 
@@ -148,10 +166,26 @@
 <div class="wrap">
   <div class="stats" id="stats"></div>
   <div class="toolbar">
+    <button id="tabDeals" class="active" onclick="showTab('deals')">Richieste</button>
+    <button id="tabIcecat" onclick="showTab('icecat')">Catalogo Icecat</button>
     <select id="filter" onchange="load()"><option value="">Tutti gli stati</option></select>
     <span class="count" id="count"></span>
   </div>
   <div id="deals"></div>
+  <div class="icecat-panel" id="icecatPanel">
+    <div class="ice-tools">
+      <input id="iceSearch" placeholder="Cerca SKU, titolo, brand…" oninput="renderIcecatAdmin()">
+      <select id="iceFilter" onchange="renderIcecatAdmin()">
+        <option value="">Tutti i laptop</option>
+        <option value="manual">Manuali</option>
+        <option value="auto">Auto-match</option>
+        <option value="missing">Senza match</option>
+        <option value="med">Auto media confidenza</option>
+      </select>
+      <span class="count" id="iceCount"></span>
+    </div>
+    <div id="iceProducts"></div>
+  </div>
 </div>
 
 <div class="login" id="login">
@@ -164,6 +198,8 @@
     <button onclick="doLogin()">Entra</button>
   </div>
 </div>
+<script src="catalog.js"></script>
+<script src="icecat_map.js"></script>
 
 <script>
   // In locale usa :8000; in produzione stessa origine (/api proxato da nginx)
@@ -172,6 +208,8 @@
   var COMPANY = { name:'PrimoIT', piva:'05621560266', wa:'+39 327 489 4895', email:'info@primoit.it',
     bankHolder:'PrimoIT', iban:'IT00 X000 0000 0000 0000 0000 000', bank:'(banca da impostare)' };
   var auth = sessionStorage.getItem('primoit_auth') || '';
+  var ICE_OVERRIDES = {};
+  var activeTab = 'deals';
   var DEALS = {};       // id -> deal
   var viesCache = {};   // id -> {valid,name,address}
 
@@ -204,6 +242,94 @@
     var sel=document.getElementById('filter');
     if(sel.options.length>1) return;
     STATUSES.forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+  }
+
+  function showTab(tab){
+    activeTab=tab;
+    document.getElementById('tabDeals').classList.toggle('active', tab==='deals');
+    document.getElementById('tabIcecat').classList.toggle('active', tab==='icecat');
+    document.getElementById('deals').style.display = tab==='deals' ? '' : 'none';
+    document.getElementById('stats').style.display = tab==='deals' ? '' : 'none';
+    document.getElementById('filter').style.display = tab==='deals' ? '' : 'none';
+    document.getElementById('count').style.display = tab==='deals' ? '' : 'none';
+    document.getElementById('icecatPanel').classList.toggle('open', tab==='icecat');
+    if(tab==='icecat') loadIcecatOverrides();
+  }
+
+  function loadIcecatOverrides(){
+    api('/api/admin/icecat-overrides').then(function(data){
+      ICE_OVERRIDES=data.overrides||{};
+      renderIcecatAdmin();
+    }).catch(function(){});
+  }
+
+  function iceProducts(){
+    return (window.CATALOG||[]).filter(function(p){ return p.category==='Laptop'; });
+  }
+
+  function iceAuto(p){ return (window.ICECAT_MAP||{})[p.id] || null; }
+  function iceManual(p){ return ICE_OVERRIDES[p.id] || null; }
+
+  function iceKindFromValue(v){
+    v=(v||'').trim();
+    if(/icecat\.biz/i.test(v)){
+      var m=v.match(/(?:product[_-]?id|icecat[_-]?id|product_id|id)[=/:-]?(\d{4,})/i) || v.match(/\/p\/(?:[^/]+\/){0,3}(\d{4,})(?:[/?#]|$)/i) || v.match(/(\d{6,})/);
+      return {kind:'icecatId', value:m?m[1]:v};
+    }
+    if(/^\d{8,14}$/.test(v)) return {kind:'gtin', value:v};
+    if(/^\d{5,}$/.test(v)) return {kind:'icecatId', value:v};
+    return {kind:'partCode', value:v};
+  }
+
+  function renderIcecatAdmin(){
+    var q=(document.getElementById('iceSearch').value||'').trim().toLowerCase();
+    var filter=document.getElementById('iceFilter').value;
+    var products=iceProducts().filter(function(p){
+      var manual=iceManual(p), auto=iceAuto(p);
+      if(filter==='manual' && !manual) return false;
+      if(filter==='auto' && (manual || !auto)) return false;
+      if(filter==='missing' && (manual || auto)) return false;
+      if(filter==='med' && (!auto || auto.conf!=='med')) return false;
+      if(!q) return true;
+      return (p.id+' '+p.brand+' '+p.title).toLowerCase().indexOf(q)>=0;
+    });
+    document.getElementById('iceCount').textContent=products.length+' prodotti';
+    document.getElementById('iceProducts').innerHTML=products.slice(0,120).map(iceRow).join('') + (products.length>120?'<div class="empty">Mostro i primi 120: usa la ricerca per filtrare.</div>':'');
+  }
+
+  function iceRow(p){
+    var manual=iceManual(p), auto=iceAuto(p);
+    var source = manual ? '<span class="ice-badge ice-manual">manuale</span>' : (auto ? '<span class="ice-badge '+(auto.conf==='med'?'ice-med':'ice-auto')+'">auto '+esc(auto.conf||'')+'</span>' : '<span class="ice-badge ice-auto">nessuno</span>');
+    var val = manual ? manual.value : (auto ? auto.icecatId : '');
+    var kind = manual ? manual.kind : (auto ? 'icecatId' : 'icecatId');
+    var hint = auto ? ('Suggerito: '+auto.icecatId+' · '+(auto.iceName||'')) : 'Nessun suggerimento auto';
+    return '<div class="ice-product">'
+      +'<div class="top">'
+      +'<div><div class="title">'+esc(p.title)+source+'</div><div class="meta">SKU '+esc(p.id)+' · '+esc(p.brand||'')+' · '+esc(hint)+'</div></div>'
+      +'<select id="ice_kind_'+esc(p.id)+'"><option value="icecatId" '+(kind==='icecatId'?'selected':'')+'>Icecat ID</option><option value="gtin" '+(kind==='gtin'?'selected':'')+'>EAN/GTIN</option><option value="partCode" '+(kind==='partCode'?'selected':'')+'>Codice produttore</option></select>'
+      +'<input id="ice_val_'+esc(p.id)+'" value="'+esc(val)+'" placeholder="ID, EAN o URL Icecat">'
+      +'<div><button class="save" onclick="saveIcecatOverride(\''+esc(p.id)+'\')">Salva</button><button class="clear" onclick="clearIcecatOverride(\''+esc(p.id)+'\')">X</button></div>'
+      +'</div></div>';
+  }
+
+  function saveIcecatOverride(id){
+    var p=iceProducts().find(function(x){return x.id===id;});
+    var v=(document.getElementById('ice_val_'+id).value||'').trim();
+    if(!v){ clearIcecatOverride(id); return; }
+    var parsed=iceKindFromValue(v);
+    var chosen=document.getElementById('ice_kind_'+id).value;
+    if(chosen && !/icecat\.biz/i.test(v)) parsed.kind=chosen;
+    api('/api/admin/icecat-overrides/'+encodeURIComponent(id), {
+      method:'PUT',
+      body:JSON.stringify({kind:parsed.kind, value:parsed.value, brand:p&&p.brand})
+    }).then(function(r){ if(r.override) ICE_OVERRIDES[id]=r.override; renderIcecatAdmin(); }).catch(function(){ alert('Errore salvataggio Icecat.'); });
+  }
+
+  function clearIcecatOverride(id){
+    api('/api/admin/icecat-overrides/'+encodeURIComponent(id), {method:'DELETE'}).then(function(){
+      delete ICE_OVERRIDES[id];
+      renderIcecatAdmin();
+    }).catch(function(){ alert('Errore rimozione Icecat.'); });
   }
 
   function load(){

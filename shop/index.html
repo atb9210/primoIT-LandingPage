@@ -619,8 +619,9 @@
 
   /* ── ICECAT LIVE — dettagli prodotto (widget JS) + matching ── */
   var ICECAT = { shopname:'', lang:'IT', loading:false };
-  var ICE_MAP_KEY = 'primoit_icecat_map';        // p.id -> {gtin|partCode|icecatId|brand}
-  var ICE_SHOP_KEY = 'primoit_icecat_shopname';  // fallback per test statico (senza backend)
+  var ICE_REMOTE_OVERRIDES = {};                    // backend: p.id -> {kind,value,brand}
+  var ICE_MAP_KEY = 'primoit_icecat_map';           // fallback locale: p.id -> {gtin|partCode|icecatId|brand}
+  var ICE_SHOP_KEY = 'primoit_icecat_shopname';     // fallback per test statico (senza backend)
 
   function loadIcecatConfig(){
     function fromLS(){ var ls=localStorage.getItem(ICE_SHOP_KEY); if(ls && !ICECAT.shopname) ICECAT.shopname=ls; }
@@ -630,6 +631,10 @@
         if(c && c.icecatLang) ICECAT.lang=c.icecatLang;
         fromLS();
       }).catch(fromLS);
+      fetch(API_BASE+'/api/icecat-overrides').then(function(r){return r.json();}).then(function(data){
+        ICE_REMOTE_OVERRIDES=data.overrides||{};
+        render();
+      }).catch(function(){});
     }catch(e){ fromLS(); }
   }
 
@@ -662,15 +667,22 @@
 
   // mappa generata dal matcher per nome (nostro_id -> IcecatProductId)
   function shippedMatch(id){ return (window.ICECAT_MAP||{})[id]; }
-  function hasIcecat(p){ return !!(shippedMatch(p.id) || iceMap()[p.id]); }
+  function remoteOverride(id){ return ICE_REMOTE_OVERRIDES[id] || null; }
+  function hasIcecat(p){ return !!(remoteOverride(p.id) || shippedMatch(p.id) || iceMap()[p.id]); }
 
   // sistema di matching → {params, source}
   function icecatQuery(p){
+    var ro=remoteOverride(p.id);
+    if(ro){
+      if(ro.kind==='gtin') return {params:{GTIN:ro.value}, source:'manuale admin · EAN'};
+      if(ro.kind==='icecatId') return {params:{IcecatProductId:ro.value}, source:'manuale admin · Icecat ID'};
+      if(ro.kind==='partCode') return {params:{Brand:ro.brand||p.brand, ProductCode:ro.value}, source:'manuale admin · codice'};
+    }
     var ov=iceMap()[p.id];
     if(ov){
-      if(ov.gtin) return {params:{GTIN:ov.gtin}, source:'override · EAN'};
-      if(ov.icecatId) return {params:{IcecatProductId:ov.icecatId}, source:'override · Icecat ID'};
-      if(ov.partCode) return {params:{Brand:ov.brand||p.brand, ProductCode:ov.partCode}, source:'override · codice'};
+      if(ov.gtin) return {params:{GTIN:ov.gtin}, source:'override locale · EAN'};
+      if(ov.icecatId) return {params:{IcecatProductId:ov.icecatId}, source:'override locale · Icecat ID'};
+      if(ov.partCode) return {params:{Brand:ov.brand||p.brand, ProductCode:ov.partCode}, source:'override locale · codice'};
     }
     var sm=shippedMatch(p.id);
     if(sm && sm.icecatId) return {params:{IcecatProductId:sm.icecatId}, source:'match per nome'};
@@ -690,7 +702,7 @@
   function renderIcecat(p){
     var q=icecatQuery(p), box=document.getElementById('iceBox');
     var head='<div class="ice-head"><div><div class="t">'+esc(p.title)+'</div><div class="s">SKU '+esc(p.id)+' · match: '+esc(q.source)+'</div></div><button onclick="closeIcecat()">✕</button></div>';
-    var m=iceMap()[p.id], ovrVal=m?(m.gtin||m.icecatId||m.partCode||''):'';
+    var rm=remoteOverride(p.id), m=iceMap()[p.id], ovrVal=rm?rm.value:(m?(m.gtin||m.icecatId||m.partCode||''):'');
     var ovr='<div class="ice-ovr"><div class="row1"><label>EAN o codice:</label>'
       +'<input id="iceOvr" value="'+esc(ovrVal)+'" placeholder="es. 5397184999999 oppure Latitude 7420">'
       +'<button onclick="iceSaveOverride()">Salva e riprova</button>'
