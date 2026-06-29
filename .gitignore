@@ -10,3 +10,7 @@ shop/icecat_upload.csv
 shop/icecat_sample10.xlsx
 shop/icecat_full.xlsx
 icecat_taxonomy/
+
+# Editor workspace (percorsi locali) e doc fornitore
+*.code-workspace
+OutletClick.com_XML_IT.pdf
