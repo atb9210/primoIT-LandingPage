@@ -71,6 +71,7 @@ def clean_desc(h):
     t = re.sub(r"<script[^>]*>.*?</script>", "", t, flags=re.S | re.I)
     t = re.sub(r'\sdata-[a-z-]+="[^"]*"', "", t)   # togli attributi pagebuilder
     t = re.sub(r'\sclass="[^"]*"', "", t)
+    t = re.sub(r'\sstyle="[^"]*"', "", t)          # togli stili inline (evita overflow/larghezze fisse)
     return t.strip()
 
 def text(p, tag):
