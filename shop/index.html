@@ -95,7 +95,31 @@
   .card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;position:relative;transition:box-shadow .15s,border-color .15s;}
   .card:hover{box-shadow:0 8px 24px rgba(15,31,58,.08);border-color:#D2D8E2;}
   .card.selected{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy);}
-  .card-img{height:120px;background:linear-gradient(135deg,#F2F5FA,#E9EEF6);display:flex;align-items:center;justify-content:center;color:#AEB9CC;font-size:2.4rem;position:relative;}
+  .card-img{height:150px;background:#fff;display:flex;align-items:center;justify-content:center;color:#AEB9CC;font-size:2.4rem;position:relative;border-bottom:1px solid var(--line);}
+  .card-img img{max-width:100%;max-height:100%;object-fit:contain;padding:10px;}
+  .row-thumb{width:56px;height:56px;object-fit:contain;flex-shrink:0;background:#fff;border:1px solid var(--line);border-radius:8px;}
+  /* scheda prodotto (dettaglio dal feed) */
+  .det-body{padding:0;}
+  .det-top{display:flex;gap:20px;padding:18px 20px;flex-wrap:wrap;}
+  .det-gallery{flex:0 0 320px;max-width:320px;}
+  .det-gallery #detMain{width:100%;height:260px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:10px;}
+  .det-thumbs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+  .det-thumbs img{width:48px;height:48px;object-fit:contain;border:1px solid var(--line);border-radius:6px;cursor:pointer;background:#fff;}
+  .det-thumbs img.on{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy);}
+  .det-noimg{flex:0 0 320px;height:260px;display:flex;align-items:center;justify-content:center;color:#C4CCD8;font-size:3rem;background:#F8F9FB;border-radius:10px;}
+  .det-info{flex:1;min-width:240px;}
+  .det-price{font-size:1.5rem;font-weight:800;color:var(--navy);margin-bottom:12px;}
+  .det-price small{font-size:.7rem;font-weight:600;color:var(--muted);}
+  .det-specs{width:100%;border-collapse:collapse;font-size:.84rem;}
+  .det-specs td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .det-specs td:first-child{color:var(--muted);width:42%;font-weight:600;}
+  .det-short{padding:0 20px 12px;font-size:.85rem;color:#42506A;line-height:1.5;}
+  .det-desc{padding:14px 20px;border-top:1px solid var(--line);font-size:.86rem;line-height:1.6;color:#2A3650;}
+  .det-desc img{max-width:100%;height:auto;border-radius:8px;}
+  .det-desc h2,.det-desc h3{font-size:1rem;margin:12px 0 6px;color:var(--navy);}
+  .det-desc ul{padding-left:20px;} .det-desc p{margin:6px 0;}
+  .det-foot{border-top:1px solid var(--line);padding:14px 20px;position:sticky;bottom:0;background:#fff;}
+  .det-foot .cfg-add{width:100%;}
   .card-check{position:absolute;top:10px;left:10px;z-index:2;}
   .card-check input{width:18px;height:18px;accent-color:var(--navy);cursor:pointer;}
   .card-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1;}
@@ -299,7 +323,7 @@
 </div>
 
 <div class="cfg-back" id="cfgBack" onclick="if(event.target===this)closeConfig()"><div class="cfg-box" id="cfgBox"></div></div>
-<div class="ice-back" id="iceBack" onclick="if(event.target===this)closeIcecat()"><div class="ice-box" id="iceBox"></div></div>
+<div class="ice-back" id="iceBack" onclick="if(event.target===this)closeDetail()"><div class="ice-box" id="iceBox"></div></div>
 
 <script src="catalog.js"></script>
 <script src="icecat_map.js?v=fix-gtin"></script>
@@ -435,7 +459,7 @@
   function cardGrid(p){
     var sel=inCart(p.id)?' selected':'';
     return '<div class="card'+sel+'">'
-      + '<div class="card-img"><span class="card-check"><input type="checkbox" '+(inCart(p.id)?'checked':'')+' onchange="addAction(\''+p.id+'\')"></span><i class="fas '+(CAT_ICON[p.category]||'fa-box')+'"></i></div>'
+      + '<div class="card-img" onclick="openDetail(\''+p.id+'\')" style="cursor:pointer"><span class="card-check" onclick="event.stopPropagation()"><input type="checkbox" '+(inCart(p.id)?'checked':'')+' onchange="addAction(\''+p.id+'\')"></span>'+(p.image?'<img loading="lazy" src="'+esc(p.image)+'" alt="'+esc(p.title)+'">':'<i class="fas '+(CAT_ICON[p.category]||'fa-box')+'"></i>')+'</div>'
       + '<div class="card-body">'
       +   '<div class="card-badges">'+badges(p)+'</div>'
       +   '<div class="card-title">'+esc(p.title)+'</div>'
@@ -455,9 +479,10 @@
     var sel=inCart(p.id)?' selected':'';
     return '<div class="row'+sel+'">'
       + '<input type="checkbox" '+(inCart(p.id)?'checked':'')+' onchange="addAction(\''+p.id+'\')">'
+      + (p.image?'<img class="row-thumb" loading="lazy" src="'+esc(p.image)+'" alt="" onclick="openDetail(\''+p.id+'\')" style="cursor:pointer">':'')
       + '<div class="row-main"><div class="row-title">'+esc(p.title)+'</div>'
       +   '<div class="row-sub">'+badges(p)+' <span>'+esc(p.brand)+'</span> · <span>'+esc(p.id)+'</span></div></div>'
-      + '<div class="row-attrs">'+attr('CPU',p.cpu)+attr('RAM',p.ram)+attr('Drive',p.drive)+attrGpu(p)+attrKb(p)+attr('Stock',p.stock+' pz')+'</div>'
+      + '<div class="row-attrs">'+attr('CPU',p.cpu)+attr('RAM',p.ram)+attr('Drive',p.drive)+attrGpu(p)+attr('Schermo',p.screen)+attr('Stock',p.stock+' pz')+'</div>'
       + '<div class="row-price">'+priceHtml(p)
       +   '<div class="foot-btns">'
       +     eyeBtn(p)
@@ -697,50 +722,44 @@
   }
 
   // bottone occhio: mostrato solo dove c'è una scheda Icecat agganciata
-  function eyeBtn(p){ return hasIcecat(p) ? '<button class="eye-btn" title="Scheda tecnica" onclick="openIcecat(\''+p.id+'\')"><i class="fas fa-eye"></i></button>' : ''; }
+  function eyeBtn(p){ return '<button class="eye-btn" title="Scheda prodotto" onclick="openDetail(\''+p.id+'\')"><i class="fas fa-eye"></i></button>'; }
 
-  var iceCur=null;
-  function openIcecat(id){ var p=findP(id); if(!p) return; iceCur=p; document.getElementById('iceBack').classList.add('open'); renderIcecat(p); }
-  function closeIcecat(){ document.getElementById('iceBack').classList.remove('open'); iceCur=null; }
-
-  function renderIcecat(p){
-    var q=icecatQuery(p), box=document.getElementById('iceBox');
-    var head='<div class="ice-head"><div><div class="t">'+esc(p.title)+'</div><div class="s">SKU '+esc(p.id)+' · match: '+esc(q.source)+'</div></div><button onclick="closeIcecat()">✕</button></div>';
-    var rm=remoteOverride(p.id), m=iceMap()[p.id], ovrVal=rm?rm.value:(m?(m.gtin||m.icecatId||m.partCode||''):'');
-    var ovr='<div class="ice-ovr"><div class="row1"><label>EAN o codice:</label>'
-      +'<input id="iceOvr" value="'+esc(ovrVal)+'" placeholder="es. 5397184999999 oppure Latitude 7420">'
-      +'<button onclick="iceSaveOverride()">Salva e riprova</button>'
-      +(m?'<button class="ghost" onclick="iceClearOverride()">Rimuovi</button>':'')
-      +'</div><div class="hint">Se la scheda non compare, incolla l\'EAN (numerico) o il codice prodotto del produttore: il match resta salvato per questo prodotto.</div></div>';
-    var attr='<div class="ice-attr">Schede tecniche fornite da <a href="https://icecat.biz" target="_blank" rel="noopener">Icecat</a> · contenuto "as is"</div>';
-
-    if(!ICECAT.shopname){
-      box.innerHTML=head+'<div class="ice-body"><div class="ice-state"><i class="fas fa-triangle-exclamation"></i>Shopname Icecat non configurato.<br>Imposta <b>ICECAT_SHOPNAME</b> nel backend (o <code>localStorage.'+ICE_SHOP_KEY+'</code> per test).</div></div>'+ovr;
-      return;
-    }
-    if(!q.params){
-      box.innerHTML=head+'<div class="ice-body"><div class="ice-state"><i class="fas fa-magnifying-glass"></i>Nessun identificatore per cercare questo prodotto.<br>Inserisci un EAN o codice qui sotto.</div></div>'+ovr+attr;
-      return;
-    }
-    box.innerHTML=head+'<div class="ice-body"><div id="iceDatasheet"><div class="ice-state"><i class="fas fa-spinner fa-spin"></i>Caricamento scheda Icecat…</div></div></div>'+ovr+attr;
-    ensureIcecatJs(function(err){
-      var tgt=document.getElementById('iceDatasheet'); if(!tgt) return;
-      if(err){ tgt.innerHTML='<div class="ice-state"><i class="fas fa-plug-circle-xmark"></i>Widget Icecat non raggiungibile.</div>'; return; }
-      var params={}; for(var k in q.params) params[k]=q.params[k]; params.UserName=ICECAT.shopname;
-      try{ IcecatLive.getDatasheet('#iceDatasheet', params, (ICECAT.lang||'IT').toLowerCase()); }
-      catch(e){ tgt.innerHTML='<div class="ice-state"><i class="fas fa-circle-xmark"></i>Errore nel caricamento della scheda.</div>'; }
-    });
+  /* ── Scheda prodotto dal feed (foto + specifiche + descrizione IT) ── */
+  function openDetail(id){ var p=findP(id); if(!p) return; document.getElementById('iceBack').classList.add('open'); renderDetail(p); document.getElementById('iceBox').scrollTop=0; }
+  function closeDetail(){ document.getElementById('iceBack').classList.remove('open'); }
+  function detRow(l,v){ return v ? '<tr><td>'+l+'</td><td>'+esc(v)+'</td></tr>' : ''; }
+  function renderDetail(p){
+    var box=document.getElementById('iceBox');
+    var imgs=(p.images&&p.images.length)?p.images:(p.image?[p.image]:[]);
+    var gallery = imgs.length
+      ? '<div class="det-gallery"><img id="detMain" src="'+esc(imgs[0])+'" alt="">'
+        + (imgs.length>1 ? '<div class="det-thumbs">'+imgs.map(function(u,i){return '<img src="'+esc(u)+'" class="'+(i===0?'on':'')+'" onclick="setDetMain(this)">';}).join('')+'</div>' : '')
+        + '</div>'
+      : '<div class="det-noimg"><i class="fas '+(CAT_ICON[p.category]||'fa-box')+'"></i></div>';
+    var specs='<table class="det-specs">'
+      + detRow('Processore',p.cpu)
+      + detRow('Memoria',(p.ram||'')+(p.ram_type?' · '+p.ram_type:''))
+      + detRow('Archiviazione',p.drive)
+      + detRow('Grafica',p.gpu)
+      + detRow('Schermo',p.screen)
+      + detRow('Sistema operativo',p.os)
+      + detRow('Condizione',p.condition+(p.grade&&p.grade!=='—'?' · grado '+p.grade:''))
+      + detRow('Garanzia',p.warranty?p.warranty+' mesi':'')
+      + detRow('Classe energetica',p.energy_class)
+      + detRow('EAN',p.ean)
+      + detRow('SKU',p.id)
+      + '</table>';
+    var price = p.price!=null ? '<div class="det-price">'+eur(p.price)+' <small>+IVA</small>'+(p.price_incl!=null?' &nbsp;·&nbsp; '+eur(p.price_incl)+' IVA incl.':'')+'</div>' : '';
+    var addBtn='<button class="cfg-add" onclick="closeDetail();addAction(\''+p.id+'\')"><i class="fas fa-cart-plus"></i> '+(inCart(p.id)?'✓ Nel carrello':'Aggiungi al carrello')+'</button>';
+    box.innerHTML='<div class="ice-head"><div><div class="t">'+esc(p.title)+'</div><div class="s">'+esc(p.brand)+' · SKU '+esc(p.id)+(p.ean?' · EAN '+esc(p.ean):'')+'</div></div><button onclick="closeDetail()">✕</button></div>'
+      + '<div class="ice-body det-body">'
+      +   '<div class="det-top">'+gallery+'<div class="det-info">'+price+specs+'</div></div>'
+      +   (p.short_desc?'<div class="det-short">'+esc(p.short_desc)+'</div>':'')
+      +   (p.description?'<div class="det-desc">'+p.description+'</div>':'')
+      + '</div>'
+      + '<div class="det-foot">'+addBtn+'</div>';
   }
-
-  function iceSaveOverride(){
-    if(!iceCur) return;
-    var v=(document.getElementById('iceOvr').value||'').trim(), m=iceMap();
-    if(!v) delete m[iceCur.id];
-    else if(/^[0-9]{8,14}$/.test(v)) m[iceCur.id]={gtin:v};
-    else m[iceCur.id]={partCode:v, brand:iceCur.brand};
-    iceSaveMap(m); renderIcecat(iceCur);
-  }
-  function iceClearOverride(){ if(!iceCur) return; var m=iceMap(); delete m[iceCur.id]; iceSaveMap(m); renderIcecat(iceCur); }
+  function setDetMain(el){ document.getElementById('detMain').src=el.src; var ts=el.parentNode.querySelectorAll('img'); for(var i=0;i<ts.length;i++) ts[i].classList.remove('on'); el.classList.add('on'); }
 
   /* ── UI CONTROLS ── */
   function onSearch(v){ state.search=v.trim(); render(); }
