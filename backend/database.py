@@ -61,6 +61,14 @@ def init_db():
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
         )
     """)
+    # Impostazioni configurabili da admin (es. pixel/tracking)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT,
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )
+    """)
     # migrazione DB esistenti: aggiungi details_json se manca
     try:
         cursor.execute("ALTER TABLE deals ADD COLUMN details_json TEXT")
@@ -313,3 +321,30 @@ def delete_icecat_override(product_id: str) -> bool:
     conn.commit()
     conn.close()
     return changed
+
+
+# ============ Impostazioni (key-value) configurabili da admin ============
+
+def get_settings() -> Dict[str, str]:
+    """Tutte le impostazioni come dict key->value."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT key, value FROM settings")
+    rows = cursor.fetchall()
+    conn.close()
+    return {row["key"]: (row["value"] or "") for row in rows}
+
+
+def set_settings(values: Dict[str, str]) -> None:
+    """Upsert di più impostazioni in una volta."""
+    conn = get_db()
+    cursor = conn.cursor()
+    for key, value in values.items():
+        cursor.execute(
+            """INSERT INTO settings (key, value, updated_at)
+               VALUES (?, ?, datetime('now'))
+               ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=datetime('now')""",
+            (key, value if value is not None else ""),
+        )
+    conn.commit()
+    conn.close()

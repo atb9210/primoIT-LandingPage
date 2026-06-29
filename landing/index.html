@@ -13,10 +13,21 @@
   <!-- Facebook Pixel -->
   <script>
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', 'PLACEHOLDER_PIXEL_ID');
-    fbq('track', 'PageView');
+    // Pixel ID + eventuale script custom presi dall'admin via /api/config (niente placeholder)
+    (function(){
+      var API_BASE = (location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'http://localhost:8000' : '';
+      function injectHtml(h){ if(!h) return; var d=document.createElement('div'); d.innerHTML=h;
+        Array.prototype.slice.call(d.childNodes).forEach(function(n){
+          if(n.tagName==='SCRIPT'){ var s=document.createElement('script'); if(n.src)s.src=n.src; else s.textContent=n.textContent; document.head.appendChild(s); }
+          else if(n.nodeType===1) document.head.appendChild(n);
+        });
+      }
+      fetch(API_BASE+'/api/config').then(function(r){return r.json();}).then(function(c){
+        if(c && c.fbPixelId){ fbq('init', c.fbPixelId); fbq('track','PageView'); }
+        injectHtml(c && c.customHeadHtml);
+      }).catch(function(){});
+    })();
   </script>
-  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=PLACEHOLDER_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
 
   <!-- Fonts lazy loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

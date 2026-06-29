@@ -168,6 +168,7 @@
   <div class="toolbar">
     <button id="tabDeals" class="active" onclick="showTab('deals')">Richieste</button>
     <button id="tabIcecat" onclick="showTab('icecat')">Catalogo Icecat</button>
+    <button id="tabTracking" onclick="showTab('tracking')">Tracking</button>
     <select id="filter" onchange="load()"><option value="">Tutti gli stati</option></select>
     <span class="count" id="count"></span>
   </div>
@@ -185,6 +186,17 @@
       <span class="count" id="iceCount"></span>
     </div>
     <div id="iceProducts"></div>
+  </div>
+  <div class="icecat-panel" id="trackingPanel">
+    <div style="max-width:680px">
+      <div class="sec-title"><i class="fab fa-facebook"></i> Meta (Facebook) Pixel</div>
+      <div class="fld"><label>Pixel ID</label><input id="set_pixel" placeholder="es. 1234567890123456"></div>
+      <div class="fld"><label>Conversion API – Access Token <span style="font-weight:400;color:#9AA4B5">(segreto, solo lato server)</span></label><input id="set_token" type="password" placeholder="EAAB…"></div>
+      <div class="sec-title"><i class="fas fa-code"></i> Script custom &lt;head&gt; <span style="font-weight:400;color:#9AA4B5">(Google, TikTok, GTM… incolla qui)</span></div>
+      <div class="fld"><textarea id="set_custom" rows="8" placeholder="&lt;script&gt;…&lt;/script&gt;" style="font-family:monospace;font-size:.8rem"></textarea></div>
+      <button id="setSaveBtn" class="btn-primary" onclick="saveSettings()"><i class="fas fa-floppy-disk"></i> Salva impostazioni</button>
+      <p style="font-size:.78rem;color:#9AA4B5;margin-top:10px">Le modifiche sono attive subito su landing e shop (ricarica le pagine, niente redeploy).</p>
+    </div>
   </div>
 </div>
 
@@ -248,12 +260,29 @@
     activeTab=tab;
     document.getElementById('tabDeals').classList.toggle('active', tab==='deals');
     document.getElementById('tabIcecat').classList.toggle('active', tab==='icecat');
+    document.getElementById('tabTracking').classList.toggle('active', tab==='tracking');
     document.getElementById('deals').style.display = tab==='deals' ? '' : 'none';
     document.getElementById('stats').style.display = tab==='deals' ? '' : 'none';
     document.getElementById('filter').style.display = tab==='deals' ? '' : 'none';
     document.getElementById('count').style.display = tab==='deals' ? '' : 'none';
     document.getElementById('icecatPanel').classList.toggle('open', tab==='icecat');
+    document.getElementById('trackingPanel').classList.toggle('open', tab==='tracking');
     if(tab==='icecat') loadIcecatOverrides();
+    if(tab==='tracking') loadSettings();
+  }
+
+  function loadSettings(){
+    api('/api/admin/settings').then(function(s){
+      document.getElementById('set_pixel').value = s.fb_pixel_id||'';
+      document.getElementById('set_token').value = s.fb_access_token||'';
+      document.getElementById('set_custom').value = s.custom_head_html||'';
+    }).catch(function(){});
+  }
+  function saveSettings(){
+    var body={ fb_pixel_id:val('set_pixel'), fb_access_token:val('set_token'), custom_head_html:document.getElementById('set_custom').value };
+    api('/api/admin/settings',{method:'POST',body:JSON.stringify(body)}).then(function(){
+      var b=document.getElementById('setSaveBtn'); if(b){ var o=b.textContent; b.textContent='Salvato ✓'; setTimeout(function(){b.textContent=o;},1500); }
+    }).catch(function(){ alert('Errore nel salvataggio.'); });
   }
 
   function loadIcecatOverrides(){

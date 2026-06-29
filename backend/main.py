@@ -13,9 +13,10 @@ import time
 import json
 import re
 import html as _html
+from typing import Optional
 from urllib.parse import quote
 from fastapi.responses import HTMLResponse, RedirectResponse
-from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, get_deal, update_deal, get_icecat_overrides, upsert_icecat_override, delete_icecat_override
+from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, get_deal, update_deal, get_icecat_overrides, upsert_icecat_override, delete_icecat_override, get_settings, set_settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -61,8 +62,17 @@ ICECAT_SHOPNAME = os.getenv("ICECAT_SHOPNAME", "")
 ICECAT_LANG = os.getenv("ICECAT_LANG", "IT")
 
 # Facebook Conversion API
-FB_PIXEL_ID = os.getenv("FB_PIXEL_ID", "2095934291260128")
-FB_ACCESS_TOKEN = os.getenv("FB_ACCESS_TOKEN", "EAAWzrJVNYx0BQr2wVNTXZB7E8YW0Sj2o9opMDcePaBAPkVLncJ55iyZC3Se74me2OGo3DhpGMfUCHHaYzeNefeHTsbsRYcJZBAzbVI6lQUhq9gZC3MuQkpP31NQyAJzKo6vp4tTqhDld9JuVWjsGgIcQcF0CLUZB1p1NquUZBnZCI0Pcl2l5CnDz9ccZAHoDcwZDZD")
+# Default da env (fallback); i valori effettivi sono configurabili da admin nel DB (vedi setting())
+FB_PIXEL_ID = os.getenv("FB_PIXEL_ID", "")
+FB_ACCESS_TOKEN = os.getenv("FB_ACCESS_TOKEN", "")
+
+def setting(key: str, env_fallback: str = "") -> str:
+    """Legge un'impostazione: prima dal DB (admin), poi env fallback, poi ''."""
+    try:
+        v = get_settings().get(key, "")
+    except Exception:
+        v = ""
+    return v or env_fallback or ""
 
 class OrderRequest(BaseModel):
     name: str
@@ -112,8 +122,46 @@ async def health_check():
 
 @app.get("/api/config")
 async def public_config():
-    """Config pubblica per il frontend dello shop (shopname Icecat letto dall'env)."""
-    return {"icecatShopname": ICECAT_SHOPNAME, "icecatLang": ICECAT_LANG}
+    """Config pubblica per landing/shop (pixel + script custom). NIENTE segreti (no access token)."""
+    s = get_settings()
+    return {
+        "icecatShopname": ICECAT_SHOPNAME,
+        "icecatLang": ICECAT_LANG,
+        "fbPixelId": s.get("fb_pixel_id", "") or FB_PIXEL_ID,
+        "customHeadHtml": s.get("custom_head_html", ""),
+    }
+
+
+class SettingsIn(BaseModel):
+    fb_pixel_id: Optional[str] = None
+    fb_access_token: Optional[str] = None
+    custom_head_html: Optional[str] = None
+
+
+@app.get("/api/admin/settings")
+async def admin_get_settings(username: str = Depends(verify_admin)):
+    """Tutte le impostazioni tracking (incluso token, per l'editing)."""
+    s = get_settings()
+    return {
+        "fb_pixel_id": s.get("fb_pixel_id", ""),
+        "fb_access_token": s.get("fb_access_token", ""),
+        "custom_head_html": s.get("custom_head_html", ""),
+    }
+
+
+@app.post("/api/admin/settings")
+async def admin_save_settings(body: SettingsIn, username: str = Depends(verify_admin)):
+    """Salva le impostazioni tracking dall'admin."""
+    vals = {}
+    if body.fb_pixel_id is not None:
+        vals["fb_pixel_id"] = body.fb_pixel_id.strip()
+    if body.fb_access_token is not None:
+        vals["fb_access_token"] = body.fb_access_token.strip()
+    if body.custom_head_html is not None:
+        vals["custom_head_html"] = body.custom_head_html
+    if vals:
+        set_settings(vals)
+    return {"success": True}
 
 
 # ── Anteprima social (Open Graph) per condividere un prodotto ──
@@ -391,13 +439,20 @@ def send_facebook_event(event_name: str, event_data: dict, user_data: dict, requ
         # Add event_id for deduplication
         event_payload["event_id"] = user_data.get("event_id") or str(uuid.uuid4())
         
+        # Pixel ID e token: configurabili da admin (DB), fallback su env
+        pixel_id = setting("fb_pixel_id", FB_PIXEL_ID)
+        access_token = setting("fb_access_token", FB_ACCESS_TOKEN)
+        if not pixel_id or not access_token:
+            logger.info("Facebook CAPI non configurata (pixel/token mancanti) - evento saltato")
+            return {"success": False, "error": "not configured"}
+
         # Facebook API endpoint
-        fb_url = f"https://graph.facebook.com/v18.0/{FB_PIXEL_ID}/events"
-        
+        fb_url = f"https://graph.facebook.com/v18.0/{pixel_id}/events"
+
         # Prepare request payload
         payload = {
             "data": [event_payload],
-            "access_token": FB_ACCESS_TOKEN
+            "access_token": access_token
         }
         
         # No test event code - production mode
