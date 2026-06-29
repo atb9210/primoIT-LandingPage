@@ -736,7 +736,8 @@
   // bottone occhio: mostrato solo dove c'è una scheda Icecat agganciata
   function eyeBtn(p){ return '<button class="eye-btn" title="Scheda prodotto" onclick="openDetail(\''+p.id+'\')"><i class="fas fa-eye"></i></button>'; }
   function shareBtn(p){ return '<button class="share-btn" title="Condividi" onclick="event.stopPropagation();shareProduct(\''+p.id+'\')"><i class="fas fa-share-nodes"></i></button>'; }
-  function productLink(id){ return location.origin + location.pathname + '?p=' + encodeURIComponent(id); }
+  // link condiviso -> endpoint backend con meta Open Graph (anteprima WhatsApp/social)
+  function productLink(id){ return location.origin + '/api/share?sku=' + encodeURIComponent(id); }
   function shareProduct(id){
     var p=findP(id); if(!p) return;
     var url=productLink(id);

@@ -10,6 +10,11 @@ import logging
 import os
 import hashlib
 import time
+import json
+import re
+import html as _html
+from urllib.parse import quote
+from fastapi.responses import HTMLResponse, RedirectResponse
 from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, get_deal, update_deal, get_icecat_overrides, upsert_icecat_override, delete_icecat_override
 
 # Configure logging
@@ -109,6 +114,83 @@ async def health_check():
 async def public_config():
     """Config pubblica per il frontend dello shop (shopname Icecat letto dall'env)."""
     return {"icecatShopname": ICECAT_SHOPNAME, "icecatLang": ICECAT_LANG}
+
+
+# ── Anteprima social (Open Graph) per condividere un prodotto ──
+CATALOG_JS_PATH = os.getenv("CATALOG_JS_PATH", "")
+_catalog_cache = {"mtime": None, "by_sku": {}}
+
+def _load_catalog():
+    """Carica i prodotti da shop/catalog.js (cache per mtime). Mappa sku->prodotto."""
+    path = None
+    cands = [CATALOG_JS_PATH] if CATALOG_JS_PATH else [
+        "/var/www/html/shop/catalog.js",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shop", "catalog.js"),
+    ]
+    for c in cands:
+        if c and os.path.exists(c):
+            path = c; break
+    if not path:
+        return _catalog_cache.get("by_sku") or {}
+    mt = os.path.getmtime(path)
+    if _catalog_cache["mtime"] == mt and _catalog_cache["by_sku"]:
+        return _catalog_cache["by_sku"]
+    try:
+        txt = open(path, encoding="utf-8").read()
+        m = re.search(r"window\.CATALOG\s*=\s*(\[.*?\]);", txt, re.S)
+        arr = json.loads(m.group(1)) if m else []
+        by = {p.get("id"): p for p in arr if p.get("id")}
+        _catalog_cache["mtime"] = mt
+        _catalog_cache["by_sku"] = by
+        return by
+    except Exception as e:
+        logger.error(f"catalog load error: {e}")
+        return _catalog_cache.get("by_sku") or {}
+
+
+@app.get("/api/share")
+async def share_preview(request: Request, sku: str = Query("")):
+    """Pagina con meta Open Graph per l'anteprima social; reindirizza l'utente allo shop."""
+    # base URL assoluto (dietro proxy usa gli header forwarded)
+    host = request.headers.get("x-forwarded-host") or request.headers.get("host", "")
+    proto = request.headers.get("x-forwarded-proto", "https")
+    base = PUBLIC_BASE_URL or (f"{proto}://{host}" if host else "")
+    shop_url = base + "/shop/?p=" + quote(sku, safe="")
+    by = _load_catalog()
+    p = by.get(sku)
+    if not p:
+        return RedirectResponse(base + "/shop/" if base else "/shop/")
+
+    def e(s):
+        return _html.escape(str(s or ""), quote=True)
+    price = p.get("price")
+    pricetxt = (f"{price:.2f}".replace(".", ",") + " €+IVA") if price is not None else "su richiesta"
+    parts = [x for x in [p.get("cpu"), p.get("ram"), p.get("drive"), p.get("screen")] if x]
+    desc = " · ".join(parts)
+    desc = (desc + " · " + pricetxt) if desc else pricetxt
+    title = p.get("title") or "Prodotto"
+    img = p.get("image") or ""
+    share_url = base + "/api/share?sku=" + quote(sku, safe="")
+    page = (
+        '<!doctype html><html lang="it"><head><meta charset="utf-8">'
+        f"<title>{e(title)} — PrimoIT</title>"
+        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        '<meta property="og:type" content="product">'
+        f'<meta property="og:site_name" content="PrimoIT">'
+        f'<meta property="og:title" content="{e(title)}">'
+        f'<meta property="og:description" content="{e(desc)}">'
+        f'<meta property="og:image" content="{e(img)}">'
+        f'<meta property="og:url" content="{e(share_url)}">'
+        '<meta name="twitter:card" content="summary_large_image">'
+        f'<meta name="twitter:title" content="{e(title)}">'
+        f'<meta name="twitter:description" content="{e(desc)}">'
+        f'<meta name="twitter:image" content="{e(img)}">'
+        f'<meta http-equiv="refresh" content="0; url={e(shop_url)}">'
+        f"<script>location.replace({json.dumps(shop_url)});</script>"
+        "</head><body style=\"font-family:sans-serif;padding:24px\">"
+        f'Reindirizzamento… <a href="{e(shop_url)}">{e(title)}</a></body></html>'
+    )
+    return HTMLResponse(page)
 
 @app.post("/api/order", response_model=OrderResponse)
 async def create_order(order: OrderRequest):
