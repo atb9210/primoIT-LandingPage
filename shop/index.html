@@ -517,7 +517,7 @@
       + (p.image?'<img class="row-thumb" loading="lazy" src="'+esc(p.image)+'" alt="" onclick="openDetail(\''+p.id+'\')" style="cursor:pointer">':'')
       + '<div class="row-main"><div class="row-title">'+esc(p.title)+'</div>'
       +   '<div class="row-sub">'+badges(p)+' <span>'+esc(p.brand)+'</span> · <span>'+esc(p.id)+'</span></div></div>'
-      + '<div class="row-attrs">'+attr('CPU',p.cpu)+attr('RAM',p.ram)+attr('Drive',p.drive)+attrGpu(p)+attr('Schermo',p.screen)+attr('Stock',p.stock+' pz')+'</div>'
+      + '<div class="row-attrs">'+attr('CPU',p.cpu)+attr('RAM',p.ram)+attr('Drive',p.drive)+attrGpu(p)+attr('Schermo',p.screen_short||p.screen)+attr('Stock',p.stock+' pz')+'</div>'
       + '<div class="row-price">'+priceHtml(p)
       +   '<div class="foot-btns">'
       +     eyeBtn(p)+shareBtn(p)
@@ -788,7 +788,9 @@
       + detRow('Memoria',(p.ram||'')+(p.ram_type?' · '+p.ram_type:''))
       + detRow('Archiviazione',p.drive)
       + detRow('Grafica',p.gpu)
-      + detRow('Schermo',p.screen)
+      + detRow('Dimensioni schermo',p.screen)
+      + detRow('Risoluzione',(p.resolution||'').replace(' / ',' · ').replace(' x ','×'))
+      + detRow('Pannello',p.panel)
       + detRow('Sistema operativo',p.os)
       + detRow('Condizione',p.condition+(p.grade&&p.grade!=='—'?' · grado '+p.grade:''))
       + detRow('Garanzia',p.warranty?p.warranty+' mesi':'')

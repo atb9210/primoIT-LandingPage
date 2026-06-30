@@ -77,6 +77,20 @@ def clean_desc(h):
 def text(p, tag):
     e = p.find(tag); return (e.text or "").strip() if e is not None else ""
 
+def inch_of(size):
+    """'35,6 cm (14,0″)' -> '14″' (pollici puliti)."""
+    m = re.search(r'\(([\d.,]+)\s*[″"\']', size or "") or re.search(r'([\d.,]+)\s*[″"\']', size or "")
+    if not m:
+        return ""
+    n = m.group(1).replace(",", ".")
+    if "." in n:
+        n = n.rstrip("0").rstrip(".")
+    return n + "″"
+
+def res_short(res):
+    """'FHD / 1920 x 1080' -> 'FHD'."""
+    return (res or "").split("/")[0].strip()
+
 def to_int(s):
     m = re.search(r"\d+", s or ""); return int(m.group()) if m else 0
 def to_float(s):
@@ -102,6 +116,12 @@ def build():
             if u and u not in imgs: imgs.append(u)
         cpu = text(p, "processor_model") or text(p, "processor")
         drive = " ".join(x for x in [text(p, "disk"), text(p, "hdd_type")] if x).strip()
+        screen = text(p, "screen_size") or text(p, "monitor_size")
+        resolution = text(p, "monitor_max_resolution")
+        panel = text(p, "display_type")
+        inch = inch_of(screen)
+        rs = res_short(resolution)
+        screen_short = (inch + " · " + rs) if (inch and rs) else (inch or rs or screen)
         products.append({
             "id": sku,
             "supplier": SUPPLIER_ID,
@@ -116,7 +136,10 @@ def build():
             "gpu": gc,
             "gpu_type": gpu_type(gc),
             "gpu_vram": "",
-            "screen": text(p, "screen_size") or text(p, "monitor_size"),
+            "screen": screen,
+            "screen_short": screen_short,
+            "resolution": resolution,
+            "panel": panel,
             "os": text(p, "oper_system"),
             "grade": grade,
             "condition": condition,
