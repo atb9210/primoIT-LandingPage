@@ -64,6 +64,9 @@
   .deal-spacer{flex:1;}
   .deal-total{font-size:1.15rem;font-weight:800;color:var(--navy);white-space:nowrap;text-align:right;}
   .deal-total small{font-size:.66rem;color:var(--muted);font-weight:600;}
+  .deal-profit{font-size:.8rem;font-weight:700;margin-top:3px;}
+  .deal-profit.pos{color:#1E9E5A;}
+  .deal-profit.neg{color:#9AA4B5;}
 
   .deal-items{margin:12px 0;border-top:1px solid var(--line);padding-top:10px;}
   .di{font-size:.84rem;padding:4px 0;}
@@ -268,7 +271,6 @@
     <button onclick="doLogin()">Entra</button>
   </div>
 </div>
-<script src="catalog.js"></script>
 
 <script>
   // In locale usa :8000; in produzione stessa origine (/api proxato da nginx)
@@ -300,7 +302,7 @@
     var u=document.getElementById('user').value.trim(), p=document.getElementById('pass').value;
     auth='Basic '+btoa(u+':'+p);
     fetch(API_BASE+'/api/admin/deals',{headers:{'Authorization':auth}}).then(function(r){
-      if(r.ok){ sessionStorage.setItem('primoit_auth',auth); document.getElementById('login').classList.add('hidden'); initFilter(); load(); bootstrapSettings(); }
+      if(r.ok){ sessionStorage.setItem('primoit_auth',auth); document.getElementById('login').classList.add('hidden'); initFilter(); load(); bootstrapSettings(); loadCatalog(); }
       else { document.getElementById('loginErr').style.display='block'; }
     }).catch(function(){ document.getElementById('loginErr').style.display='block'; });
   }
@@ -517,6 +519,28 @@
     }).catch(function(){});
   }
 
+  /* ── Catalogo completo (con costo) per dashboard markup e profitto richieste ── */
+  var COSTMAP = {}; // sku -> costo netto fornitore
+  function loadCatalog(){
+    return api('/api/admin/catalog').then(function(d){
+      window.CATALOG=d.catalog||[]; window.CATALOG_META=d.meta||{};
+      COSTMAP={}; window.CATALOG.forEach(function(p){ if(p.price!=null) COSTMAP[p.id]=Number(p.price)||0; });
+      if(activeTab==='deals') load();          // ridisegna le richieste col profitto
+      if(activeTab==='markup') mkRenderDash();  // aggiorna la dashboard
+    }).catch(function(){});
+  }
+  function dealProfit(d){
+    if(!d.items || !d.items.length) return null;
+    var cost=0, known=false;
+    d.items.forEach(function(it){ var c=COSTMAP[it.sku]; if(c!=null){ cost+=c*(it.qty||1); known=true; } });
+    if(!known) return null;
+    return Number(d.total||0)-cost;
+  }
+  function profitHtml(d){
+    var p=dealProfit(d); if(p==null) return '';
+    return '<div class="deal-profit '+(p>0?'pos':'neg')+'">'+(p>=0?'+':'')+eur(p)+' utile</div>';
+  }
+
   function load(){
     var f=document.getElementById('filter').value;
     api('/api/admin/deals'+(f?'?status='+encodeURIComponent(f):'')).then(function(data){ render(data.deals||[]); }).catch(function(){});
@@ -557,7 +581,7 @@
     return '<div class="deal">'
       + '<div class="deal-top"><div><div class="deal-ref">'+esc(d.ref||('#'+d.id))+' <span class="badge '+stKey(d.status)+'">'+esc(d.status)+'</span></div>'
       +   '<div class="deal-date">'+esc(d.created_at)+(det.tracking?' · <i class="fas fa-truck"></i> '+esc(det.tracking):'')+'</div>'+cust+'</div>'
-      +   '<div class="deal-spacer"></div><div class="deal-total">'+eur(d.total)+' <small>IVA escl.</small></div></div>'
+      +   '<div class="deal-spacer"></div><div class="deal-total">'+eur(d.total)+' <small>IVA escl.</small>'+profitHtml(d)+'</div></div>'
       + '<div class="deal-items">'+items+'</div>'
       + '<div class="deal-actions">'
       +   '<button class="mng-btn" onclick="toggleEdit('+d.id+')"><i class="fas fa-sliders"></i> Gestisci richiesta</button>'
@@ -810,7 +834,7 @@
     w.document.write(html); w.document.close();
   }
 
-  if(auth){ document.getElementById('login').classList.add('hidden'); initFilter(); load(); bootstrapSettings(); }
+  if(auth){ document.getElementById('login').classList.add('hidden'); initFilter(); load(); bootstrapSettings(); loadCatalog(); }
 </script>
 </body>
 </html>

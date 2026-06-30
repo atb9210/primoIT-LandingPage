@@ -8,6 +8,7 @@ import secrets
 from datetime import datetime
 import logging
 import os
+import math
 import hashlib
 import time
 import json
@@ -181,12 +182,17 @@ async def admin_db_info(username: str = Depends(verify_admin)):
     return get_db_info()
 
 
-# ── Anteprima social (Open Graph) per condividere un prodotto ──
+# ── Catalogo: caricamento da shop/catalog.js (sorgente con il COSTO fornitore) ──
 CATALOG_JS_PATH = os.getenv("CATALOG_JS_PATH", "")
-_catalog_cache = {"mtime": None, "by_sku": {}}
+_catalog_cache = {"mtime": None, "by_sku": {}, "list": [], "meta": {}}
 
 def _load_catalog():
     """Carica i prodotti da shop/catalog.js (cache per mtime). Mappa sku->prodotto."""
+    _load_catalog_full()
+    return _catalog_cache.get("by_sku") or {}
+
+def _load_catalog_full():
+    """Carica lista + meta da catalog.js (cache per mtime). Ritorna (list, meta)."""
     path = None
     cands = [CATALOG_JS_PATH] if CATALOG_JS_PATH else [
         "/var/www/html/shop/catalog.js",
@@ -196,21 +202,89 @@ def _load_catalog():
         if c and os.path.exists(c):
             path = c; break
     if not path:
-        return _catalog_cache.get("by_sku") or {}
+        return _catalog_cache.get("list") or [], _catalog_cache.get("meta") or {}
     mt = os.path.getmtime(path)
-    if _catalog_cache["mtime"] == mt and _catalog_cache["by_sku"]:
-        return _catalog_cache["by_sku"]
+    if _catalog_cache["mtime"] == mt and _catalog_cache["list"]:
+        return _catalog_cache["list"], _catalog_cache["meta"]
     try:
         txt = open(path, encoding="utf-8").read()
         m = re.search(r"window\.CATALOG\s*=\s*(\[.*?\]);", txt, re.S)
         arr = json.loads(m.group(1)) if m else []
+        mm = re.search(r"window\.CATALOG_META\s*=\s*(\{.*?\});", txt, re.S)
+        meta = json.loads(mm.group(1)) if mm else {}
         by = {p.get("id"): p for p in arr if p.get("id")}
-        _catalog_cache["mtime"] = mt
-        _catalog_cache["by_sku"] = by
-        return by
+        _catalog_cache.update({"mtime": mt, "by_sku": by, "list": arr, "meta": meta})
+        return arr, meta
     except Exception as e:
         logger.error(f"catalog load error: {e}")
-        return _catalog_cache.get("by_sku") or {}
+        return _catalog_cache.get("list") or [], _catalog_cache.get("meta") or {}
+
+
+# ── Pricing: applica il markup (regole admin) al costo fornitore → prezzo di vendita ──
+MARKUP_DEFAULT = {"basis": "net", "rounding": "0.99",
+                  "bands": [{"max": 200, "pct": 25}, {"max": 400, "pct": 18},
+                            {"max": 800, "pct": 12}, {"max": None, "pct": 8}]}
+
+def _markup_rules() -> dict:
+    raw = get_settings().get("markup_rules", "")
+    if raw:
+        try:
+            r = json.loads(raw)
+            if isinstance(r, dict) and r.get("bands"):
+                return r
+        except Exception:
+            pass
+    return MARKUP_DEFAULT
+
+def _round_price(price: float, rounding) -> float:
+    if not rounding or rounding == "none":
+        return round(price, 2)
+    if rounding == "1":
+        return float(round(price))
+    dec = 0.99 if rounding == "0.99" else (0.90 if rounding == "0.90" else None)
+    if dec is None:
+        return round(price, 2)
+    cand = math.floor(price) + dec
+    if cand < price - 1e-9:
+        cand = math.floor(price) + 1 + dec
+    return round(cand, 2)
+
+def _sell_net(cost_net: float, rules: dict) -> float:
+    """Prezzo di vendita NETTO = costo netto + markup di fascia (lookup sul costo netto)."""
+    bands = sorted(rules.get("bands", []),
+                   key=lambda b: (float("inf") if b.get("max") in (None, "") else float(b["max"])))
+    pct = 0.0
+    for b in bands:
+        mx = b.get("max")
+        if mx in (None, "") or cost_net <= float(mx):
+            pct = float(b.get("pct") or 0); break
+    else:
+        pct = float(bands[-1].get("pct") or 0) if bands else 0.0
+    return _round_price(cost_net * (1 + pct / 100.0), rules.get("rounding"))
+
+
+@app.get("/api/shop/catalog")
+async def shop_catalog():
+    """Catalogo PUBBLICO con il prezzo di VENDITA (markup applicato) e SENZA il costo fornitore."""
+    arr, meta = _load_catalog_full()
+    rules = _markup_rules()
+    out = []
+    for p in arr:
+        q = dict(p)
+        cost = p.get("price")
+        if cost is not None:
+            sell = _sell_net(float(cost), rules)
+            q["price"] = sell                       # netto vendita (sostituisce il costo)
+            q["price_incl"] = round(sell * 1.22, 2) # IVA inclusa
+        out.append(q)
+    return {"catalog": out, "meta": meta}
+
+
+@app.get("/api/admin/catalog")
+async def admin_catalog(username: str = Depends(verify_admin)):
+    """Catalogo COMPLETO (con il costo fornitore) per la dashboard markup e il calcolo profitto."""
+    arr, meta = _load_catalog_full()
+    return {"catalog": arr, "meta": meta}
 
 
 @app.get("/api/share")

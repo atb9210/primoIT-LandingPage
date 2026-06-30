@@ -360,7 +360,6 @@
 <div class="cfg-back" id="cfgBack" onclick="if(event.target===this)closeConfig()"><div class="cfg-box" id="cfgBox"></div></div>
 <div class="ice-back" id="iceBack" onclick="if(event.target===this)closeDetail()"><div class="ice-box" id="iceBox"></div></div>
 
-<script src="catalog.js"></script>
 <script src="icecat_map.js?v=fix-gtin"></script>
 <script>
   var WHATSAPP = '393274894895';
@@ -377,8 +376,8 @@
     search:'', sort:'default', view:'grid'
   };
   var cart = {}; // id -> qty
-  var ALL = window.CATALOG || [];
-  var META = window.CATALOG_META || {};
+  var ALL = [];   // popolato da /api/shop/catalog (prezzi di vendita, niente costi)
+  var META = {};
 
   function eur(n){ return '€' + n.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -822,10 +821,22 @@
   function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); }
 
   /* ── INIT ── */
-  loadIcecatConfig();
-  buildSidebar(); setView('list'); updateCart(); render();
-  // deep link: ?p=SKU apre direttamente la scheda prodotto (per il "condividi")
-  (function(){ var m=/[?&]p=([^&]+)/.exec(location.search); if(m){ var id=decodeURIComponent(m[1]); if(findP(id)) openDetail(id); } })();
+  function bootShop(){
+    buildSidebar(); setView('list'); updateCart(); render();
+    // deep link: ?p=SKU apre direttamente la scheda prodotto (per il "condividi")
+    var m=/[?&]p=([^&]+)/.exec(location.search);
+    if(m){ var id=decodeURIComponent(m[1]); if(findP(id)) openDetail(id); }
+  }
+  // Catalogo dal backend: prezzi di vendita (markup applicato), nessun costo esposto.
+  fetch(API_BASE+'/api/shop/catalog').then(function(r){return r.json();}).then(function(d){
+    ALL = d.catalog||[]; META = d.meta||{};
+    window.CATALOG = ALL; window.CATALOG_META = META;
+    loadIcecatConfig();
+    bootShop();
+  }).catch(function(){
+    loadIcecatConfig();
+    bootShop();
+  });
 </script>
 </body>
 </html>
