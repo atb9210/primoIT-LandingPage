@@ -51,12 +51,14 @@ def map_category(cats):
     return "Accessori"
 
 def parse_grade(grade, condition):
+    """Normalizza in 2 sole condizioni dal campo `grade` (il `product_condition` è sporco e si ignora).
+    grade 'Scatola aperta'/'Odprta embalaža'/open -> Scatola aperta (A+);
+    grade 'A/A-/B qualità' -> Ricondizionato (con la lettera del grado)."""
     g = (grade or "").lower()
-    cond = (condition or "").strip()
-    if "scatola aperta" in g or "open" in g or "scatola aperta" in cond.lower():
-        return "A+", (cond or "Open Box")
+    if "scatola aperta" in g or "open" in g or "odprta" in g or "embala" in g:
+        return "A+", "Scatola aperta"
     m = re.search(r"(A\+|A-|B\+|B-|C\+|C-|A|B|C)", grade or "", re.I)
-    return (m.group(1).upper() if m else "—"), (cond or "Ricondizionato")
+    return (m.group(1).upper() if m else "—"), "Ricondizionato"
 
 DED = re.compile(r"(geforce|rtx|gtx|radeon rx|radeon pro|quadro|\barc\b|\bmx\d)", re.I)
 def gpu_type(gc):
