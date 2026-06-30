@@ -166,7 +166,7 @@
   .card-gpu.ded i{color:var(--green);}
   .card-gpu .gpu-tag{background:rgba(30,158,90,.14);color:var(--green);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:100px;}
   .card-meta{font-size:.74rem;color:#9AA4B5;}
-  .card-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;}
+  .card-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;flex-wrap:wrap;}
   .price{font-size:1.05rem;font-weight:800;color:var(--navy);white-space:nowrap;}
   .price small{font-size:.7rem;color:var(--muted);font-weight:600;}
   .price.req{font-size:.82rem;color:var(--amber);}
@@ -503,7 +503,7 @@
       +   '<div class="card-meta">'+esc(p.brand)+(p.keyboard_short?' · '+esc(p.keyboard_short):'')+' · '+p.stock+' pz</div>'
       +   '<div class="card-foot">'+priceHtml(p)
       +     '<div class="foot-btns">'
-      +       eyeBtn(p)+shareBtn(p)
+      +       eyeBtn(p)
       +       '<button class="add'+(inCart(p.id)?' in':'')+'" onclick="addAction(\''+p.id+'\')">'+(inCart(p.id)?'✓ Aggiunto':'Aggiungi')+'</button>'
       +     '</div>'
       +   '</div>'
@@ -520,7 +520,7 @@
       + '<div class="row-attrs">'+attr('CPU',p.cpu)+attr('RAM',p.ram)+attr('Drive',p.drive)+attrGpu(p)+attr('Schermo',p.screen_short||p.screen)+attr('Stock',p.stock+' pz')+'</div>'
       + '<div class="row-price">'+priceHtml(p)
       +   '<div class="foot-btns">'
-      +     eyeBtn(p)+shareBtn(p)
+      +     eyeBtn(p)
       +     '<button class="add'+(inCart(p.id)?' in':'')+'" onclick="addAction(\''+p.id+'\')">'+(inCart(p.id)?'✓ Aggiunto':'Aggiungi')+'</button>'
       +   '</div></div>'
       + '</div>';
