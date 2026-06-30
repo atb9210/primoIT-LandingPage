@@ -86,6 +86,21 @@
   .fld input:disabled{background:#F4F6FA;color:#9AA4B5;}
   .sec-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--navy);margin:14px 0 8px;display:flex;align-items:center;gap:8px;}
   .sec-title i{color:var(--muted);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;}
+  @media(max-width:560px){.grid2{grid-template-columns:1fr;}}
+  .muted-note{font-size:.78rem;color:#9AA4B5;line-height:1.6;margin-top:10px;}
+  .mk-band{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:8px;}
+  .mk-band input{width:100px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:.85rem;font-family:inherit;outline:none;}
+  .mk-band .lbl{font-size:.8rem;color:var(--muted);}
+  .mk-band .rm{margin-left:auto;background:#EEF1F6;border:none;border-radius:8px;padding:7px 10px;color:var(--muted);font-weight:700;cursor:pointer;}
+  .mk-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:6px;}
+  .mk-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
+  .mk-card h5{font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+  .mk-card h5 .pill{background:#EEF1F6;color:var(--muted);border-radius:999px;padding:2px 8px;font-size:.66rem;font-weight:700;}
+  .mk-row{display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0;}
+  .mk-row .k{color:var(--muted);}
+  .mk-row .v{font-weight:700;color:var(--navy);}
+  .mk-row.big .v{font-size:1.05rem;color:var(--green,#1E9E5A);}
   .chk{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--muted);}
   .chk input{width:15px;height:15px;accent-color:var(--navy);}
   .vies-row{display:flex;gap:8px;align-items:flex-end;}
@@ -167,6 +182,8 @@
   <div class="stats" id="stats"></div>
   <div class="toolbar">
     <button id="tabDeals" class="active" onclick="showTab('deals')">Richieste</button>
+    <button id="tabMarkup" onclick="showTab('markup')">Markup</button>
+    <button id="tabAzienda" onclick="showTab('azienda')">Azienda</button>
     <button id="tabTracking" onclick="showTab('tracking')">Tracking</button>
     <select id="filter" onchange="load()"><option value="">Tutti gli stati</option></select>
     <span class="count" id="count"></span>
@@ -181,6 +198,62 @@
       <div class="fld"><textarea id="set_custom" rows="8" placeholder="&lt;script&gt;…&lt;/script&gt;" style="font-family:monospace;font-size:.8rem"></textarea></div>
       <button id="setSaveBtn" class="btn-primary" onclick="saveSettings()"><i class="fas fa-floppy-disk"></i> Salva impostazioni</button>
       <p style="font-size:.78rem;color:#9AA4B5;margin-top:10px">Le modifiche sono attive subito su landing e shop (ricarica le pagine, niente redeploy).</p>
+    </div>
+  </div>
+
+  <div class="icecat-panel" id="markupPanel">
+    <div style="max-width:980px">
+      <div class="sec-title"><i class="fas fa-percent"></i> Regole di markup a fasce di costo</div>
+      <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <div class="fld" style="margin:0"><label>Base costo</label>
+          <select id="mk_basis"><option value="net">Netto (IVA escl.) — SRL</option><option value="gross">Lordo (IVA incl.) — forfettario</option></select>
+        </div>
+        <div class="fld" style="margin:0"><label>Arrotondamento prezzo</label>
+          <select id="mk_round"><option value="none">Nessuno</option><option value="0.99">,99</option><option value="0.90">,90</option><option value="1">Intero</option></select>
+        </div>
+      </div>
+      <div id="mk_bands"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+        <button class="btn-pdf" onclick="mkAddBand()"><i class="fas fa-plus"></i> Aggiungi fascia</button>
+        <button id="mkSaveBtn" class="btn-primary" onclick="saveMarkup()"><i class="fas fa-floppy-disk"></i> Salva regole</button>
+      </div>
+      <p class="muted-note">In <b>forfettario</b> l'IVA sugli acquisti non si recupera → il costo reale è il <b>lordo</b>. In <b>SRL</b> l'IVA è di passaggio → costo = <b>netto</b>. Imposta la base coerente col tuo regime. Per ora il markup serve solo a valutare l'inventario, non cambia i prezzi pubblici dello shop.</p>
+      <div class="sec-title"><i class="fas fa-boxes-stacked"></i> Valore inventario &amp; utile potenziale</div>
+      <div id="mk_dash"></div>
+    </div>
+  </div>
+
+  <div class="icecat-panel" id="aziendaPanel">
+    <div style="max-width:820px">
+      <div class="sec-title"><i class="fas fa-building"></i> Dati azienda (usati nel preventivo PDF)</div>
+      <div class="grid2">
+        <div class="fld"><label>Ragione sociale</label><input id="co_name" placeholder="PrimoIT"></div>
+        <div class="fld"><label>Sottotitolo (sotto il logo)</label><input id="co_subtitle" placeholder="Consulenza IT · Rivenditore hardware"></div>
+        <div class="fld"><label>P.IVA</label><input id="co_piva"></div>
+        <div class="fld"><label>Codice fiscale</label><input id="co_cf"></div>
+        <div class="fld"><label>Indirizzo</label><input id="co_address"></div>
+        <div class="fld"><label>CAP</label><input id="co_zip"></div>
+        <div class="fld"><label>Città</label><input id="co_city"></div>
+        <div class="fld"><label>Paese</label><input id="co_country" placeholder="Italia"></div>
+        <div class="fld"><label>Telefono / WhatsApp</label><input id="co_phone"></div>
+        <div class="fld"><label>Email</label><input id="co_email"></div>
+        <div class="fld"><label>Sito web</label><input id="co_web"></div>
+      </div>
+      <div class="sec-title"><i class="fas fa-building-columns"></i> Coordinate bancarie</div>
+      <div class="grid2">
+        <div class="fld"><label>Intestatario</label><input id="co_bankHolder"></div>
+        <div class="fld"><label>Banca</label><input id="co_bank"></div>
+        <div class="fld"><label>IBAN</label><input id="co_iban"></div>
+        <div class="fld"><label>BIC / SWIFT</label><input id="co_bic"></div>
+      </div>
+      <div class="sec-title"><i class="fas fa-file-lines"></i> Preventivo</div>
+      <div class="grid2">
+        <div class="fld"><label>Validità (giorni)</label><input id="co_validity" type="number" placeholder="14"></div>
+      </div>
+      <div class="fld"><label>Nota in fondo al preventivo</label><textarea id="co_note" rows="3" placeholder="Preventivo indicativo, valido N giorni…"></textarea></div>
+      <button id="coSaveBtn" class="btn-primary" onclick="saveCompany()"><i class="fas fa-floppy-disk"></i> Salva dati azienda</button>
+      <div class="sec-title"><i class="fas fa-database"></i> Stato database (persistenza)</div>
+      <div id="db_status" class="muted-note">…</div>
     </div>
   </div>
 </div>
@@ -227,7 +300,7 @@
     var u=document.getElementById('user').value.trim(), p=document.getElementById('pass').value;
     auth='Basic '+btoa(u+':'+p);
     fetch(API_BASE+'/api/admin/deals',{headers:{'Authorization':auth}}).then(function(r){
-      if(r.ok){ sessionStorage.setItem('primoit_auth',auth); document.getElementById('login').classList.add('hidden'); initFilter(); load(); }
+      if(r.ok){ sessionStorage.setItem('primoit_auth',auth); document.getElementById('login').classList.add('hidden'); initFilter(); load(); bootstrapSettings(); }
       else { document.getElementById('loginErr').style.display='block'; }
     }).catch(function(){ document.getElementById('loginErr').style.display='block'; });
   }
@@ -242,13 +315,19 @@
   function showTab(tab){
     activeTab=tab;
     document.getElementById('tabDeals').classList.toggle('active', tab==='deals');
+    document.getElementById('tabMarkup').classList.toggle('active', tab==='markup');
+    document.getElementById('tabAzienda').classList.toggle('active', tab==='azienda');
     document.getElementById('tabTracking').classList.toggle('active', tab==='tracking');
     document.getElementById('deals').style.display = tab==='deals' ? '' : 'none';
     document.getElementById('stats').style.display = tab==='deals' ? '' : 'none';
     document.getElementById('filter').style.display = tab==='deals' ? '' : 'none';
     document.getElementById('count').style.display = tab==='deals' ? '' : 'none';
+    document.getElementById('markupPanel').classList.toggle('open', tab==='markup');
+    document.getElementById('aziendaPanel').classList.toggle('open', tab==='azienda');
     document.getElementById('trackingPanel').classList.toggle('open', tab==='tracking');
     if(tab==='tracking') loadSettings();
+    if(tab==='markup') loadMarkup();
+    if(tab==='azienda'){ loadCompany(); loadDbStatus(); }
   }
 
   function loadSettings(){
@@ -263,6 +342,179 @@
     api('/api/admin/settings',{method:'POST',body:JSON.stringify(body)}).then(function(){
       var b=document.getElementById('setSaveBtn'); if(b){ var o=b.textContent; b.textContent='Salvato ✓'; setTimeout(function(){b.textContent=o;},1500); }
     }).catch(function(){ alert('Errore nel salvataggio.'); });
+  }
+
+  /* ── Markup: regole a fasce di costo + dashboard valore/utile inventario ── */
+  var MARKUP_DEFAULT = { basis:'net', rounding:'0.99', bands:[ {max:200,pct:25},{max:400,pct:18},{max:800,pct:12},{max:null,pct:8} ] };
+  var MARKUP = JSON.parse(JSON.stringify(MARKUP_DEFAULT));
+
+  function mkSortedBands(){ return (MARKUP.bands||[]).slice().sort(function(a,b){ return (a.max==null?Infinity:a.max)-(b.max==null?Infinity:b.max); }); }
+  function mkCost(p){
+    var net = Number(p.price||0) || (p.price_incl? Number(p.price_incl)/1.22 : 0);
+    if(MARKUP.basis==='gross') return Number(p.price_incl||0) || net*1.22;
+    return net;
+  }
+  function mkPctFor(cost){
+    var bands=mkSortedBands();
+    for(var i=0;i<bands.length;i++){ var mx=bands[i].max; if(mx==null||cost<=mx) return Number(bands[i].pct)||0; }
+    return bands.length?(Number(bands[bands.length-1].pct)||0):0;
+  }
+  function mkRound(price){
+    var r=MARKUP.rounding||'none';
+    if(r==='none') return price;
+    if(r==='1') return Math.round(price);
+    var dec = r==='0.99'?0.99:(r==='0.90'?0.90:null);
+    if(dec==null) return price;
+    var cand=Math.floor(price)+dec; if(cand<price) cand=Math.floor(price)+1+dec;
+    return cand;
+  }
+
+  function loadMarkup(){
+    api('/api/admin/settings').then(function(s){
+      if(s.markup_rules){ try{ MARKUP=JSON.parse(s.markup_rules); }catch(e){ MARKUP=JSON.parse(JSON.stringify(MARKUP_DEFAULT)); } }
+      if(!MARKUP.bands||!MARKUP.bands.length) MARKUP.bands=JSON.parse(JSON.stringify(MARKUP_DEFAULT.bands));
+      document.getElementById('mk_basis').value=MARKUP.basis||'net';
+      document.getElementById('mk_round').value=MARKUP.rounding||'none';
+      document.getElementById('mk_basis').onchange=function(){ MARKUP.basis=this.value; mkRenderDash(); };
+      document.getElementById('mk_round').onchange=function(){ MARKUP.rounding=this.value; mkRenderDash(); };
+      mkRenderBands(); mkRenderDash();
+    }).catch(function(){ mkRenderBands(); mkRenderDash(); });
+  }
+  function mkRenderBands(){
+    MARKUP.bands=mkSortedBands();
+    var bands=MARKUP.bands;
+    document.getElementById('mk_bands').innerHTML=bands.map(function(b,i){
+      var isLast=(b.max==null);
+      return '<div class="mk-band">'
+        +'<span class="lbl">'+(isLast?'Oltre':'Fino a')+'</span>'
+        +(isLast?'<span class="lbl" style="width:100px;text-align:center">∞</span>'
+                :'<span class="lbl">€</span><input type="number" min="0" value="'+(b.max!=null?b.max:'')+'" onchange="mkSetMax('+i+',this.value)">')
+        +'<span class="lbl">→ markup</span>'
+        +'<input type="number" min="0" step="1" value="'+(b.pct!=null?b.pct:'')+'" onchange="mkSetPct('+i+',this.value)">'
+        +'<span class="lbl">%</span>'
+        +(bands.length>1?'<button class="rm" onclick="mkRemoveBand('+i+')">Rimuovi</button>':'')
+        +'</div>';
+    }).join('');
+  }
+  function mkSetMax(i,v){ v=(v||'').trim(); MARKUP.bands[i].max=(v===''?null:Number(v)); mkRenderDash(); }
+  function mkSetPct(i,v){ MARKUP.bands[i].pct=Number(v||0); mkRenderDash(); }
+  function mkAddBand(){ MARKUP.bands.push({max:null,pct:0}); mkRenderBands(); mkRenderDash(); }
+  function mkRemoveBand(i){ MARKUP.bands.splice(i,1); if(!MARKUP.bands.length) MARKUP.bands.push({max:null,pct:0}); mkRenderBands(); mkRenderDash(); }
+
+  function mkBlank(name){ return {name:name,n:0,units:0,cost:0,revenue:0}; }
+  function mkAccum(g,cost,sell,stock){ g.n++; g.units+=stock; g.cost+=cost*stock; g.revenue+=sell*stock; }
+  function mkCard(g){
+    var profit=g.revenue-g.cost, margin=g.cost>0?(profit/g.cost*100):0;
+    return '<div class="mk-card">'
+      +'<h5>'+esc(g.name)+'<span class="pill">'+g.n+' prod.</span></h5>'
+      +'<div class="mk-row"><span class="k">Pezzi in stock</span><span class="v">'+g.units+'</span></div>'
+      +'<div class="mk-row"><span class="k">Valore inventario</span><span class="v">'+eur(g.cost)+'</span></div>'
+      +'<div class="mk-row"><span class="k">Ricavo potenziale</span><span class="v">'+eur(g.revenue)+'</span></div>'
+      +'<div class="mk-row big"><span class="k">Utile potenziale</span><span class="v">'+eur(profit)+'</span></div>'
+      +'<div class="mk-row"><span class="k">Margine medio</span><span class="v">'+margin.toFixed(1)+'%</span></div>'
+      +'</div>';
+  }
+  function mkRenderDash(){
+    var cat=window.CATALOG||[], groups={}, tot=mkBlank('Totale'), noStock=true;
+    cat.forEach(function(p){
+      var cost=mkCost(p); if(!(cost>0)) return;
+      var stock=Number(p.stock||0); if(stock>0) noStock=false;
+      var sell=mkRound(cost*(1+mkPctFor(cost)/100));
+      var sup=p.supplier||'—';
+      if(!groups[sup]) groups[sup]=mkBlank(sup);
+      mkAccum(groups[sup],cost,sell,stock); mkAccum(tot,cost,sell,stock);
+    });
+    var keys=Object.keys(groups).sort();
+    var cards=[mkCard(tot)].concat(keys.map(function(k){ return mkCard(groups[k]); }));
+    var warn = noStock ? '<p class="muted-note">⚠️ Nessun pezzo a stock nel feed: valore e utile sono 0. Le percentuali di markup restano valide per pezzo.</p>' : '';
+    document.getElementById('mk_dash').innerHTML='<div class="mk-cards">'+cards.join('')+'</div>'+warn+mkBandBreakdown(cat);
+  }
+  function mkBandBreakdown(cat){
+    var bands=mkSortedBands();
+    var agg=bands.map(function(b){ return {max:b.max,pct:b.pct,n:0,units:0,cost:0,revenue:0}; });
+    cat.forEach(function(p){
+      var cost=mkCost(p); if(!(cost>0)) return;
+      var stock=Number(p.stock||0), idx=-1;
+      for(var i=0;i<bands.length;i++){ var mx=bands[i].max; if(mx==null||cost<=mx){ idx=i; break; } }
+      if(idx<0) idx=bands.length-1;
+      var sell=mkRound(cost*(1+(Number(bands[idx].pct)||0)/100)), a=agg[idx];
+      if(!a) return; a.n++; a.units+=stock; a.cost+=cost*stock; a.revenue+=sell*stock;
+    });
+    var rows=agg.map(function(a){
+      var label=(a.max==null?'Oltre':'≤ €'+a.max), profit=a.revenue-a.cost;
+      return '<div class="mk-row" style="border-bottom:1px solid var(--line);padding:8px 0"><span class="k">'+label+' · markup '+(a.pct||0)+'% · '+a.n+' prod.</span><span class="v">utile '+eur(profit)+'</span></div>';
+    }).join('');
+    return '<div style="margin-top:14px"><div class="muted-note" style="margin-bottom:6px">Dettaglio per fascia:</div>'+rows+'</div>';
+  }
+  function saveMarkup(){
+    MARKUP.basis=document.getElementById('mk_basis').value;
+    MARKUP.rounding=document.getElementById('mk_round').value;
+    MARKUP.bands=(MARKUP.bands||[]).map(function(b){ return {max:(b.max==null||b.max===''?null:Number(b.max)), pct:Number(b.pct)||0}; });
+    api('/api/admin/settings',{method:'POST',body:JSON.stringify({markup_rules:JSON.stringify(MARKUP)})}).then(function(){
+      var b=document.getElementById('mkSaveBtn'); if(b){ var o=b.innerHTML; b.textContent='Salvato ✓'; setTimeout(function(){b.innerHTML=o;},1500); }
+    }).catch(function(){ alert('Errore nel salvataggio.'); });
+  }
+
+  /* ── Dati azienda (preventivo PDF) ── */
+  function setVal(id,v){ var e=document.getElementById(id); if(e) e.value=(v==null?'':v); }
+  function loadCompany(){
+    api('/api/admin/settings').then(function(s){
+      var c={}; if(s.company_info){ try{ c=JSON.parse(s.company_info); }catch(e){} }
+      setVal('co_name',c.name); setVal('co_subtitle',c.subtitle); setVal('co_piva',c.piva); setVal('co_cf',c.cf);
+      setVal('co_address',c.address); setVal('co_zip',c.zip); setVal('co_city',c.city); setVal('co_country',c.country);
+      setVal('co_phone',c.phone||c.wa); setVal('co_email',c.email); setVal('co_web',c.web);
+      setVal('co_bankHolder',c.bankHolder); setVal('co_bank',c.bank); setVal('co_iban',c.iban); setVal('co_bic',c.bic);
+      setVal('co_validity',c.validity!=null?c.validity:''); setVal('co_note',c.note);
+    }).catch(function(){});
+  }
+  function gatherCompany(){
+    return { name:val('co_name'), subtitle:val('co_subtitle'), piva:val('co_piva'), cf:val('co_cf'),
+      address:val('co_address'), zip:val('co_zip'), city:val('co_city'), country:val('co_country'),
+      phone:val('co_phone'), email:val('co_email'), web:val('co_web'),
+      bankHolder:val('co_bankHolder'), bank:val('co_bank'), iban:val('co_iban'), bic:val('co_bic'),
+      validity:val('co_validity'), note:document.getElementById('co_note').value };
+  }
+  function mergeCompany(c){
+    if(!c) return;
+    if(c.name) COMPANY.name=c.name;
+    if(c.subtitle) COMPANY.subtitle=c.subtitle;
+    if(c.piva) COMPANY.piva=c.piva;
+    if(c.cf) COMPANY.cf=c.cf;
+    if(c.address!=null) COMPANY.address=c.address;
+    if(c.zip!=null) COMPANY.zip=c.zip; if(c.city!=null) COMPANY.city=c.city; if(c.country!=null) COMPANY.country=c.country;
+    if(c.phone) COMPANY.wa=c.phone;
+    if(c.email) COMPANY.email=c.email;
+    if(c.web) COMPANY.web=c.web;
+    if(c.bankHolder) COMPANY.bankHolder=c.bankHolder;
+    if(c.bank) COMPANY.bank=c.bank;
+    if(c.iban) COMPANY.iban=c.iban;
+    if(c.bic) COMPANY.bic=c.bic;
+    if(c.validity) COMPANY.validity=c.validity;
+    if(c.note) COMPANY.note=c.note;
+  }
+  function saveCompany(){
+    var c=gatherCompany();
+    api('/api/admin/settings',{method:'POST',body:JSON.stringify({company_info:JSON.stringify(c)})}).then(function(){
+      mergeCompany(c);
+      var b=document.getElementById('coSaveBtn'); if(b){ var o=b.innerHTML; b.textContent='Salvato ✓'; setTimeout(function(){b.innerHTML=o;},1500); }
+    }).catch(function(){ alert('Errore nel salvataggio.'); });
+  }
+
+  function loadDbStatus(){
+    api('/api/admin/dbinfo').then(function(d){
+      document.getElementById('db_status').innerHTML=
+        '<b>'+esc(d.db_path||'—')+'</b><br>'
+        +(d.exists?'✓ presente':'✗ NON presente')+' · '
+        +(d.deals_count||0)+' richieste · '+(d.leads_count||0)+' lead · '
+        +Math.round((d.size_bytes||0)/1024)+' KB · ultimo agg. '+esc(d.mtime||'—');
+    }).catch(function(){ document.getElementById('db_status').textContent='—'; });
+  }
+
+  function bootstrapSettings(){
+    api('/api/admin/settings').then(function(s){
+      if(s.company_info){ try{ mergeCompany(JSON.parse(s.company_info)); }catch(e){} }
+      if(s.markup_rules){ try{ MARKUP=JSON.parse(s.markup_rules); }catch(e){} }
+    }).catch(function(){});
   }
 
   function load(){
@@ -539,7 +791,7 @@
     +'</style></head><body>'
     +'<div class="noprint"><button onclick="window.print()">Stampa / Salva PDF</button></div>'
     +'<div class="page">'
-    +'<div class="top"><div class="brand"><span>Primo</span>IT<div class="sub">Consulenza IT · Rivenditore hardware</div></div>'
+    +'<div class="top"><div class="brand"><span>Primo</span>IT<div class="sub">'+esc(COMPANY.subtitle||'Consulenza IT · Rivenditore hardware')+'</div></div>'
     +'<div class="doc"><h1>PREVENTIVO</h1><div class="meta">N. '+esc(d.ref)+'<br>Data: '+new Date().toLocaleDateString('it-IT')+'<br>Stato: '+esc(st)+'</div></div></div>'
     +'<div class="parties">'
     + (block('Spedizione', g.shipping) || '<div class="party"><h4>Cliente</h4><div>'+esc(g.contact&&g.contact.name||'—')+'</div><div>'+esc(g.contact&&g.contact.phone||'')+'</div></div>')
@@ -551,14 +803,14 @@
     +'<tr><td class="lbl">IVA 22%</td><td class="val">'+eur(iva)+'</td></tr>'
     +'<tr class="grand"><td>TOTALE</td><td class="val">'+eur(totale)+'</td></tr>'
     +'</table></div>'
-    +'<div class="note">Preventivo indicativo, valido 14 giorni. Prezzi soggetti a disponibilità. Garanzia 12 mesi inclusa salvo diversa indicazione. Pagamento: bonifico anticipato o acconto 20% alla conferma.</div>'
-    +'<div class="foot"><span><b>PrimoIT</b> · P.IVA '+COMPANY.piva+'</span><span>'+COMPANY.wa+' · '+COMPANY.email+'</span></div>'
+    +'<div class="note">'+esc(COMPANY.note||('Preventivo indicativo, valido '+(COMPANY.validity||14)+' giorni. Prezzi soggetti a disponibilità. Garanzia 12 mesi inclusa salvo diversa indicazione. Pagamento: bonifico anticipato o acconto 20% alla conferma.'))+'</div>'
+    +'<div class="foot"><span><b>'+esc(COMPANY.name||'PrimoIT')+'</b> · P.IVA '+esc(COMPANY.piva||'')+(COMPANY.address?' · '+esc([COMPANY.address,[COMPANY.zip,COMPANY.city].filter(Boolean).join(' ')].filter(Boolean).join(', ')):'')+'</span><span>'+esc(COMPANY.wa||'')+' · '+esc(COMPANY.email||'')+(COMPANY.web?' · '+esc(COMPANY.web):'')+'</span></div>'
     +'</div></body></html>';
     var w=window.open('','_blank');
     w.document.write(html); w.document.close();
   }
 
-  if(auth){ document.getElementById('login').classList.add('hidden'); initFilter(); load(); }
+  if(auth){ document.getElementById('login').classList.add('hidden'); initFilter(); load(); bootstrapSettings(); }
 </script>
 </body>
 </html>

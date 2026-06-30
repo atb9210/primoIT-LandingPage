@@ -16,7 +16,7 @@ import html as _html
 from typing import Optional
 from urllib.parse import quote
 from fastapi.responses import HTMLResponse, RedirectResponse
-from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, get_deal, update_deal, get_icecat_overrides, upsert_icecat_override, delete_icecat_override, get_settings, set_settings
+from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, get_deal, update_deal, get_icecat_overrides, upsert_icecat_override, delete_icecat_override, get_settings, set_settings, get_db_info
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -91,6 +91,8 @@ class OrderResponse(BaseModel):
 async def startup():
     init_db()
     logger.info("Database initialized")
+    _info = get_db_info()
+    logger.info(f"DB -> path={_info['db_path']} | exists={_info['exists']} | size={_info['size_bytes']}B | deals={_info['deals_count']} | leads={_info['leads_count']}")
     _pass_state = "DEFAULT (env NON applicata!)" if ADMIN_PASS in ("cambia-questa-password", "trico2026!", "") else f"custom ({len(ADMIN_PASS)} caratteri)"
     logger.info(f"Admin login -> user={ADMIN_USER!r} | password={_pass_state}")
 
@@ -136,22 +138,27 @@ class SettingsIn(BaseModel):
     fb_pixel_id: Optional[str] = None
     fb_access_token: Optional[str] = None
     custom_head_html: Optional[str] = None
+    # JSON serializzati: dati azienda (per il PDF preventivo) e regole markup (dashboard inventario)
+    company_info: Optional[str] = None
+    markup_rules: Optional[str] = None
 
 
 @app.get("/api/admin/settings")
 async def admin_get_settings(username: str = Depends(verify_admin)):
-    """Tutte le impostazioni tracking (incluso token, per l'editing)."""
+    """Tutte le impostazioni admin (incluso token, per l'editing)."""
     s = get_settings()
     return {
         "fb_pixel_id": s.get("fb_pixel_id", ""),
         "fb_access_token": s.get("fb_access_token", ""),
         "custom_head_html": s.get("custom_head_html", ""),
+        "company_info": s.get("company_info", ""),
+        "markup_rules": s.get("markup_rules", ""),
     }
 
 
 @app.post("/api/admin/settings")
 async def admin_save_settings(body: SettingsIn, username: str = Depends(verify_admin)):
-    """Salva le impostazioni tracking dall'admin."""
+    """Salva le impostazioni dall'admin (tracking, azienda, markup)."""
     vals = {}
     if body.fb_pixel_id is not None:
         vals["fb_pixel_id"] = body.fb_pixel_id.strip()
@@ -159,9 +166,19 @@ async def admin_save_settings(body: SettingsIn, username: str = Depends(verify_a
         vals["fb_access_token"] = body.fb_access_token.strip()
     if body.custom_head_html is not None:
         vals["custom_head_html"] = body.custom_head_html
+    if body.company_info is not None:
+        vals["company_info"] = body.company_info
+    if body.markup_rules is not None:
+        vals["markup_rules"] = body.markup_rules
     if vals:
         set_settings(vals)
     return {"success": True}
+
+
+@app.get("/api/admin/dbinfo")
+async def admin_db_info(username: str = Depends(verify_admin)):
+    """Stato del file DB (path, dimensione, mtime, conteggi) per verificare la persistenza."""
+    return get_db_info()
 
 
 # ── Anteprima social (Open Graph) per condividere un prodotto ──

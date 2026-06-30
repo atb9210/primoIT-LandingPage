@@ -20,9 +20,10 @@ ENV ADMIN_USER=admin
 ENV ADMIN_PASS=cambia-questa-password
 ENV DB_PATH=/app/data/primoit.db
 
-# Cartella dati SQLite (montare un volume persistente su /app/data in Dokploy!)
+# Cartella dati SQLite. La persistenza è data SOLO dal bind mount del compose
+# (../files/data:/app/data). NIENTE `VOLUME` qui: un volume anonimo verrebbe
+# ricreato da Docker/Dokploy a ogni deploy, perdendo i dati (era il bug dei deal spariti).
 RUN mkdir -p /app/data
-VOLUME /app/data
 
 # ── Frontend ── (mantiene la struttura: landing/ e shop/ restano sorelle,
 # cosi i path relativi sono identici al locale, incl. shop -> ../landing/images)

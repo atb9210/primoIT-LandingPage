@@ -348,3 +348,30 @@ def set_settings(values: Dict[str, str]) -> None:
         )
     conn.commit()
     conn.close()
+
+
+# ============ Diagnostica persistenza DB ============
+
+def get_db_info() -> Dict:
+    """Stato del file DB + conteggi: per verificare la persistenza dopo i deploy."""
+    info = {
+        "db_path": os.path.abspath(DB_PATH),
+        "exists": os.path.exists(DB_PATH),
+        "size_bytes": os.path.getsize(DB_PATH) if os.path.exists(DB_PATH) else 0,
+        "mtime": None,
+        "deals_count": 0,
+        "leads_count": 0,
+    }
+    if info["exists"]:
+        info["mtime"] = datetime.fromtimestamp(os.path.getmtime(DB_PATH)).isoformat(timespec="seconds")
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) AS c FROM deals")
+        info["deals_count"] = cur.fetchone()["c"]
+        cur.execute("SELECT COUNT(*) AS c FROM leads")
+        info["leads_count"] = cur.fetchone()["c"]
+        conn.close()
+    except Exception:
+        pass
+    return info
