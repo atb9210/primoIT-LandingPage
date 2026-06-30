@@ -1,7 +1,10 @@
 # Deploy PrimoIT su Dokploy (tipo: Compose)
-# Persistenza DB SQLite: bind mount su ../files/ — la cartella "files" è il volume
-# persistente che Dokploy tiene separato dal codice e NON ricrea a ogni deploy
-# (il named volume invece veniva rigenerato, perdendo i deal).
+# Persistenza DB SQLite: NAMED VOLUME gestito da Docker (primoit_data).
+# I named volume sopravvivono ai redeploy (docker compose up --build li riusa).
+# Prima i dati sparivano perché il Dockerfile aveva `VOLUME /app/data` (volume
+# ANONIMO, ricreato a ogni deploy) che mascherava il mount: ora è stato rimosso.
+# Il bind mount relativo ../files/data non era affidabile su Dokploy (path che
+# cambia a ogni clone del repo).
 services:
   primoit:
     build:
@@ -25,4 +28,8 @@ services:
       ICECAT_SHOPNAME: ${ICECAT_SHOPNAME:-}
       ICECAT_LANG: ${ICECAT_LANG:-IT}
     volumes:
-      - ../files/data:/app/data   # ← bind mount persistente Dokploy (DB SQLite)
+      - primoit_data:/app/data   # named volume persistente (DB SQLite)
+
+volumes:
+  primoit_data:
+    name: primoit_data
