@@ -17,7 +17,7 @@ import html as _html
 from typing import Optional
 from urllib.parse import quote
 from fastapi.responses import HTMLResponse, RedirectResponse
-from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, get_deal, update_deal, get_icecat_overrides, upsert_icecat_override, delete_icecat_override, get_settings, set_settings, get_db_info
+from database import init_db, save_lead, get_leads, get_lead_stats, create_deal, get_deals, get_deal, update_deal, get_icecat_overrides, upsert_icecat_override, delete_icecat_override, get_settings, set_settings, get_db_info, create_inventory_item, get_inventory_items, get_inventory_item, update_inventory_item, delete_inventory_item
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -263,6 +263,61 @@ def _sell_net(cost_net: float, rules: dict) -> float:
     return _round_price(cost_net * (1 + pct / 100.0), rules.get("rounding"))
 
 
+# ── Magazzino proprio: prodotti PrimoIT che si fondono nel catalogo ──
+def _inventory_products(for_admin: bool) -> list:
+    """Prodotti a magazzino nella stessa forma del feed. Shop: prezzo vendita, no costo.
+    Admin: price=costo (per COSTMAP/profitto) + sell_price/active."""
+    rules = _markup_rules()
+    items = get_inventory_items(active_only=not for_admin)
+    out = []
+    for it in items:
+        p = dict(it.get("data") or {})
+        cost = it.get("cost")
+        p["id"] = it["sku"]
+        p["supplier"] = "primoit"
+        p["stock"] = it.get("stock") or 0
+        p.setdefault("availability", "Disponibile")
+        if not p.get("screen_short"):
+            p["screen_short"] = p.get("screen", "")
+        if not p.get("image"):
+            imgs = p.get("images") or []
+            p["image"] = imgs[0] if imgs else ""
+        if for_admin:
+            p["price"] = cost
+            p["price_incl"] = round(float(cost) * 1.22, 2) if cost is not None else None
+            p["sell_price"] = it.get("sell_price")
+            p["active"] = it.get("active")
+            p["cost"] = cost
+        else:
+            manual = it.get("sell_price")
+            sell = float(manual) if manual not in (None, "") else (
+                _sell_net(float(cost), rules) if cost is not None else None)
+            p["price"] = sell
+            p["price_incl"] = round(sell * 1.22, 2) if sell is not None else None
+        out.append(p)
+    return out
+
+
+def _merge_meta(meta: dict, extra_products: list) -> dict:
+    """Aggiunge il fornitore PrimoIT e i nuovi valori (brand/categorie/…) al meta dei filtri."""
+    if not extra_products:
+        return meta
+    m = dict(meta or {})
+    sup = list(m.get("suppliers") or [])
+    if not any(s.get("id") == "primoit" for s in sup):
+        sup = sup + [{"id": "primoit", "name": "Magazzino PrimoIT"}]
+    m["suppliers"] = sup
+    for field, key in [("brand", "brands"), ("category", "categories"),
+                       ("condition", "conditions"), ("grade", "grades"), ("gpu_type", "gpuTypes")]:
+        vals = list(m.get(key) or [])
+        for p in extra_products:
+            v = p.get(field)
+            if v and v not in vals:
+                vals.append(v)
+        m[key] = vals
+    return m
+
+
 @app.get("/api/shop/catalog")
 async def shop_catalog():
     """Catalogo PUBBLICO con il prezzo di VENDITA (markup applicato) e SENZA il costo fornitore."""
@@ -277,14 +332,136 @@ async def shop_catalog():
             q["price"] = sell                       # netto vendita (sostituisce il costo)
             q["price_incl"] = round(sell * 1.22, 2) # IVA inclusa
         out.append(q)
-    return {"catalog": out, "meta": meta}
+    inv = _inventory_products(for_admin=False)
+    out = inv + out                                 # i prodotti a magazzino in cima
+    return {"catalog": out, "meta": _merge_meta(meta, inv)}
 
 
 @app.get("/api/admin/catalog")
 async def admin_catalog(username: str = Depends(verify_admin)):
     """Catalogo COMPLETO (con il costo fornitore) per la dashboard markup e il calcolo profitto."""
     arr, meta = _load_catalog_full()
-    return {"catalog": arr, "meta": meta}
+    inv = _inventory_products(for_admin=True)
+    return {"catalog": inv + arr, "meta": _merge_meta(meta, inv)}
+
+
+# ── Icecat: recupero scheda prodotto server-side (per il "Recupera info" del magazzino) ──
+def _icecat_fetch(value: str, kind: str = None) -> dict:
+    """Scarica una scheda prodotto da Icecat Live JSON API. Identificatore: Product ID / EAN / codice."""
+    value = (value or "").strip()
+    if not value:
+        return {"ok": False, "error": "Nessun identificatore"}
+    shop = setting("icecat_shopname", ICECAT_SHOPNAME) or "openIcecat-live"
+    lang = ICECAT_LANG or "IT"
+    digits = value.isdigit()
+    if not kind:
+        if digits and 8 <= len(value) <= 14:
+            kind = "gtin"
+        elif digits:
+            kind = "icecat_id"
+        else:
+            kind = "productcode"
+    params = {"shopname": shop, "lang": lang, "content": "GeneralInfo,Image,Gallery,FeaturesGroups"}
+    if kind == "gtin":
+        params["GTIN"] = value
+    elif kind == "icecat_id":
+        params["icecat_id"] = value
+    else:
+        params["ProductCode"] = value
+    try:
+        r = requests.get("https://live.icecat.biz/api", params=params, timeout=20)
+        if r.status_code != 200:
+            return {"ok": False, "error": f"Icecat HTTP {r.status_code}"}
+        j = r.json()
+    except Exception as e:
+        return {"ok": False, "error": f"Icecat non raggiungibile ({e})"}
+    data = j.get("data") or {}
+    if not data:
+        return {"ok": False, "error": j.get("msg") or "Nessun dato Icecat per questo identificatore"}
+    gi = data.get("GeneralInfo") or {}
+    sd = gi.get("SummaryDescription") or {}
+    # immagini: principale + gallery, dedup mantenendo l'ordine
+    imgs = []
+    img = data.get("Image") or {}
+    for k in ("Pic500x500", "HighPic", "LowPic"):
+        if img.get(k):
+            imgs.append(img[k]); break
+    for g in (data.get("Gallery") or []):
+        u = g.get("Pic") or g.get("Pic500x500") or g.get("LowPic")
+        if u and u not in imgs:
+            imgs.append(u)
+    # specifiche best-effort dai FeaturesGroups
+    specs = {}
+    kw = {"cpu": ["processor", "cpu"], "ram": ["memory", "ram", "internal memory"],
+          "drive": ["ssd", "hdd", "storage", "total storage"], "screen": ["display diagonal", "screen"],
+          "os": ["operating system", "os"], "gpu": ["graphics", "discrete graphics", "gpu"]}
+    for grp in (data.get("FeaturesGroups") or []):
+        for f in (grp.get("Features") or []):
+            name = (((f.get("Feature") or {}).get("Name") or {}).get("Value") or "").strip().lower()
+            pv = (f.get("PresentationValue") or "").strip()
+            if not name or not pv:
+                continue
+            for field, keys in kw.items():
+                if field not in specs and any(k in name for k in keys):
+                    specs[field] = pv
+    return {
+        "ok": True,
+        "icecat_id": str(gi.get("IcecatId") or (value if kind == "icecat_id" else "")),
+        "title": gi.get("Title") or gi.get("ProductName") or "",
+        "brand": gi.get("Brand") or "",
+        "ean": gi.get("GTIN") or gi.get("EAN") or "",
+        "description": sd.get("LongSummaryDescription") or sd.get("ShortSummaryDescription") or "",
+        "short": sd.get("ShortSummaryDescription") or "",
+        "images": imgs,
+        "specs": specs,
+    }
+
+
+class IcecatFetchIn(BaseModel):
+    value: str
+    kind: Optional[str] = None
+
+
+@app.post("/api/admin/icecat-fetch")
+async def admin_icecat_fetch(body: IcecatFetchIn, username: str = Depends(verify_admin)):
+    """Recupera una scheda prodotto da Icecat (Product ID / EAN / codice produttore)."""
+    return _icecat_fetch(body.value, body.kind)
+
+
+# ── CRUD magazzino ──
+class InventoryIn(BaseModel):
+    cost: Optional[float] = None
+    sell_price: Optional[float] = None
+    stock: int = 1
+    active: bool = True
+    icecat_id: Optional[str] = None
+    data: dict = {}
+
+
+@app.get("/api/admin/inventory")
+async def admin_inventory_list(username: str = Depends(verify_admin)):
+    return {"items": get_inventory_items(active_only=False)}
+
+
+@app.post("/api/admin/inventory")
+async def admin_inventory_create(body: InventoryIn, username: str = Depends(verify_admin)):
+    sku = create_inventory_item(cost=body.cost, sell_price=body.sell_price, stock=body.stock,
+                                active=body.active, icecat_id=body.icecat_id, data=body.data)
+    return {"success": True, "sku": sku}
+
+
+@app.put("/api/admin/inventory/{sku}")
+async def admin_inventory_update(sku: str, body: InventoryIn, username: str = Depends(verify_admin)):
+    ok = update_inventory_item(sku, cost=body.cost, sell_price=body.sell_price, stock=body.stock,
+                               active=body.active, icecat_id=body.icecat_id, data=body.data)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Prodotto non trovato")
+    return {"success": True}
+
+
+@app.delete("/api/admin/inventory/{sku}")
+async def admin_inventory_delete(sku: str, username: str = Depends(verify_admin)):
+    return {"success": delete_inventory_item(sku)}
 
 
 @app.get("/api/share")

@@ -69,6 +69,20 @@ def init_db():
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
         )
     """)
+    # Magazzino proprio: prodotti comprati/tenuti da PrimoIT (oltre al feed Outclick)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS inventory_items (
+            sku TEXT PRIMARY KEY,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT,
+            active INTEGER NOT NULL DEFAULT 1,
+            cost REAL,
+            sell_price REAL,          -- NULL = usa il markup a fasce
+            stock INTEGER NOT NULL DEFAULT 1,
+            icecat_id TEXT,
+            data_json TEXT            -- resto scheda: title, brand, category, specs, images, ...
+        )
+    """)
     # migrazione DB esistenti: aggiungi details_json se manca
     try:
         cursor.execute("ALTER TABLE deals ADD COLUMN details_json TEXT")
@@ -348,6 +362,79 @@ def set_settings(values: Dict[str, str]) -> None:
         )
     conn.commit()
     conn.close()
+
+
+# ============ Magazzino proprio (inventory_items) ============
+
+def _inv_row(row) -> Dict:
+    r = dict(row)
+    try:
+        data = json.loads(r.get("data_json") or "{}")
+    except Exception:
+        data = {}
+    r["data"] = data
+    r["active"] = bool(r.get("active"))
+    return r
+
+def create_inventory_item(cost=None, sell_price=None, stock=1, active=1, icecat_id=None, data=None) -> str:
+    """Crea un prodotto a magazzino. Ritorna lo sku (PI-XXXXXX)."""
+    conn = get_db()
+    cursor = conn.cursor()
+    sku = "PI-" + secrets.token_hex(3).upper()
+    cursor.execute(
+        """INSERT INTO inventory_items (sku, cost, sell_price, stock, active, icecat_id, data_json, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
+        (sku, cost, sell_price, int(stock or 0), 1 if active else 0, icecat_id,
+         json.dumps(data or {}, ensure_ascii=False)),
+    )
+    conn.commit()
+    conn.close()
+    return sku
+
+def get_inventory_items(active_only: bool = False) -> List[Dict]:
+    conn = get_db()
+    cursor = conn.cursor()
+    if active_only:
+        cursor.execute("SELECT * FROM inventory_items WHERE active = 1 ORDER BY created_at DESC")
+    else:
+        cursor.execute("SELECT * FROM inventory_items ORDER BY created_at DESC")
+    rows = [_inv_row(r) for r in cursor.fetchall()]
+    conn.close()
+    return rows
+
+def get_inventory_item(sku: str) -> Optional[Dict]:
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM inventory_items WHERE sku = ?", (sku,))
+    row = cursor.fetchone()
+    conn.close()
+    return _inv_row(row) if row else None
+
+def update_inventory_item(sku: str, cost=None, sell_price=None, stock=1, active=1,
+                          icecat_id=None, data=None) -> bool:
+    """Overwrite completo della scheda (il form admin invia sempre tutti i campi)."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        """UPDATE inventory_items
+           SET cost=?, sell_price=?, stock=?, active=?, icecat_id=?, data_json=?, updated_at=datetime('now')
+           WHERE sku=?""",
+        (cost, sell_price if sell_price not in ("",) else None, int(stock or 0),
+         1 if active else 0, icecat_id, json.dumps(data or {}, ensure_ascii=False), sku),
+    )
+    conn.commit()
+    ok = cursor.rowcount > 0
+    conn.close()
+    return ok
+
+def delete_inventory_item(sku: str) -> bool:
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM inventory_items WHERE sku = ?", (sku,))
+    changed = cursor.rowcount > 0
+    conn.commit()
+    conn.close()
+    return changed
 
 
 # ============ Diagnostica persistenza DB ============

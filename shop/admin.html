@@ -104,6 +104,18 @@
   .mk-row .k{color:var(--muted);}
   .mk-row .v{font-weight:700;color:var(--navy);}
   .mk-row.big .v{font-size:1.05rem;color:var(--green,#1E9E5A);}
+  .inv-card{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;}
+  .inv-card:hover{border-color:var(--navy);}
+  .inv-card img{width:52px;height:52px;object-fit:contain;border-radius:8px;background:#F4F6FA;flex-shrink:0;}
+  .inv-card .info{flex:1;min-width:0;}
+  .inv-card .t{font-weight:700;font-size:.86rem;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .inv-card .m{font-size:.74rem;color:var(--muted);margin-top:2px;}
+  .inv-card .pr{text-align:right;white-space:nowrap;font-size:.82rem;}
+  .inv-card .pr b{color:var(--navy);}
+  .inv-badge{display:inline-block;border-radius:999px;padding:2px 7px;font-size:.62rem;font-weight:800;text-transform:uppercase;}
+  .inv-on{background:rgba(30,158,90,.14);color:#1E9E5A;}
+  .inv-off{background:#EEF1F6;color:var(--muted);}
+  #inv_thumbs img{width:44px;height:44px;object-fit:contain;border-radius:6px;background:#F4F6FA;border:1px solid var(--line);}
   .chk{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--muted);}
   .chk input{width:15px;height:15px;accent-color:var(--navy);}
   .vies-row{display:flex;gap:8px;align-items:flex-end;}
@@ -185,6 +197,7 @@
   <div class="stats" id="stats"></div>
   <div class="toolbar">
     <button id="tabDeals" class="active" onclick="showTab('deals')">Richieste</button>
+    <button id="tabMagazzino" onclick="showTab('magazzino')">Magazzino</button>
     <button id="tabMarkup" onclick="showTab('markup')">Markup</button>
     <button id="tabAzienda" onclick="showTab('azienda')">Azienda</button>
     <button id="tabTracking" onclick="showTab('tracking')">Tracking</button>
@@ -259,6 +272,55 @@
       <div id="db_status" class="muted-note">…</div>
     </div>
   </div>
+
+  <div class="icecat-panel" id="magazzinoPanel">
+    <div style="max-width:900px">
+      <div class="sec-title"><i class="fas fa-box"></i> <span id="invFormTitle">Nuovo prodotto a magazzino</span></div>
+      <input type="hidden" id="inv_sku">
+      <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px">
+        <div class="fld" style="margin:0;flex:1;min-width:220px"><label>Icecat Product ID / EAN / codice produttore</label>
+          <input id="inv_icecat" placeholder="es. 128684006 oppure EAN"></div>
+        <button class="btn-pdf" onclick="icecatRecupera()"><i class="fas fa-cloud-arrow-down"></i> Recupera info</button>
+        <span id="invIceMsg" class="muted-note" style="margin:0"></span>
+      </div>
+      <div class="grid2">
+        <div class="fld"><label>Titolo</label><input id="inv_title"></div>
+        <div class="fld"><label>Brand</label><input id="inv_brand"></div>
+        <div class="fld"><label>Categoria</label>
+          <select id="inv_category"><option>Laptop</option><option>Computer</option><option>Monitor</option><option>Tablet &amp; Smartphone</option><option>Accessori</option></select></div>
+        <div class="fld"><label>Condizione</label>
+          <select id="inv_condition"><option>Ricondizionato</option><option>Scatola aperta</option></select></div>
+        <div class="fld"><label>Grado</label><input id="inv_grade" placeholder="A / A- / B…"></div>
+        <div class="fld"><label>EAN</label><input id="inv_ean"></div>
+        <div class="fld"><label>CPU</label><input id="inv_cpu"></div>
+        <div class="fld"><label>RAM</label><input id="inv_ram"></div>
+        <div class="fld"><label>Disco</label><input id="inv_drive"></div>
+        <div class="fld"><label>Scheda video</label><input id="inv_gpu"></div>
+        <div class="fld"><label>Schermo</label><input id="inv_screen"></div>
+        <div class="fld"><label>Sistema operativo</label><input id="inv_os"></div>
+        <div class="fld"><label>Garanzia (mesi)</label><input id="inv_warranty" type="number"></div>
+      </div>
+      <div class="fld"><label>Immagini (una URL per riga · la prima è la principale)</label>
+        <textarea id="inv_images" rows="3" style="font-family:monospace;font-size:.78rem" oninput="invThumbs()"></textarea></div>
+      <div id="inv_thumbs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
+      <div class="fld"><label>Descrizione</label><textarea id="inv_desc" rows="4"></textarea></div>
+      <div class="sec-title"><i class="fas fa-euro-sign"></i> Prezzo &amp; disponibilità</div>
+      <div class="grid2">
+        <div class="fld"><label>Costo d'acquisto € (netto)</label><input id="inv_cost" type="number" step="0.01" oninput="invSellPreview()"></div>
+        <div class="fld"><label>Prezzo di vendita € (netto, opzionale)</label><input id="inv_sell" type="number" step="0.01" placeholder="vuoto = usa markup"></div>
+        <div class="fld"><label>Pezzi a stock</label><input id="inv_stock" type="number" value="1"></div>
+        <div class="fld"><label>Pubblicato nello shop</label>
+          <select id="inv_active"><option value="1">Sì</option><option value="0">No</option></select></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+        <button id="invSaveBtn" class="btn-primary" onclick="saveInventory()"><i class="fas fa-floppy-disk"></i> Salva prodotto</button>
+        <button class="btn-pdf" onclick="invNew()"><i class="fas fa-plus"></i> Nuovo</button>
+        <button id="invDelBtn" class="mng-btn" style="display:none" onclick="deleteInventory()"><i class="fas fa-trash"></i> Elimina</button>
+      </div>
+      <div class="sec-title"><i class="fas fa-warehouse"></i> Prodotti a magazzino <span class="count" id="invCount"></span></div>
+      <div id="invList"></div>
+    </div>
+  </div>
 </div>
 
 <div class="login" id="login">
@@ -317,6 +379,7 @@
   function showTab(tab){
     activeTab=tab;
     document.getElementById('tabDeals').classList.toggle('active', tab==='deals');
+    document.getElementById('tabMagazzino').classList.toggle('active', tab==='magazzino');
     document.getElementById('tabMarkup').classList.toggle('active', tab==='markup');
     document.getElementById('tabAzienda').classList.toggle('active', tab==='azienda');
     document.getElementById('tabTracking').classList.toggle('active', tab==='tracking');
@@ -324,11 +387,13 @@
     document.getElementById('stats').style.display = tab==='deals' ? '' : 'none';
     document.getElementById('filter').style.display = tab==='deals' ? '' : 'none';
     document.getElementById('count').style.display = tab==='deals' ? '' : 'none';
+    document.getElementById('magazzinoPanel').classList.toggle('open', tab==='magazzino');
     document.getElementById('markupPanel').classList.toggle('open', tab==='markup');
     document.getElementById('aziendaPanel').classList.toggle('open', tab==='azienda');
     document.getElementById('trackingPanel').classList.toggle('open', tab==='tracking');
     if(tab==='tracking') loadSettings();
     if(tab==='markup') loadMarkup();
+    if(tab==='magazzino') loadInventory();
     if(tab==='azienda'){ loadCompany(); loadDbStatus(); }
   }
 
@@ -539,6 +604,119 @@
   function profitHtml(d){
     var p=dealProfit(d); if(p==null) return '';
     return '<div class="deal-profit '+(p>0?'pos':'neg')+'">'+(p>=0?'+':'')+eur(p)+' utile</div>';
+  }
+
+  /* ── Magazzino proprio (inventory) ── */
+  var INV = {}; // sku -> item
+  function invEur(n){ return (n==null||n==='')?'—':eur(Number(n)); }
+  function invSellCalc(cost, sell){
+    if(sell!=null && sell!=='') return Number(sell);
+    if(cost==null||cost==='') return null;
+    return mkRound(Number(cost)*(1+mkPctFor(Number(cost))/100)); // MARKUP client-side
+  }
+  function loadInventory(){
+    api('/api/admin/inventory').then(function(d){
+      INV={}; (d.items||[]).forEach(function(it){ INV[it.sku]=it; });
+      renderInvList(d.items||[]);
+    }).catch(function(){});
+  }
+  function renderInvList(items){
+    document.getElementById('invCount').textContent=items.length+' prodotti';
+    if(!items.length){ document.getElementById('invList').innerHTML='<div class="empty">Nessun prodotto a magazzino. Compila il form sopra e salva.</div>'; return; }
+    document.getElementById('invList').innerHTML=items.map(function(it){
+      var d=it.data||{}, img=(d.images&&d.images[0])||d.image||'', sell=invSellCalc(it.cost,it.sell_price);
+      return '<div class="inv-card" onclick="invEdit(\''+it.sku+'\')">'
+        +(img?'<img src="'+esc(img)+'" onerror="this.style.visibility=\'hidden\'">':'<div style="width:52px;height:52px;background:#F4F6FA;border-radius:8px"></div>')
+        +'<div class="info"><div class="t">'+esc(d.title||it.sku)+'</div>'
+        +'<div class="m">'+esc(d.brand||'')+' · stock '+(it.stock||0)+' · '+esc(it.sku)+' <span class="inv-badge '+(it.active?'inv-on':'inv-off')+'">'+(it.active?'online':'offline')+'</span></div></div>'
+        +'<div class="pr">costo '+invEur(it.cost)+'<br><b>vendita '+invEur(sell)+'</b></div></div>';
+    }).join('');
+  }
+  function invNew(){
+    document.getElementById('invFormTitle').textContent='Nuovo prodotto a magazzino';
+    ['inv_sku','inv_icecat','inv_title','inv_brand','inv_grade','inv_ean','inv_cpu','inv_ram','inv_drive','inv_gpu','inv_screen','inv_os','inv_warranty','inv_images','inv_desc','inv_cost','inv_sell'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    document.getElementById('inv_category').value='Laptop';
+    document.getElementById('inv_condition').value='Ricondizionato';
+    document.getElementById('inv_stock').value='1';
+    document.getElementById('inv_active').value='1';
+    document.getElementById('invDelBtn').style.display='none';
+    document.getElementById('invIceMsg').textContent='';
+    invThumbs(); invSellPreview();
+  }
+  function invEdit(sku){
+    var it=INV[sku]; if(!it) return; var d=it.data||{};
+    document.getElementById('invFormTitle').textContent='Modifica '+sku;
+    document.getElementById('inv_sku').value=sku;
+    document.getElementById('inv_icecat').value=it.icecat_id||'';
+    setVal('inv_title',d.title); setVal('inv_brand',d.brand);
+    document.getElementById('inv_category').value=d.category||'Laptop';
+    document.getElementById('inv_condition').value=d.condition||'Ricondizionato';
+    setVal('inv_grade',d.grade); setVal('inv_ean',d.ean); setVal('inv_cpu',d.cpu); setVal('inv_ram',d.ram);
+    setVal('inv_drive',d.drive); setVal('inv_gpu',d.gpu); setVal('inv_screen',d.screen); setVal('inv_os',d.os);
+    setVal('inv_warranty',d.warranty); setVal('inv_images',(d.images||[]).join('\n')); setVal('inv_desc',d.description);
+    setVal('inv_cost',it.cost); setVal('inv_sell',it.sell_price); setVal('inv_stock',it.stock);
+    document.getElementById('inv_active').value=it.active?'1':'0';
+    document.getElementById('invDelBtn').style.display='';
+    document.getElementById('invIceMsg').textContent='';
+    invThumbs(); invSellPreview();
+    document.getElementById('magazzinoPanel').scrollIntoView({behavior:'smooth'});
+  }
+  function invThumbs(){
+    var urls=(document.getElementById('inv_images').value||'').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+    document.getElementById('inv_thumbs').innerHTML=urls.slice(0,8).map(function(u){return '<img src="'+esc(u)+'" onerror="this.style.display=\'none\'">';}).join('');
+  }
+  function invSellPreview(){
+    var s=invSellCalc(document.getElementById('inv_cost').value,'');
+    document.getElementById('inv_sell').placeholder = s!=null?('vuoto = '+eur(s)+' (markup)'):'vuoto = usa markup';
+  }
+  function icecatRecupera(){
+    var v=val('inv_icecat'); if(!v){ alert('Inserisci un Product ID, EAN o codice.'); return; }
+    var msg=document.getElementById('invIceMsg'); msg.textContent='Recupero da Icecat…';
+    api('/api/admin/icecat-fetch',{method:'POST',body:JSON.stringify({value:v})}).then(function(r){
+      if(!r.ok){ msg.textContent='⚠️ '+(r.error||'Nessun dato'); return; }
+      if(r.title) setVal('inv_title',r.title);
+      if(r.brand) setVal('inv_brand',r.brand);
+      if(r.ean) setVal('inv_ean',r.ean);
+      if(r.icecat_id) setVal('inv_icecat',r.icecat_id);
+      if(r.description) setVal('inv_desc',r.description);
+      if(r.images&&r.images.length) setVal('inv_images',r.images.join('\n'));
+      var sp=r.specs||{};
+      if(sp.cpu) setVal('inv_cpu',sp.cpu); if(sp.ram) setVal('inv_ram',sp.ram); if(sp.drive) setVal('inv_drive',sp.drive);
+      if(sp.screen) setVal('inv_screen',sp.screen); if(sp.os) setVal('inv_os',sp.os); if(sp.gpu) setVal('inv_gpu',sp.gpu);
+      invThumbs();
+      msg.textContent='✓ Info recuperate'+(Object.keys(sp).length?'':' (specifiche non disponibili con questo account)');
+    }).catch(function(){ msg.textContent='⚠️ Errore recupero'; });
+  }
+  function invGather(){
+    var images=(document.getElementById('inv_images').value||'').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+    var data={ title:val('inv_title'), brand:val('inv_brand'), category:document.getElementById('inv_category').value,
+      condition:document.getElementById('inv_condition').value, grade:val('inv_grade'), ean:val('inv_ean'),
+      cpu:val('inv_cpu'), ram:val('inv_ram'), drive:val('inv_drive'), gpu:val('inv_gpu'), screen:val('inv_screen'),
+      os:val('inv_os'), warranty:Number(val('inv_warranty'))||0, images:images, image:images[0]||'',
+      description:document.getElementById('inv_desc').value };
+    var cost=val('inv_cost'), sell=val('inv_sell');
+    return { cost:cost===''?null:Number(cost), sell_price:sell===''?null:Number(sell),
+      stock:Number(val('inv_stock'))||0, active:document.getElementById('inv_active').value==='1',
+      icecat_id:val('inv_icecat'), data:data };
+  }
+  function saveInventory(){
+    var body=invGather();
+    if(!body.data.title){ alert('Metti almeno il titolo.'); return; }
+    var sku=val('inv_sku');
+    var req = sku ? api('/api/admin/inventory/'+encodeURIComponent(sku),{method:'PUT',body:JSON.stringify(body)})
+                  : api('/api/admin/inventory',{method:'POST',body:JSON.stringify(body)});
+    req.then(function(r){
+      var b=document.getElementById('invSaveBtn'); if(b){ b.textContent='Salvato ✓'; setTimeout(function(){ b.innerHTML='<i class="fas fa-floppy-disk"></i> Salva prodotto'; },1500); }
+      if(!sku && r.sku){ document.getElementById('inv_sku').value=r.sku; document.getElementById('invDelBtn').style.display=''; }
+      loadInventory(); loadCatalog();
+    }).catch(function(){ alert('Errore nel salvataggio.'); });
+  }
+  function deleteInventory(){
+    var sku=val('inv_sku'); if(!sku) return;
+    if(!confirm('Eliminare questo prodotto dal magazzino?')) return;
+    api('/api/admin/inventory/'+encodeURIComponent(sku),{method:'DELETE'}).then(function(){
+      invNew(); loadInventory(); loadCatalog();
+    }).catch(function(){ alert('Errore eliminazione.'); });
   }
 
   function load(){
