@@ -138,6 +138,14 @@
   .det-desc table{width:100%!important;display:block;overflow-x:auto;}
   .det-desc h2,.det-desc h3{font-size:1rem;margin:12px 0 6px;color:var(--navy);}
   .det-desc ul{padding-left:20px;} .det-desc p{margin:6px 0;}
+  .det-pdf{display:inline-flex;align-items:center;gap:8px;margin-top:12px;background:#fff;border:1.5px solid var(--navy);color:var(--navy);border-radius:9px;padding:9px 14px;font-weight:700;font-size:.82rem;text-decoration:none;}
+  .det-pdf:hover{background:#F4F6FA;} .det-pdf i{color:#D33;}
+  .det-sheet{padding:14px 20px;border-top:1px solid var(--line);}
+  .det-sheet>summary{font-weight:800;color:var(--navy);cursor:pointer;font-size:.9rem;list-style:none;}
+  .det-sheet>summary::-webkit-details-marker{display:none;}
+  .det-sheet>summary::before{content:'▸ ';color:var(--muted);}
+  .det-sheet[open]>summary::before{content:'▾ ';}
+  .det-sheet-g{font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:12px 0 3px;}
   .ice-head .t{overflow-wrap:anywhere;}
   .det-short{overflow-wrap:anywhere;}
   .det-foot{border-top:1px solid var(--line);padding:14px 20px;position:sticky;bottom:0;background:#fff;}
@@ -798,12 +806,24 @@
       + detRow('SKU',p.id)
       + '</table>';
     var price = p.price!=null ? '<div class="det-price">'+eur(p.price)+' <small>+IVA</small>'+(p.price_incl!=null?' &nbsp;·&nbsp; '+eur(p.price_incl)+' IVA incl.':'')+'</div>' : '';
+    var brochure = p.brochure ? '<a class="det-pdf" href="'+esc(p.brochure)+'" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> Scheda prodotto (PDF)</a>' : '';
+    var sheet='';
+    if(p.specs_full && p.specs_full.length){
+      var groups={}, order=[];
+      p.specs_full.forEach(function(s){ if(!groups[s.group]){ groups[s.group]=[]; order.push(s.group); } groups[s.group].push(s); });
+      sheet='<details class="det-sheet"><summary>Scheda tecnica completa ('+p.specs_full.length+' voci)</summary>'
+        + order.map(function(g){ return '<div class="det-sheet-g">'+esc(g)+'</div><table class="det-specs">'
+            + groups[g].map(function(s){ return '<tr><td>'+esc(s.name)+'</td><td>'+esc(s.value)+'</td></tr>'; }).join('')
+            + '</table>'; }).join('')
+        + '</details>';
+    }
     var addBtn='<button class="cfg-add" onclick="closeDetail();addAction(\''+p.id+'\')"><i class="fas fa-cart-plus"></i> '+(inCart(p.id)?'✓ Nel carrello':'Aggiungi al carrello')+'</button>';
     box.innerHTML='<div class="ice-head"><div><div class="t">'+esc(p.title)+'</div><div class="s">'+esc(p.brand)+' · SKU '+esc(p.id)+(p.ean?' · EAN '+esc(p.ean):'')+'</div></div><div class="head-actions"><button class="head-share" title="Condividi" onclick="shareProduct(\''+p.id+'\')"><i class="fas fa-share-nodes"></i></button><button onclick="closeDetail()">✕</button></div></div>'
       + '<div class="ice-body det-body">'
-      +   '<div class="det-top">'+gallery+'<div class="det-info">'+price+specs+'</div></div>'
+      +   '<div class="det-top">'+gallery+'<div class="det-info">'+price+specs+brochure+'</div></div>'
       +   (p.short_desc?'<div class="det-short">'+esc(p.short_desc)+'</div>':'')
       +   (p.description?'<div class="det-desc">'+p.description+'</div>':'')
+      +   sheet
       + '</div>'
       + '<div class="det-foot">'+addBtn+'</div>';
   }

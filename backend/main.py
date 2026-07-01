@@ -346,6 +346,36 @@ async def admin_catalog(username: str = Depends(verify_admin)):
 
 
 # ── Icecat: recupero scheda prodotto server-side (per il "Recupera info" del magazzino) ──
+def _ice_inch(s: str) -> str:
+    """'35,6 cm (14")' -> '14″'."""
+    m = re.search(r'\(([\d.,]+)\s*["″\']', s or "") or re.search(r'([\d.,]+)\s*["″\']', s or "")
+    if not m:
+        return ""
+    n = m.group(1).replace(",", ".")
+    if "." in n:
+        n = n.rstrip("0").rstrip(".")
+    return n + "″"
+
+def _ice_res_label(res: str) -> str:
+    """'1920 x 1080' -> 'FHD'. Se non riconosciuta, ritorna ''."""
+    m = re.search(r"(\d{3,4})\s*[x×]\s*(\d{3,4})", res or "")
+    if not m:
+        return ""
+    w, h = int(m.group(1)), int(m.group(2))
+    table = {(1366, 768): "HD", (1280, 720): "HD", (1600, 900): "HD+", (1920, 1080): "FHD",
+             (1920, 1200): "WUXGA", (2560, 1440): "QHD", (2560, 1600): "QHD+",
+             (2880, 1800): "2.8K", (3000, 2000): "3K", (3840, 2160): "4K", (3456, 2160): "4K"}
+    if (w, h) in table:
+        return table[(w, h)]
+    if h >= 2000:
+        return "4K"
+    if h >= 1400:
+        return "QHD"
+    if h >= 1080:
+        return "FHD"
+    return ""
+
+
 def _icecat_call(params: dict, shop: str):
     """Una chiamata all'API Icecat Live con uno shopname. Ritorna (json|None, error|None)."""
     p = dict(params); p["shopname"] = shop
@@ -427,25 +457,57 @@ def _icecat_fetch(value: str, kind: str = None, brand: str = None) -> dict:
         "gpu": ["modello scheda grafica", "scheda grafica", "adattatore grafico", "graphics", "gpu"],
     }
     bad_vals = {"sì", "si", "no", "yes", "true", "false", "64-bit", "32-bit", "0", "-"}
+    specs_full = []          # scheda completa: [{group, name, value}]
+    resolution = ""
     for grp in (data.get("FeaturesGroups") or []):
+        gname = (((grp.get("FeatureGroup") or {}).get("Name") or {}).get("Value") or "").strip()
         for f in (grp.get("Features") or []):
-            name = (((f.get("Feature") or {}).get("Name") or {}).get("Value") or "").strip().lower()
+            raw_name = (((f.get("Feature") or {}).get("Name") or {}).get("Value") or "").strip()
+            name = raw_name.lower()
             pv = (f.get("PresentationValue") or "").strip()
-            if not name or not pv or pv.lower() in bad_vals:
+            if not raw_name or not pv:
+                continue
+            specs_full.append({"group": gname, "name": raw_name, "value": pv})
+            # risoluzione display (non fotocamera)
+            if not resolution and "risoluzione" in name and "fotocamer" not in name and "camera" not in name:
+                resolution = pv
+            if pv.lower() in bad_vals:
                 continue
             for field, keys in kw.items():
                 if field not in specs and any(k in name for k in keys):
                     specs[field] = pv
+    # schermo nel formato dello shop: pollici (+ risoluzione breve)
+    inch = _ice_inch(specs.get("screen", ""))
+    reslabel = _ice_res_label(resolution)
+    screen_short = (inch + " · " + reslabel) if (inch and reslabel) else (inch or reslabel or specs.get("screen", ""))
+    # brochure PDF (Multimedia leaflet/datasheet/manual)
+    brochure = ""
+    for m in (data.get("Multimedia") or []):
+        ct = (m.get("ContentType") or "").lower()
+        url = m.get("URL") or ""
+        if "pdf" in ct or url.lower().endswith(".pdf") or (m.get("Type") or "").lower() in ("leaflet", "datasheet", "manual"):
+            brochure = url
+            if (m.get("Type") or "").lower() in ("leaflet", "datasheet"):
+                break
+    # descrizione: preferisci il marketing (Description.LongDesc), poi il riassunto lungo
+    gdesc = gi.get("Description") or {}
+    description = (gdesc.get("LongDesc") or gdesc.get("MiddleDesc") or
+                  sd.get("LongSummaryDescription") or sd.get("ShortSummaryDescription") or "")
     return {
         "ok": True,
         "icecat_id": str(gi.get("IcecatId") or (value if kind == "icecat_id" else "")),
         "title": gi.get("Title") or gi.get("ProductName") or "",
         "brand": gi.get("Brand") or "",
         "ean": gi.get("GTIN") or gi.get("EAN") or "",
-        "description": sd.get("LongSummaryDescription") or sd.get("ShortSummaryDescription") or "",
+        "description": description,
         "short": sd.get("ShortSummaryDescription") or "",
         "images": imgs[:10],
         "specs": specs,
+        "screen": inch or specs.get("screen", ""),
+        "screen_short": screen_short,
+        "resolution": resolution,
+        "specs_full": specs_full,
+        "brochure": brochure,
     }
 
 

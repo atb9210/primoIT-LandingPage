@@ -303,6 +303,7 @@
       <div class="fld"><label>Immagini (una URL per riga · la prima è la principale)</label>
         <textarea id="inv_images" rows="3" style="font-family:monospace;font-size:.78rem" oninput="invThumbs()"></textarea></div>
       <div id="inv_thumbs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
+      <div class="fld"><label>Brochure PDF (URL, opzionale)</label><input id="inv_pdf" placeholder="https://…"></div>
       <div class="fld"><label>Descrizione</label><textarea id="inv_desc" rows="4"></textarea></div>
       <div class="sec-title"><i class="fas fa-euro-sign"></i> Prezzo &amp; disponibilità</div>
       <div class="grid2">
@@ -608,6 +609,7 @@
 
   /* ── Magazzino proprio (inventory) ── */
   var INV = {}; // sku -> item
+  var invExtra = {}; // scheda completa/risoluzione/screen_short recuperati da Icecat (non editabili a mano)
   function invEur(n){ return (n==null||n==='')?'—':eur(Number(n)); }
   function invSellCalc(cost, sell){
     if(sell!=null && sell!=='') return Number(sell);
@@ -634,13 +636,14 @@
   }
   function invNew(){
     document.getElementById('invFormTitle').textContent='Nuovo prodotto a magazzino';
-    ['inv_sku','inv_icecat','inv_title','inv_brand','inv_grade','inv_ean','inv_cpu','inv_ram','inv_drive','inv_gpu','inv_screen','inv_os','inv_warranty','inv_images','inv_desc','inv_cost','inv_sell'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    ['inv_sku','inv_icecat','inv_title','inv_brand','inv_grade','inv_ean','inv_cpu','inv_ram','inv_drive','inv_gpu','inv_screen','inv_os','inv_warranty','inv_images','inv_pdf','inv_desc','inv_cost','inv_sell'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
     document.getElementById('inv_category').value='Laptop';
     document.getElementById('inv_condition').value='Ricondizionato';
     document.getElementById('inv_stock').value='1';
     document.getElementById('inv_active').value='1';
     document.getElementById('invDelBtn').style.display='none';
     document.getElementById('invIceMsg').textContent='';
+    invExtra={};
     invThumbs(); invSellPreview();
   }
   function invEdit(sku){
@@ -654,10 +657,12 @@
     setVal('inv_grade',d.grade); setVal('inv_ean',d.ean); setVal('inv_cpu',d.cpu); setVal('inv_ram',d.ram);
     setVal('inv_drive',d.drive); setVal('inv_gpu',d.gpu); setVal('inv_screen',d.screen); setVal('inv_os',d.os);
     setVal('inv_warranty',d.warranty); setVal('inv_images',(d.images||[]).join('\n')); setVal('inv_desc',d.description);
+    setVal('inv_pdf',d.brochure);
     setVal('inv_cost',it.cost); setVal('inv_sell',it.sell_price); setVal('inv_stock',it.stock);
     document.getElementById('inv_active').value=it.active?'1':'0';
     document.getElementById('invDelBtn').style.display='';
     document.getElementById('invIceMsg').textContent='';
+    invExtra={ specs_full:d.specs_full||[], resolution:d.resolution||'', screen_short:d.screen_short||'' };
     invThumbs(); invSellPreview();
     document.getElementById('magazzinoPanel').scrollIntoView({behavior:'smooth'});
   }
@@ -680,19 +685,25 @@
       if(r.icecat_id) setVal('inv_icecat',r.icecat_id);
       if(r.description) setVal('inv_desc',r.description);
       if(r.images&&r.images.length) setVal('inv_images',r.images.join('\n'));
+      if(r.brochure) setVal('inv_pdf',r.brochure);
       var sp=r.specs||{};
       if(sp.cpu) setVal('inv_cpu',sp.cpu); if(sp.ram) setVal('inv_ram',sp.ram); if(sp.drive) setVal('inv_drive',sp.drive);
-      if(sp.screen) setVal('inv_screen',sp.screen); if(sp.os) setVal('inv_os',sp.os); if(sp.gpu) setVal('inv_gpu',sp.gpu);
+      if(r.screen||sp.screen) setVal('inv_screen',r.screen||sp.screen); if(sp.os) setVal('inv_os',sp.os); if(sp.gpu) setVal('inv_gpu',sp.gpu);
+      invExtra={ specs_full:r.specs_full||[], resolution:r.resolution||'', screen_short:r.screen_short||'' };
       invThumbs();
-      msg.textContent='✓ Info recuperate'+(Object.keys(sp).length?'':' (specifiche non disponibili con questo account)');
+      var nsheet=(r.specs_full||[]).length;
+      msg.textContent='✓ Recuperato'+(nsheet?' · '+nsheet+' specifiche':'')+(r.brochure?' · brochure PDF':'');
     }).catch(function(){ msg.textContent='⚠️ Errore recupero'; });
   }
   function invGather(){
     var images=(document.getElementById('inv_images').value||'').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+    var screen=val('inv_screen');
     var data={ title:val('inv_title'), brand:val('inv_brand'), category:document.getElementById('inv_category').value,
       condition:document.getElementById('inv_condition').value, grade:val('inv_grade'), ean:val('inv_ean'),
-      cpu:val('inv_cpu'), ram:val('inv_ram'), drive:val('inv_drive'), gpu:val('inv_gpu'), screen:val('inv_screen'),
+      cpu:val('inv_cpu'), ram:val('inv_ram'), drive:val('inv_drive'), gpu:val('inv_gpu'), screen:screen,
+      screen_short:invExtra.screen_short||screen, resolution:invExtra.resolution||'',
       os:val('inv_os'), warranty:Number(val('inv_warranty'))||0, images:images, image:images[0]||'',
+      brochure:val('inv_pdf'), specs_full:invExtra.specs_full||[],
       description:document.getElementById('inv_desc').value };
     var cost=val('inv_cost'), sell=val('inv_sell');
     return { cost:cost===''?null:Number(cost), sell_price:sell===''?null:Number(sell),
