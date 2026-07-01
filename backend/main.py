@@ -346,35 +346,60 @@ async def admin_catalog(username: str = Depends(verify_admin)):
 
 
 # ── Icecat: recupero scheda prodotto server-side (per il "Recupera info" del magazzino) ──
-def _icecat_fetch(value: str, kind: str = None) -> dict:
+def _icecat_call(params: dict, shop: str):
+    """Una chiamata all'API Icecat Live con uno shopname. Ritorna (json|None, error|None)."""
+    p = dict(params); p["shopname"] = shop
+    try:
+        r = requests.get("https://live.icecat.biz/api", params=p, timeout=20)
+    except Exception as e:
+        return None, f"Icecat non raggiungibile ({e})"
+    try:
+        j = r.json()
+    except Exception:
+        j = {}
+    if r.status_code != 200 or (j.get("data") in (None, {}) and j.get("Message")):
+        return None, (j.get("Message") or j.get("msg") or f"Icecat HTTP {r.status_code}")
+    return j, None
+
+
+def _icecat_fetch(value: str, kind: str = None, brand: str = None) -> dict:
     """Scarica una scheda prodotto da Icecat Live JSON API. Identificatore: Product ID / EAN / codice."""
     value = (value or "").strip()
+    brand = (brand or "").strip()
     if not value:
         return {"ok": False, "error": "Nessun identificatore"}
-    shop = setting("icecat_shopname", ICECAT_SHOPNAME) or "openIcecat-live"
     lang = ICECAT_LANG or "IT"
     digits = value.isdigit()
-    if not kind:
-        if digits and 8 <= len(value) <= 14:
-            kind = "gtin"
-        elif digits:
-            kind = "icecat_id"
-        else:
-            kind = "productcode"
-    params = {"shopname": shop, "lang": lang, "content": "GeneralInfo,Image,Gallery,FeaturesGroups"}
+    # varianti identificatore da provare (un numero è ambiguo tra Product ID ed EAN)
     if kind == "gtin":
-        params["GTIN"] = value
+        variants = [{"GTIN": value}]
     elif kind == "icecat_id":
-        params["icecat_id"] = value
+        variants = [{"icecat_id": value}]
+    elif kind == "productcode" or not digits:
+        if not brand:
+            return {"ok": False, "error": "Per il codice produttore serve anche il Brand: compila il campo Brand e riprova."}
+        variants = [{"Brand": brand, "ProductCode": value}]
     else:
-        params["ProductCode"] = value
-    try:
-        r = requests.get("https://live.icecat.biz/api", params=params, timeout=20)
-        if r.status_code != 200:
-            return {"ok": False, "error": f"Icecat HTTP {r.status_code}"}
-        j = r.json()
-    except Exception as e:
-        return {"ok": False, "error": f"Icecat non raggiungibile ({e})"}
+        idv, gv = {"icecat_id": value}, {"GTIN": value}
+        variants = [gv, idv] if len(value) in (12, 13, 14) else [idv, gv]  # EAN tipico 12-14 cifre
+    base = {"lang": lang}  # niente 'content': col demo, filtrarlo azzera le FeaturesGroups
+    # shopname: configurato poi demo Open Icecat (se il configurato è sconosciuto/scaduto)
+    configured = (setting("icecat_shopname", ICECAT_SHOPNAME) or "").strip()
+    seen, shops = set(), []
+    for s in [configured, "openIcecat-live"]:
+        if s and s not in seen:
+            seen.add(s); shops.append(s)
+    j, err = None, None
+    for idp in variants:
+        for shop in shops:
+            jj, e = _icecat_call({**base, **idp}, shop)
+            if jj:
+                j = jj; break
+            err = e or err
+        if j:
+            break
+    if not j:
+        return {"ok": False, "error": err or "Nessun dato Icecat per questo identificatore"}
     data = j.get("data") or {}
     if not data:
         return {"ok": False, "error": j.get("msg") or "Nessun dato Icecat per questo identificatore"}
@@ -390,16 +415,23 @@ def _icecat_fetch(value: str, kind: str = None) -> dict:
         u = g.get("Pic") or g.get("Pic500x500") or g.get("LowPic")
         if u and u not in imgs:
             imgs.append(u)
-    # specifiche best-effort dai FeaturesGroups
+    # specifiche best-effort dai FeaturesGroups (nomi feature in lingua ICECAT_LANG → keyword IT+EN)
     specs = {}
-    kw = {"cpu": ["processor", "cpu"], "ram": ["memory", "ram", "internal memory"],
-          "drive": ["ssd", "hdd", "storage", "total storage"], "screen": ["display diagonal", "screen"],
-          "os": ["operating system", "os"], "gpu": ["graphics", "discrete graphics", "gpu"]}
+    kw = {
+        "cpu": ["modello del processore", "famiglia processore", "processore", "processor", "cpu"],
+        "ram": ["memoria interna", "internal memory", "capacità ram"],
+        "drive": ["capacità totale di archiviazione", "capacità ssd", "capacità hdd",
+                  "unità a stato solido", "ssd", "hdd", "hard disk", "total storage", "storage"],
+        "screen": ["dimensioni diagonale schermo", "diagonale schermo", "display diagonal", "screen size"],
+        "os": ["sistema operativo installato", "sistema operativo", "operating system"],
+        "gpu": ["modello scheda grafica", "scheda grafica", "adattatore grafico", "graphics", "gpu"],
+    }
+    bad_vals = {"sì", "si", "no", "yes", "true", "false", "64-bit", "32-bit", "0", "-"}
     for grp in (data.get("FeaturesGroups") or []):
         for f in (grp.get("Features") or []):
             name = (((f.get("Feature") or {}).get("Name") or {}).get("Value") or "").strip().lower()
             pv = (f.get("PresentationValue") or "").strip()
-            if not name or not pv:
+            if not name or not pv or pv.lower() in bad_vals:
                 continue
             for field, keys in kw.items():
                 if field not in specs and any(k in name for k in keys):
@@ -412,7 +444,7 @@ def _icecat_fetch(value: str, kind: str = None) -> dict:
         "ean": gi.get("GTIN") or gi.get("EAN") or "",
         "description": sd.get("LongSummaryDescription") or sd.get("ShortSummaryDescription") or "",
         "short": sd.get("ShortSummaryDescription") or "",
-        "images": imgs,
+        "images": imgs[:10],
         "specs": specs,
     }
 
@@ -420,12 +452,13 @@ def _icecat_fetch(value: str, kind: str = None) -> dict:
 class IcecatFetchIn(BaseModel):
     value: str
     kind: Optional[str] = None
+    brand: Optional[str] = None
 
 
 @app.post("/api/admin/icecat-fetch")
 async def admin_icecat_fetch(body: IcecatFetchIn, username: str = Depends(verify_admin)):
     """Recupera una scheda prodotto da Icecat (Product ID / EAN / codice produttore)."""
-    return _icecat_fetch(body.value, body.kind)
+    return _icecat_fetch(body.value, body.kind, body.brand)
 
 
 # ── CRUD magazzino ──

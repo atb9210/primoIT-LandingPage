@@ -672,7 +672,7 @@
   function icecatRecupera(){
     var v=val('inv_icecat'); if(!v){ alert('Inserisci un Product ID, EAN o codice.'); return; }
     var msg=document.getElementById('invIceMsg'); msg.textContent='Recupero da Icecat…';
-    api('/api/admin/icecat-fetch',{method:'POST',body:JSON.stringify({value:v})}).then(function(r){
+    api('/api/admin/icecat-fetch',{method:'POST',body:JSON.stringify({value:v, brand:val('inv_brand')})}).then(function(r){
       if(!r.ok){ msg.textContent='⚠️ '+(r.error||'Nessun dato'); return; }
       if(r.title) setVal('inv_title',r.title);
       if(r.brand) setVal('inv_brand',r.brand);
